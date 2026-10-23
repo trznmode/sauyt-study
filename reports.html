@@ -1,0 +1,2224 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Учебная шахматка</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Unbounded:wght@500;700&display=swap">
+<style>
+/* Layout: стойка ресепшн — тёмная консоль сверху, шахматка как главная доска слева, бланки отчётов справа */
+:root{
+  --bg:#EBF0F2; --surface:#FFFFFF; --surface-2:#F4F7F8; --ink:#132430; --ink-2:#536470; --ink-3:#7D8C96;
+  --line:#D2DBE0; --line-2:#E3E9EC;
+  --accent:#0A6C8B; --accent-ink:#FFFFFF; --accent-soft:#D3E9F1; --accent-ink-soft:#074E66;
+  --gold:#C28E22; --gold-ink:#1E1505; --gold-soft:#F7EACB; --gold-ink-soft:#6E4A06;
+  --ok:#1B7A4B; --ok-soft:#D9EFE2; --bad:#B3291F; --bad-soft:#F8DDD9; --warn:#8F5600; --warn-soft:#F6E5CB;
+  --bar-out:#CAD3D8; --bar-out-ink:#43535D; --ooo:#3A4650; --ooo-2:#4A5762; --ooo-ink:#F1F4F6; --weekend:#F1EEE4;
+  --console:#10202A; --console-2:#1A2F3B; --console-line:#284351; --console-ink:#E5EEF2; --console-ink-2:#97ABB6;
+  --m-in:#2E9BC0; --m-out:#3B4F5B; --m-ns:#E0675C; --m-ooo:#5D6C77; --live-on:#4CC38A; --live-off:#F07A6E;
+  --shadow:0 1px 2px rgba(16,32,42,.05),0 6px 20px rgba(16,32,42,.06);
+  --f-display:"Unbounded","Golos Text",system-ui,sans-serif;
+  --f-body:"Golos Text",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C151A; --surface:#132028; --surface-2:#182832; --ink:#E1E9ED; --ink-2:#9BAEB9; --ink-3:#6F838E;
+    --line:#29404C; --line-2:#1F323C;
+    --accent:#3CA6C8; --accent-ink:#04202A; --accent-soft:#123A4A; --accent-ink-soft:#A5DAEC;
+    --gold:#E1B14A; --gold-ink:#1E1505; --gold-soft:#33290F; --gold-ink-soft:#EBCB86;
+    --ok:#52C78F; --ok-soft:#133426; --bad:#F27D72; --bad-soft:#3C1915; --warn:#E8A74A; --warn-soft:#38270F;
+    --bar-out:#33454F; --bar-out-ink:#B9C6CD; --ooo:#5B6974; --ooo-2:#4B5862; --ooo-ink:#0C151A; --weekend:#16232B;
+    --console:#081117; --console-2:#13232D; --console-line:#1F3542;
+    --shadow:none;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C151A; --surface:#132028; --surface-2:#182832; --ink:#E1E9ED; --ink-2:#9BAEB9; --ink-3:#6F838E;
+  --line:#29404C; --line-2:#1F323C;
+  --accent:#3CA6C8; --accent-ink:#04202A; --accent-soft:#123A4A; --accent-ink-soft:#A5DAEC;
+  --gold:#E1B14A; --gold-ink:#1E1505; --gold-soft:#33290F; --gold-ink-soft:#EBCB86;
+  --ok:#52C78F; --ok-soft:#133426; --bad:#F27D72; --bad-soft:#3C1915; --warn:#E8A74A; --warn-soft:#38270F;
+  --bar-out:#33454F; --bar-out-ink:#B9C6CD; --ooo:#5B6974; --ooo-2:#4B5862; --ooo-ink:#0C151A; --weekend:#16232B;
+  --console:#081117; --console-2:#13232D; --console-line:#1F3542;
+  --shadow:none;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+#app{height:100%}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--ink-2)}
+.small{font-size:12px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- кнопки ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:36px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:600;font-size:14px;white-space:nowrap;transition:filter .15s,border-color .15s}
+.btn:hover:not([disabled]){border-color:var(--ink-3)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn svg{width:18px;height:18px;flex:none}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn-primary:hover:not([disabled]){filter:brightness(1.08);border-color:var(--accent)}
+.btn-gen{background:var(--gold);border-color:var(--gold);color:var(--gold-ink)}
+.btn-gen:hover:not([disabled]){filter:brightness(1.07);border-color:var(--gold)}
+.btn-light{background:var(--console-ink);border-color:var(--console-ink);color:var(--console)}
+.btn-light:hover:not([disabled]){filter:brightness(.94);border-color:var(--console-ink)}
+.btn-ghost{background:transparent;border-color:var(--console-line);color:var(--console-ink-2)}
+.btn-ghost:hover:not([disabled]){border-color:var(--console-ink-2);color:var(--console-ink)}
+.btn-danger{color:var(--bad);border-color:var(--bad);background:var(--surface)}
+.btn-lg{min-height:46px;font-size:15px;padding:0 22px}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:3px;text-align:left}
+
+/* ---------- стартовый экран ---------- */
+.start{min-height:100%;display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr)}
+.start-intro{background:var(--console);color:var(--console-ink);padding-block:clamp(28px,5vw,64px);padding-inline:clamp(16px,5vw,64px);display:flex;flex-direction:column;gap:28px;justify-content:center}
+.brand{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--console-ink-2);letter-spacing:.02em}
+.brand-key{width:32px;height:32px;border-radius:8px;background:var(--gold);color:var(--gold-ink);display:grid;place-items:center;flex:none}
+.brand-key svg{width:18px;height:18px}
+.display{font-family:var(--f-display);font-weight:700;font-size:clamp(32px,4.6vw,56px);line-height:1.04;letter-spacing:-.01em}
+.lead{font-size:16px;line-height:1.6;max-width:60ch;color:var(--console-ink-2)}
+.lead b{color:var(--console-ink);font-weight:600}
+.mini{border:1px solid var(--console-line);border-radius:10px;overflow:hidden;background:var(--console-2);max-width:620px}
+.mini-row{display:grid;grid-template-columns:48px minmax(0,1fr);height:26px;border-top:1px solid var(--console-line)}
+.mini-row.mini-head{border-top:0;height:24px}
+.mini-no{font-family:var(--f-mono);font-size:11px;color:var(--console-ink-2);display:flex;align-items:center;padding-left:10px}
+.mini-days{display:grid;grid-template-columns:repeat(10,1fr);font-family:var(--f-mono);font-size:10px;color:var(--console-ink-2);align-items:center;text-align:center}
+.mini-days .is-today{color:var(--gold);font-weight:700}
+.mini-track{position:relative;background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),var(--console-line) calc(10% - 1px) 10%)}
+.mini-today{position:absolute;left:30%;width:10%;top:0;bottom:0;background:color-mix(in srgb,var(--gold) 16%,transparent)}
+.mb{position:absolute;top:5px;bottom:5px;border-radius:4px}
+.m-in{background:var(--m-in)}
+.m-res{background:color-mix(in srgb,var(--m-in) 22%,transparent);border:1px solid var(--m-in)}
+.m-out{background:var(--m-out)}
+.m-ns{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--m-ns) 45%,transparent) 0 4px,transparent 4px 8px);border:1px solid var(--m-ns)}
+.m-ooo{background:repeating-linear-gradient(135deg,var(--m-ooo) 0 5px,var(--m-out) 5px 10px)}
+.m-arr{box-shadow:inset 4px 0 0 var(--gold)}
+.mini-cap{font-size:12px;color:var(--console-ink-2);margin-top:8px}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 28px;counter-reset:s;max-width:640px}
+.steps li{counter-increment:s;display:grid;grid-template-columns:28px minmax(0,1fr);gap:2px 10px}
+.steps li::before{content:counter(s);grid-row:span 2;width:26px;height:26px;border-radius:50%;border:1px solid var(--console-line);display:grid;place-items:center;font-family:var(--f-mono);font-size:12px;color:var(--gold)}
+.steps b{font-weight:600}
+.steps span{color:var(--console-ink-2);font-size:13px}
+.start-side{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:18px;padding-block:clamp(24px,5vw,56px);padding-inline:clamp(16px,4vw,56px)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+.start-card{padding:24px;display:flex;flex-direction:column;gap:16px;max-width:460px;width:100%}
+.start-card h2{font-family:var(--f-display);font-weight:500;font-size:20px}
+.start-foot{max-width:460px;width:100%}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-weight:600;font-size:13px}
+.field input,textarea.inp,.search{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:9px 12px;min-height:40px;width:100%}
+.field input:focus,textarea.inp:focus,.search:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mods{border:1px solid var(--line);border-radius:10px;padding:8px 12px 12px;margin:0;display:flex;flex-direction:column;gap:9px}
+.mods legend{font-weight:600;font-size:13px;padding:0 4px}
+.mod{display:grid;grid-template-columns:18px minmax(0,1fr);gap:10px;align-items:start;font-size:13px;cursor:pointer}
+.mod input{margin:2px 0 0;accent-color:var(--accent);width:16px;height:16px}
+.mod small{display:block;color:var(--ink-2);font-size:12px}
+.form-err{color:var(--bad);font-weight:600;font-size:13px}
+.resume{border:1px solid var(--gold);background:var(--gold-soft);color:var(--gold-ink-soft);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;font-size:13px}
+.resume b{color:var(--ink)}
+@media (max-width:900px){.start{grid-template-columns:minmax(0,1fr)}.steps{grid-template-columns:minmax(0,1fr)}}
+
+/* ---------- рабочее место ---------- */
+.work{height:100%;display:flex;flex-direction:column}
+.tb{background:var(--console);color:var(--console-ink);display:flex;align-items:center;gap:10px 28px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--console-line)}
+.tb-block{display:flex;align-items:center;gap:10px;min-width:0}
+.tb-name{font-weight:600;font-size:14px}
+.tb-sub{font-size:12px;color:var(--console-ink-2)}
+.tb-sub .mono{color:var(--console-ink)}
+.tb-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.langsw{display:inline-flex;border:1px solid var(--console-line);border-radius:8px;overflow:hidden;flex:none}
+.langsw button{background:transparent;border:0;color:var(--console-ink-2);padding:0 11px;min-height:34px;font-weight:600;font-size:12.5px}
+.langsw button:hover{color:var(--console-ink)}
+.langsw button[aria-pressed="true"]{background:var(--console-ink);color:var(--console)}
+.brand .langsw{margin-left:auto}
+.live{display:inline-flex;align-items:center;gap:5px;color:var(--console-ink-2)}
+.live::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--live-on)}
+.live.off::before{background:var(--live-off)}
+.live-note{font-size:12.5px;color:var(--ok);font-weight:600}
+.tb-done{display:inline-flex;align-items:center;gap:6px;background:var(--console-2);border-radius:999px;padding:2px 10px;font-size:12px;color:var(--console-ink)}
+.panes{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(350px,430px)}
+.pane{min-width:0;min-height:0;display:flex;flex-direction:column}
+.pane-rep{border-left:1px solid var(--line);background:var(--surface)}
+.pane-head{background:var(--surface);border-bottom:1px solid var(--line);padding:0 12px}
+.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:thin}
+.tab{border:0;background:none;padding:11px 10px 9px;font-weight:600;font-size:13.5px;color:var(--ink-2);border-bottom:2px solid transparent;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tab .cnt{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);font-weight:500}
+.tab.done .cnt{color:var(--ok)}
+.pane-body{flex:1;min-height:0;overflow:auto;padding:16px}
+.pane-body.is-rack{overflow:hidden;display:flex;flex-direction:column;gap:10px;padding:12px 16px 16px}
+@media (max-width:1100px){
+  .work{height:auto;min-height:100%}
+  .panes{grid-template-columns:minmax(0,1fr)}
+  .pane-rep{border-left:0;border-top:1px solid var(--line)}
+  .pane-body,.pane-body.is-rack{overflow:visible}
+  .rk-wrap{max-height:72vh}
+}
+
+/* пустое состояние */
+.empty{max-width:520px;margin:48px auto;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
+.empty-ic{width:56px;height:56px;border-radius:14px;background:var(--gold-soft);color:var(--gold-ink-soft);display:grid;place-items:center}
+.empty-ic svg{width:28px;height:28px}
+.empty h3{font-family:var(--f-display);font-weight:500;font-size:18px}
+.empty p{color:var(--ink-2)}
+
+/* ---------- шахматка ---------- */
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--ink-2);align-items:center}
+.lg{display:inline-flex;align-items:center;gap:6px}
+.lg i{width:22px;height:12px;border-radius:3px;display:inline-block;position:relative;overflow:hidden}
+.lg .hint{margin-left:auto}
+.rk-wrap{flex:1;min-height:0;overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.rk{position:relative;width:max-content;min-width:100%}
+.rk-head{position:sticky;top:0;z-index:6;display:flex;background:var(--surface);border-bottom:1px solid var(--line)}
+.rk-corner{position:sticky;left:0;z-index:7;width:var(--lbl);flex:none;background:var(--surface);border-right:1px solid var(--line);font-size:11px;color:var(--ink-2);padding:6px 10px;display:flex;align-items:flex-end}
+.rk-day{flex:none;width:var(--cw);text-align:center;padding:5px 0 4px;border-left:1px solid var(--line-2);font-size:11px;line-height:1.2}
+.rk-day .wd{display:block;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;font-size:10px}
+.rk-day .dm{font-family:var(--f-mono);font-weight:500}
+.rk-day.is-we .wd{color:var(--bad)}
+.rk-day.is-today{background:var(--gold-soft);box-shadow:inset 0 -3px 0 var(--gold)}
+.rk-day.is-today .wd{color:var(--gold-ink-soft);font-weight:700}
+.rk-body{position:relative}
+.rk-cols{position:absolute;top:0;bottom:0;left:var(--lbl);display:flex;pointer-events:none}
+.rk-col{width:var(--cw);flex:none;border-left:1px solid var(--line-2)}
+.rk-col.is-we{background:var(--weekend)}
+.rk-col.is-today{background:var(--gold-soft);border-left-color:var(--gold);border-right:1px solid var(--gold)}
+.rk-floor{position:relative;z-index:2;height:22px;display:flex;align-items:center;font-size:10.5px;font-weight:700;color:var(--ink-2);text-transform:uppercase;letter-spacing:.1em;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.rk-floor span{position:sticky;left:0;padding:0 10px}
+.rk-row{position:relative;display:flex;height:var(--rh);border-bottom:1px solid var(--line-2)}
+.rk-room{position:sticky;left:0;z-index:4;width:var(--lbl);flex:none;background:var(--surface);border-right:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:0 10px}
+.rk-room b{font-family:var(--f-mono);font-weight:600;font-size:13px}
+.rk-room span{font-size:10px;color:var(--ink-2);letter-spacing:.06em}
+.rk-track{position:relative;flex:none}
+.bar{position:absolute;top:4px;height:calc(var(--rh) - 8px);border-radius:6px;font-size:11.5px;line-height:1;padding:0 7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid transparent;text-align:left;font-weight:500;z-index:1;display:block}
+.bar:hover{filter:brightness(1.07);z-index:3}
+.st-in{background:var(--accent);color:var(--accent-ink)}
+.st-res{background:var(--accent-soft);color:var(--accent-ink-soft);border-color:color-mix(in srgb,var(--accent) 50%,transparent)!important}
+.st-out{background:var(--bar-out);color:var(--bar-out-ink)}
+.st-ns{background:repeating-linear-gradient(135deg,var(--bad-soft) 0 5px,var(--surface) 5px 10px);color:var(--bad);border-color:var(--bad)!important;font-weight:600}
+.st-ooo{background:repeating-linear-gradient(135deg,var(--ooo) 0 6px,var(--ooo-2) 6px 12px);color:var(--ooo-ink);font-weight:600}
+.arr{box-shadow:inset 4px 0 0 var(--gold);padding-left:10px}
+.bar.cl{border-top-left-radius:0;border-bottom-left-radius:0}
+.bar.cr{border-top-right-radius:0;border-bottom-right-radius:0}
+.lg .today-sw{background:var(--gold-soft);box-shadow:inset 0 -3px 0 var(--gold)}
+
+/* ---------- таблицы ---------- */
+.toolbar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin-bottom:12px}
+.toolbar .search{max-width:300px;min-height:36px}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table.t{border-collapse:collapse;width:100%;font-size:13px}
+.t th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-2);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--surface-2);white-space:nowrap}
+.t td{padding:7px 10px;border-bottom:1px solid var(--line-2);vertical-align:top}
+.t tr:last-child td{border-bottom:0}
+.t .num{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.t .nw{white-space:nowrap}
+.t tbody tr[data-act]{cursor:pointer}
+.t tbody tr[data-act]:hover td{background:var(--surface-2)}
+.chip{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap;background:var(--surface-2);color:var(--ink-2)}
+.c-in{background:var(--accent);color:var(--accent-ink)}
+.c-res,.c-checkin{background:var(--accent-soft);color:var(--accent-ink-soft)}
+.c-out{background:var(--bar-out);color:var(--bar-out-ink)}
+.c-bad{background:var(--bad-soft);color:var(--bad)}
+.c-charge{background:var(--gold-soft);color:var(--gold-ink-soft)}
+.c-pay{background:var(--ok-soft);color:var(--ok)}
+.c-warn{background:var(--warn-soft);color:var(--warn)}
+.h-dirty{background:var(--bad-soft);color:var(--bad)}
+.h-clean{background:var(--accent-soft);color:var(--accent-ink-soft)}
+.h-insp{background:var(--ok-soft);color:var(--ok)}
+.h-ooo{background:var(--ooo);color:var(--ooo-ink)}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.fbtn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.fbtn[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.jr-meta{font-size:13px;color:var(--ink-2)}
+.jr-meta b{color:var(--ink)}
+
+/* ---------- статусы номеров ---------- */
+.floors{display:flex;flex-direction:column;gap:18px}
+.floor h3{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-2);margin-bottom:8px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.tile{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:10px 11px;display:flex;flex-direction:column;gap:6px}
+.tile-top{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.tile-no{font-family:var(--f-mono);font-weight:600;font-size:16px}
+.tile-cat{font-size:11px;color:var(--ink-2);letter-spacing:.05em}
+.tile-st{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.dnd{font-family:var(--f-mono);font-size:10px;font-weight:700;background:var(--ink);color:var(--surface);padding:2px 6px;border-radius:4px;letter-spacing:.05em}
+.tile-obh{font-size:12px;color:var(--ink-2)}
+.tile-obh b{color:var(--ink)}
+.tile-note{font-size:11.5px;color:var(--ink-2);font-style:italic}
+.intro-note{font-size:13px;color:var(--ink-2);margin-bottom:12px;max-width:80ch}
+
+/* ---------- справочник ---------- */
+.ref{display:flex;flex-direction:column;gap:22px;max-width:860px}
+.ref section{display:flex;flex-direction:column;gap:8px}
+.ref h3{font-size:15px;font-weight:700}
+.ref ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px;max-width:75ch}
+.ref li::marker{color:var(--ink-3)}
+
+/* ---------- отчёты ---------- */
+.rp-head{padding:12px 14px 0;display:flex;flex-direction:column;gap:6px;border-bottom:1px solid var(--line);background:var(--surface)}
+.rp-title{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.rp-title h2{font-family:var(--f-display);font-weight:500;font-size:15px}
+.prog{font-size:12px;color:var(--ink-2)}
+.rtabs{margin:0 -6px}
+.form{display:flex;flex-direction:column}
+.form-hd{border:1px solid var(--line);border-bottom:0;border-radius:10px 10px 0 0;padding:12px 14px;background:var(--surface-2);display:flex;flex-direction:column;gap:3px}
+.form-code{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase}
+.form-hd h3{font-size:16px;font-weight:700}
+.form-hd p{font-size:12.5px;color:var(--ink-2)}
+.form-body{border:1px solid var(--line);border-radius:0 0 10px 10px;background:var(--surface)}
+.fr{display:grid;grid-template-columns:24px minmax(0,1fr) 128px;gap:4px 10px;align-items:center;padding:9px 12px;border-top:1px solid var(--line-2)}
+.fr:first-child{border-top:0}
+.fr-code{font-family:var(--f-mono);font-size:11px;color:var(--ink-3)}
+.fr-label{font-size:13px;font-weight:500;line-height:1.3}
+.fr-label small{display:block;font-weight:400;color:var(--ink-2);font-size:11.5px;margin-top:1px}
+.fr-in{position:relative}
+.fr-in input{width:100%;height:34px;border:1px solid var(--line);border-radius:6px;background:var(--surface-2);padding:0 36px 0 8px;text-align:right;font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums}
+.fr-in input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);background:var(--surface)}
+.fr-in .unit{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--ink-3);pointer-events:none}
+.fr.wide{grid-template-columns:24px minmax(0,1fr)}
+.fr.wide .fr-in{grid-column:2}
+.fr.wide input{text-align:left;padding-right:8px}
+.pts2{font-family:var(--f-mono);font-size:10px;color:var(--gold-ink-soft);background:var(--gold-soft);border-radius:4px;padding:1px 5px;margin-left:6px;font-weight:600}
+.form-tip{font-size:12px;color:var(--ink-2);margin:10px 2px 0}
+
+/* ---------- подсказки и сокращения ---------- */
+.qh{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;border:1px solid var(--accent);color:var(--accent);background:var(--surface);font-size:11px;font-weight:700;line-height:1;margin-left:6px;padding:0;vertical-align:1px;font-family:var(--f-body)}
+.qh:hover,.qh[aria-expanded="true"]{background:var(--accent);color:var(--accent-ink)}
+.qh-static{display:inline-grid;margin:0 2px;cursor:default}
+.ab{border-bottom:1px dotted currentColor;cursor:help}
+.tip{position:fixed;z-index:70;width:max-content;max-width:min(380px,calc(100vw - 16px));max-height:calc(100vh - 16px);overflow:auto;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 36px rgba(0,0,0,.22);padding:12px 14px;font-size:13px;line-height:1.5;display:flex;flex-direction:column;gap:5px;pointer-events:none}
+.tip.pinned{pointer-events:auto}
+.tip h4{margin:0;font-size:13.5px;line-height:1.35}
+.tip p{margin:0}
+.tip .tk{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);font-weight:600;margin-top:3px}
+.tip .tnote{color:var(--ink-2);font-size:12.5px}
+.formula{font-family:var(--f-mono);font-size:12.5px;background:var(--gold-soft);color:var(--gold-ink-soft);border-radius:6px;padding:6px 9px;line-height:1.5}
+.rk-night{position:absolute;top:0;bottom:0;width:0;border-left:2px dashed var(--gold);z-index:2;pointer-events:none}
+.lg i.night-sw{width:0;height:14px;border-radius:0;border-left:2px dashed var(--gold)}
+
+/* ---------- обучение ---------- */
+.learn{display:flex;flex-direction:column;gap:28px;max-width:900px}
+.learn section{display:flex;flex-direction:column;gap:10px}
+.learn h2{font-family:var(--f-display);font-weight:500;font-size:21px}
+.learn h3{font-size:16px;font-weight:700}
+.learn h4{font-size:14px;font-weight:700;margin:6px 0 0}
+.learn p,.learn li{max-width:78ch}
+.learn ol,.learn ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.lead2{font-size:15px;color:var(--ink-2);line-height:1.6}
+.callout{border:1px solid var(--gold);background:var(--gold-soft);color:var(--gold-ink-soft);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.callout b{color:var(--ink)}
+.demo .rk-wrap{flex:none}
+.demo{display:flex;flex-direction:column;gap:8px}
+.gl{display:grid;grid-template-columns:minmax(110px,max-content) minmax(0,1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface);margin:0}
+.gl dt,.gl dd{margin:0;padding:8px 12px;border-top:1px solid var(--line-2)}
+.gl dt{font-weight:700;background:var(--surface-2)}
+.gl dt:first-of-type,.gl dd:first-of-type{border-top:0}
+.gl dd small{color:var(--ink-2)}
+.t .formula{display:inline-block;margin-bottom:4px}
+
+/* ---------- фолио ---------- */
+.mtabs{display:flex;gap:2px;border-bottom:1px solid var(--line);overflow-x:auto}
+.folio{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.folio table{border-collapse:collapse;width:100%;font-size:12.5px}
+.folio td{padding:6px 10px;border-top:1px solid var(--line-2);vertical-align:top}
+.folio tr:first-child td{border-top:0}
+.folio td small{color:var(--ink-2)}
+.folio .fdate{font-family:var(--f-mono);white-space:nowrap;color:var(--ink-2);width:1%}
+.folio .famt{font-family:var(--f-mono);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.folio .fsec td{background:var(--surface-2);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2);font-weight:600}
+.folio .pend td{color:var(--ink-3)}
+.folio .neg{color:var(--ok)}
+.ftot{display:flex;justify-content:space-between;gap:6px 16px;font-size:12.5px;flex-wrap:wrap}
+.rp-foot{display:flex;flex-direction:column;gap:10px;margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.rp-foot p{font-size:12px;color:var(--ink-2)}
+.rp-wait{display:flex;flex-direction:column;gap:10px}
+.rp-wait .wi{border:1px dashed var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.rp-wait .wi b{font-size:13.5px}
+.rp-wait .wi span{font-size:12px;color:var(--ink-2)}
+
+/* ---------- результат ---------- */
+.res{display:flex;flex-direction:column;gap:16px}
+.res-hero{padding:18px;border-radius:12px;background:var(--console);color:var(--console-ink);display:flex;flex-direction:column;gap:8px}
+.res-hero .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--console-ink-2)}
+.res-score{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.res-score .big{font-family:var(--f-display);font-size:46px;font-weight:700;line-height:1}
+.res-score .of{color:var(--console-ink-2);font-size:14px}
+.mark{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 12px;font-weight:700;font-size:13px;width:max-content}
+.mk-5{background:var(--ok-soft);color:var(--ok)}
+.mk-4{background:var(--accent-soft);color:var(--accent-ink-soft)}
+.mk-3{background:var(--warn-soft);color:var(--warn)}
+.mk-2{background:var(--bad-soft);color:var(--bad)}
+.res-who{font-size:12.5px;color:var(--console-ink-2)}
+.reps{display:flex;flex-direction:column;gap:10px}
+.rep-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;font-size:13px}
+.rep-row b{font-weight:600}
+.meter{grid-column:1/-1;height:6px;border-radius:3px;background:var(--line-2);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.res h3{font-size:14px;font-weight:700}
+.cpy{width:100%;min-height:150px;font-family:var(--f-mono);font-size:12px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);padding:10px;resize:vertical;word-break:break-all}
+.res-code{display:flex;flex-direction:column;gap:8px;border:1px solid var(--gold);background:var(--gold-soft);border-radius:12px;padding:14px}
+.res-code p{font-size:12.5px;color:var(--gold-ink-soft)}
+details.rv{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+details.rv summary{cursor:pointer;padding:10px 12px;font-weight:600;font-size:13px;display:flex;justify-content:space-between;gap:8px;background:var(--surface-2)}
+details.rv[open] summary{border-bottom:1px solid var(--line)}
+.rv table{border-collapse:collapse;width:100%;font-size:12.5px}
+.rv td{padding:7px 10px;border-top:1px solid var(--line-2);vertical-align:top}
+.rv tr:first-child td{border-top:0}
+.rv .ans{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.rv .ok{color:var(--ok);font-weight:600}
+.rv .bad{color:var(--bad);font-weight:600;text-decoration:line-through;text-decoration-thickness:1px}
+.rv .exp{color:var(--ink-2)}
+.rv .mk{width:26px;text-align:center;font-weight:700}
+
+/* ---------- преподаватель ---------- */
+.teacher{min-height:100%;display:flex;flex-direction:column}
+.t-main{padding-block:24px;padding-inline:16px;display:flex;flex-direction:column;gap:16px;max-width:1240px;width:100%;margin:0 auto}
+.t-main .card{padding:20px;display:flex;flex-direction:column;gap:12px}
+.t-main h2{font-family:var(--f-display);font-weight:500;font-size:18px}
+.t-main p{max-width:80ch;color:var(--ink-2)}
+.hrow{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.hrow .acts{display:flex;gap:8px;flex-wrap:wrap}
+.tmsg{font-size:13px;font-weight:600}
+.tmsg.okc{color:var(--ok)} .tmsg.badc{color:var(--bad)}
+.tdet td{background:var(--surface-2)}
+.tdet-in{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;padding:4px 0}
+.xbtn{border:0;background:none;color:var(--ink-3);font-size:16px;line-height:1;padding:2px 6px;border-radius:6px}
+.xbtn:hover{color:var(--bad);background:var(--bad-soft)}
+
+/* ---------- модальное окно и тост ---------- */
+.modal{position:fixed;inset:0;background:color-mix(in srgb,var(--console) 60%,transparent);display:grid;place-items:center;padding:16px;z-index:50}
+.modal-card{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;max-width:540px;width:100%;max-height:calc(100% - 32px);overflow:auto;padding:20px;box-shadow:0 24px 64px rgba(0,0,0,.28);display:flex;flex-direction:column;gap:12px}
+.m-title{font-family:var(--f-display);font-weight:500;font-size:17px}
+.m-text{color:var(--ink-2);font-size:14px}
+.m-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:4px}
+.kv{display:grid;grid-template-columns:140px minmax(0,1fr);gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:13px}
+.kv dt,.kv dd{margin:0;padding:7px 10px;border-top:1px solid var(--line-2)}
+.kv dt{color:var(--ink-2);background:var(--surface-2)}
+.kv dt:first-of-type,.kv dd:first-of-type{border-top:0}
+.m-head{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;z-index:60;max-width:calc(100% - 32px)}
+@media (max-width:520px){.kv{grid-template-columns:110px minmax(0,1fr)}.row2{grid-template-columns:1fr}.fr{grid-template-columns:22px minmax(0,1fr) 112px}}
+
+/* ---------- телефон и планшет: одна колонка, переключатель «Данные / Отчёты» внизу ---------- */
+.mnav{display:none}
+@media (max-width:1100px){
+  .work{padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))}
+  .work[data-mpane="data"] .pane-rep{display:none}
+  .work[data-mpane="rep"] #paneL{display:none}
+  .pane-rep{border-top:0}
+  .rk-wrap{max-height:64vh}
+  .mnav{display:grid;grid-template-columns:1fr 1fr;gap:8px;position:fixed;left:0;right:0;bottom:0;z-index:40;padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -6px 20px rgba(16,32,42,.08)}
+  .mnav button{min-height:46px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 10px}
+  .mnav button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .mnav .cnt{font-family:var(--f-mono);font-size:12px;font-weight:600;opacity:.85}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+}
+@media (max-width:760px){
+  .tb{padding:8px 12px;gap:6px 14px}
+  .tb-actions{margin-left:0;width:100%}
+  .tb-actions .btn-gen,.tb-actions .btn-light{flex:1 1 auto}
+  .tb-actions .btn{min-height:40px;padding:0 10px;font-size:13px}
+  .pane-head{padding:0 6px}
+  .pane-body{padding:12px}
+  .pane-body.is-rack{padding:10px 12px 12px}
+  /* 16px — чтобы iPhone не увеличивал экран при вводе */
+  .fr-in input,.field input,.search,textarea.inp,.cpy{font-size:16px}
+  .fr{grid-template-columns:22px minmax(0,1fr) 118px;padding:10px}
+  .fr-in input{height:40px}
+  .qh{width:24px;height:24px;font-size:13px}
+  .legend{gap:4px 12px}
+  .rk-room{padding:0 8px;gap:5px}
+  .start-intro{gap:20px}
+  .lead{font-size:15px}
+  .modal{padding:10px}
+  .modal-card{padding:16px}
+  /* журнал смены — карточками */
+  .t-jr thead,.t-bk thead{display:none}
+  .t-jr,.t-jr tbody,.t-bk,.t-bk tbody{display:block}
+  .t-jr tr{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;align-items:center;gap:4px 8px;padding:10px 12px;border-bottom:1px solid var(--line-2)}
+  .t-jr td,.t-bk td{display:block;padding:0;border:0!important}
+  .t-jr td:nth-child(1){grid-column:1;grid-row:1}
+  .t-jr td:nth-child(2){grid-column:2;grid-row:1}
+  .t-jr td:nth-child(3){grid-column:3;grid-row:1}
+  .t-jr td:nth-child(7){grid-column:4;grid-row:1;font-weight:700}
+  .t-jr td:nth-child(4){grid-column:1/-1;grid-row:2;font-weight:600}
+  .t-jr td:nth-child(5){grid-column:1/-1;grid-row:3;color:var(--ink-2)}
+  .t-jr td:nth-child(6){grid-column:1/-1;grid-row:4;font-size:12px;color:var(--ink-3)}
+  .t-jr td:empty{display:none}
+  .t-jr td[colspan]{grid-column:1/-1}
+  /* бронирования — карточками */
+  .t-bk tr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px 10px;padding:12px;border-bottom:1px solid var(--line-2)}
+  .t-bk tr[hidden]{display:none}
+  .t-bk td{text-align:left!important;white-space:normal!important;font-size:13px}
+  .t-bk td[data-l]::before{content:attr(data-l);display:block;font-family:var(--f-body);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:1px}
+  .t-bk td:nth-child(3){grid-column:1;grid-row:1;font-size:16px;font-weight:700}
+  .t-bk td:nth-child(2){grid-column:2/4;grid-row:1;font-weight:600;align-self:center}
+  .t-bk td:nth-child(12){grid-column:4;grid-row:1;justify-self:end;align-self:center}
+  .t-bk td:nth-child(5){grid-column:1;grid-row:2}
+  .t-bk td:nth-child(6){grid-column:2;grid-row:2}
+  .t-bk td:nth-child(7){grid-column:3;grid-row:2}
+  .t-bk td:nth-child(8){grid-column:4;grid-row:2}
+  .t-bk td:nth-child(9){grid-column:1;grid-row:3}
+  .t-bk td:nth-child(10){grid-column:2;grid-row:3}
+  .t-bk td:nth-child(11){grid-column:3;grid-row:3}
+  .t-bk td:nth-child(4){grid-column:4;grid-row:3}
+  .t-bk td:nth-child(1){grid-column:1/-1;grid-row:4;font-size:11.5px;color:var(--ink-3)}
+}
+@media (max-width:600px){
+  .mini,.mini-cap{display:none}
+  .display{font-size:30px}
+}
+</style>
+
+<div id="app"></div>
+<div id="modal" class="modal" hidden><div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="m-title" id="modal-body"></div></div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<div id="tip" class="tip" role="tooltip" hidden></div>
+
+<script>
+(() => {
+'use strict';
+
+/* ================= утилиты ================= */
+const LS_SHIFT = 'sapar.shift.v1', LS_JOURNAL = 'sapar.journal.v1', LS_LAST = 'sapar.last.v1', LS_LANG = 'sapar.lang.v1';
+const lsGet = k => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pad = n => String(n).padStart(2, '0');
+const sum = a => a.reduce((x, y) => x + y, 0);
+const fmtMoney = n => Math.round(n).toLocaleString('ru-RU') + ' ₸';
+const fmtPct = n => (Math.round(n * 10) / 10).toFixed(1).replace('.', ',') + ' %';
+const hhmm = m => pad(Math.floor(m / 60)) + ':' + pad(m % 60);
+const dur = ms => { const s = Math.max(0, Math.floor(ms / 1000)); return pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(s % 60); };
+const isoToday = () => { const t = new Date(); return t.getFullYear() + '-' + pad(t.getMonth() + 1) + '-' + pad(t.getDate()); };
+const dOf = iso => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d); };
+const addD = (dt, k) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate() + k);
+const ddmm = dt => pad(dt.getDate()) + '.' + pad(dt.getMonth() + 1);
+const ddmmyyyy = dt => ddmm(dt) + '.' + dt.getFullYear();
+const stamp = ms => { const d = new Date(ms); return ddmmyyyy(d) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+
+/* ================= язык интерфейса: русский / қазақша ================= */
+let LANG = lsGet(LS_LANG) === 'kz' ? 'kz' : 'ru';
+// L('русский текст', ...аргументы) — русская строка служит ключом; перевод берётся из KZ_DICT (см. ниже).
+function L(s, ...a) {
+  const t = LANG === 'kz' && KZ_DICT[s] !== undefined ? KZ_DICT[s] : s;
+  return a.length ? t.replace(/\{(\d)\}/g, (m, i) => (a[+i] !== undefined ? a[+i] : m)) : t;
+}
+const pick2 = o => o[LANG] || o.ru;
+const DATE = {
+  ru: { m: ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'],
+        wd: ['вс','пн','вт','ср','чт','пт','сб'], wdl: ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'] },
+  kz: { m: ['қаңтар','ақпан','наурыз','сәуір','мамыр','маусым','шілде','тамыз','қыркүйек','қазан','қараша','желтоқсан'],
+        wd: ['жс','дс','сс','ср','бс','жм','сб'], wdl: ['жексенбі','дүйсенбі','сейсенбі','сәрсенбі','бейсенбі','жұма','сенбі'] }
+};
+const WD = i => pick2(DATE).wd[i];
+const WDL = i => pick2(DATE).wdl[i];
+const longDate = dt => dt.getDate() + ' ' + pick2(DATE).m[dt.getMonth()] + ' ' + dt.getFullYear() + ', ' + WDL(dt.getDay());
+function setLang(l) {
+  LANG = l === 'kz' ? 'kz' : 'ru'; lsSet(LS_LANG, LANG); abRe = null;
+  document.documentElement.lang = LANG === 'kz' ? 'kk' : 'ru';
+}
+const langSwitch = () => '<div class="langsw" role="group" aria-label="Язык / Тіл">' +
+  '<button type="button" data-act="lang" data-l="ru" aria-pressed="' + (LANG === 'ru') + '">Рус</button>' +
+  '<button type="button" data-act="lang" data-l="kz" aria-pressed="' + (LANG === 'kz') + '">Қаз</button></div>';
+// [[ADR]] в тексте → сокращение с расшифровкой при наведении
+const rich = s => String(s).replace(/\[\[([^\]]+)\]\]/g, (m, k) => ab(k));
+
+const ICON = {
+  key: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4.2"/><path d="M11 12 20 3"/><path d="M16.5 6.5 19 9"/><path d="M14 9l2 2"/></svg>',
+  dice: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor" stroke="none"/></svg>',
+  copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>'
+};
+
+/* ================= отель ================= */
+const CATS = {
+  STD: { name: 'Стандарт', bar: 26000, corp: 22000, ta: 23000 },
+  SUP: { name: 'Улучшенный', bar: 34000, corp: 29000, ta: 30000 },
+  DLX: { name: 'Делюкс', bar: 46000, corp: 39000, ta: 41000 },
+  LUX: { name: 'Люкс', bar: 68000, corp: 58000, ta: 61000 }
+};
+const ROOMS = [];
+[[2, ['STD','STD','STD','STD','STD','STD','SUP','SUP']],
+ [3, ['STD','STD','STD','STD','SUP','SUP','SUP','SUP']],
+ [4, ['STD','STD','SUP','SUP','SUP','SUP','DLX','DLX']],
+ [5, ['DLX','DLX','LUX','LUX','LUX','LUX']]].forEach(([f, cats]) => cats.forEach((c, i) => ROOMS.push({ no: String(f * 100 + i + 1), floor: f, cat: c })));
+
+const CH = {
+  DIR:  { name: 'Прямое бронирование (сайт, телефон)', short: 'Прямое', rate: 'bar' },
+  OTA:  { name: 'OTA (Booking.com)', short: 'OTA', rate: 'bar' },
+  CORP: { name: 'Корпоративный клиент', short: 'Корп.', rate: 'corp' },
+  TA:   { name: 'Турагентство', short: 'Турагент', rate: 'ta' },
+  WALK: { name: 'Walk-in (без брони)', short: 'Walk-in', rate: 'bar' }
+};
+const PRICES = { breakfast: 4500, trAir: 12000, trRail: 8000, otaComm: 0.15, cleanDep: 45, cleanStay: 25, maidMin: 420, openingCash: 50000 };
+// Статьи и способы оплаты хранятся по-русски (это ключи расчётов) и переводятся только при показе.
+const FNB = ['Завтрак', 'Ресторан', 'Мини-бар'];
+const NAMES = {
+  kz: { m: ['Ерлан','Асхат','Нурлан','Данияр','Арман','Бауыржан','Ержан','Марат','Санжар','Темирлан','Алмас','Дархан','Айдос','Ерасыл'],
+        f: ['Айгерим','Динара','Жанна','Мадина','Асель','Сауле','Гульнара','Камила','Аружан','Томирис','Айжан','Дана','Жансая','Меруерт'],
+        s: ['Ахметов','Сейткалиев','Нурланов','Жумабаев','Касымов','Омаров','Абенов','Тулегенов','Искаков','Садыков','Ержанов','Мукашев','Кенжебаев','Утепов','Сарсенов','Бекмуханов','Алимжанов','Есенов','Тажибаев','Калиев'] },
+  ru: { m: ['Алексей','Дмитрий','Сергей','Андрей','Игорь','Павел','Виктор','Максим','Евгений','Олег'],
+        f: ['Ольга','Наталья','Елена','Ирина','Татьяна','Светлана','Юлия','Анна','Марина','Оксана'],
+        s: ['Иванов','Петров','Смирнов','Кузнецов','Попов','Волков','Соколов','Морозов','Ким','Пак','Цой','Ли','Новиков','Фёдоров'] },
+  in: { m: ['John','Michael','Thomas','Daniel','Mehmet','Wei','Lukas','Ahmed','Marco','Hiroshi'],
+        f: ['Anna','Emma','Sarah','Laura','Elif','Mei','Julia','Sofia','Chiara','Yuki'],
+        s: ['Smith','Brown','Müller','Schmidt','Yilmaz','Kaya','Chen','Wang','Rossi','Novak','Tanaka','Weber'] }
+};
+const COMPANIES = ['ТОО «Дала Инжиниринг»','ТОО «Орда Консалт»','АО «Береке Агро»','ТОО «Жасыл Курылыс»','ТОО «Altyn Trade Group»','ТОО «Каспий Техсервис»'];
+const AGENCIES = ['ТОО «Көктем Тур»','ТОО «Жибек Жолы Тур»','ТОО «Asia Holiday KZ»','ТОО «Nomad Line»'];
+const OOO_REASONS = ['Протечка в санузле','Ремонт кондиционера','Замена ковролина','Покраска стен','Неисправность электропроводки','Замена сантехники'];
+const REST = ['Ужин в ресторане','Обед в ресторане','Room service','Лобби-бар'];
+const LAUNDRY = ['Стирка и глажка','Химчистка костюма','Глажка рубашек'];
+
+/* ================= генератор дня ================= */
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+function buildScenario(seed, dISO) {
+  const R = mulberry32(seed);
+  const ri = (a, b) => a + Math.floor(R() * (b - a + 1));
+  const pick = a => a[Math.floor(R() * a.length)];
+  const chance = p => R() < p;
+  const wpick = ps => { let t = 0; for (const p of ps) t += p[1]; let r = R() * t; for (const [v, w] of ps) { r -= w; if (r < 0) return v; } return ps[ps.length - 1][0]; };
+  const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(R() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const tm = (a, b) => ri(Math.ceil(a / 5), Math.floor(b / 5)) * 5;
+  const m100 = (a, b) => ri(a / 100, b / 100) * 100;
+  const method = () => wpick([['Наличные', .25], ['Карта', .45], ['Kaspi QR', .3]]);
+  const d0 = dOf(dISO);
+
+  // номера вне продажи
+  const order = shuffle(ROOMS.map(r => r.no));
+  const ooo = [];
+  const nO = wpick([[1, .45], [2, .4], [3, .15]]);
+  for (let i = 0; i < nO; i++) ooo.push({ room: order[i], a: -ri(0, 4), d: ri(1, 4), reason: pick(OOO_REASONS) });
+  if (chance(.5)) { const a = ri(1, 3); ooo.push({ room: order[nO], a, d: a + ri(2, 4), reason: pick(OOO_REASONS) }); }
+
+  // проживания по номерам
+  const p0 = .38 + R() * .42;
+  const stays = [];
+  for (const room of ROOMS) {
+    const blocks = ooo.filter(o => o.room === room.no);
+    let t = -14 + ri(0, 4);
+    while (t < 17) {
+      if (!chance(p0)) t += ri(1, 3);
+      const n = wpick([[1, .2], [2, .3], [3, .2], [4, .13], [5, .08], [6, .05], [7, .04]]);
+      const a = t, d = t + n;
+      const blk = blocks.find(o => a < o.d && o.a < d);
+      if (blk) { t = blk.d; continue; }
+      t = d;
+      if (a > 3 && chance(.15 + (a - 3) * .04)) continue;
+      if (d < -3) continue;
+      stays.push({ room: room.no, cat: room.cat, a, d });
+    }
+  }
+  stays.sort((x, y) => x.a - y.a || x.room - y.room);
+
+  let bn = ri(41000, 46000);
+  const guest = () => {
+    const kind = wpick([['kz', .55], ['ru', .27], ['in', .18]]), g = chance(.5) ? 'm' : 'f', N = NAMES[kind];
+    let last = pick(N.s);
+    if (g === 'f' && kind !== 'in' && /(ов|ев|ёв|ин)$/.test(last)) last += 'а';
+    const first = pick(N[g]);
+    return { last, first, guest: last + ' ' + first, short: last + ' ' + first[0] + '.' };
+  };
+  const fill = (s, ch) => {
+    bn += ri(1, 7); s.id = 'B' + bn; s.ch = ch; s.rate = CATS[s.cat][CH[ch].rate];
+    if (ch === 'CORP') { s.ad = chance(.8) ? 1 : 2; s.chd = 0; }
+    else if (s.cat === 'STD') { s.ad = chance(.5) ? 1 : 2; s.chd = 0; }
+    else if (s.cat === 'SUP') { s.ad = chance(.25) ? 1 : 2; s.chd = chance(.3) ? 1 : 0; }
+    else if (s.cat === 'DLX') { s.ad = 2; s.chd = chance(.4) ? 1 : 0; }
+    else { s.ad = 2; s.chd = wpick([[0, .5], [1, .3], [2, .2]]); }
+    s.meal = chance(ch === 'CORP' ? .85 : ch === 'TA' ? .7 : ch === 'WALK' ? .35 : .55) ? 'BB' : 'RO';
+    Object.assign(s, guest());
+    if (ch === 'CORP') s.payer = pick(COMPANIES); else if (ch === 'TA') s.payer = pick(AGENCIES);
+  };
+  for (const s of stays) fill(s, wpick([['DIR', .25], ['OTA', .36], ['CORP', .21], ['TA', .18]]));
+
+  // статусы
+  for (const s of stays) {
+    if (s.d <= 0) s.st = 'out';
+    else if (s.a < 0) s.st = 'in';
+    else if (s.a === 0) { const r = R(); s.st = r < .1 ? 'ns' : r < .17 ? 'cx' : 'in'; }
+    else s.st = 'res';
+    if (s.st === 'ns' && s.d - s.a > 2) s.d = s.a + 2;
+  }
+  let fc = 0;
+  for (const s of shuffle(stays.filter(s => s.st === 'res' && s.a <= 10))) { if (fc >= 2) break; if (chance(.06)) { s.st = 'cx'; fc++; } }
+
+  // walk-in
+  const live = s => s.st === 'in' || s.st === 'res';
+  const oooAt = (no, k) => ooo.some(o => o.room === no && o.a <= k && k < o.d);
+  const nW = wpick([[0, .3], [1, .45], [2, .25]]);
+  let made = 0;
+  for (const r of shuffle(ROOMS)) {
+    if (made >= nW) break;
+    if (oooAt(r.no, 0)) continue;
+    const mine = stays.filter(s => s.room === r.no);
+    if (mine.some(s => (live(s) && s.a <= 0 && 0 < s.d) || s.st === 'ns')) continue;
+    const next = Math.min(99, ...mine.filter(s => live(s) && s.a > 0).map(s => s.a), ...ooo.filter(o => o.room === r.no && o.a > 0).map(o => o.a));
+    const n = Math.min(ri(1, 2), next);
+    if (n < 1) continue;
+    const s = { room: r.no, cat: r.cat, a: 0, d: n, st: 'in', walk: true };
+    fill(s, 'WALK'); stays.push(s); made++;
+  }
+
+  // события смены; tx — шаблон текста и его аргументы (переводится при показе)
+  const ev = []; let seq = 0;
+  const push = o => { o.q = seq++; ev.push(o); return o; };
+  const chg = (t, s, cat, amount, tx) => push({ t, k: 'charge', room: s.room, guest: s.guest, sid: s.id, cat, amount, tx });
+  const pay = (t, s, m, amount, tx, who) => push({ t, k: 'pay', room: s ? s.room : '', guest: s ? s.guest : (who || ''), sid: s ? s.id : null, method: m, amount, tx });
+  const sumCh = (s, t) => sum(ev.filter(e => e.k === 'charge' && e.sid === s.id && e.t <= t).map(e => e.amount));
+
+  const deps = stays.filter(s => s.st === 'out' && s.d === 0);
+  const arrs = stays.filter(s => s.st === 'in' && s.a === 0);
+  const arrRooms = new Set(stays.filter(s => s.a === 0).map(s => s.room));
+  const depRooms = new Set(deps.map(s => s.room));
+  const stayovers = stays.filter(s => s.st === 'in' && s.a < 0 && s.d > 0);
+  const inhouse = stays.filter(s => s.st === 'in' && s.a <= 0 && 0 < s.d);
+
+  for (const s of deps) { if (!arrRooms.has(s.room) && chance(.18)) { s.late = true; s.co = tm(13 * 60, 18 * 60); } else s.co = tm(7 * 60 + 30, 11 * 60 + 55); }
+  for (const s of arrs) { if (!s.walk && !depRooms.has(s.room) && chance(.12)) { s.early = true; s.ci = tm(8 * 60, 12 * 60); } else s.ci = s.walk ? tm(15 * 60, 20 * 60 + 30) : tm(14 * 60, 20 * 60 + 30); }
+
+  const dnd = new Set();
+  for (const s of shuffle(stayovers)) { if (dnd.size >= 4) break; if (chance(.15)) dnd.add(s.room); }
+
+  for (const s of arrs) push({ t: s.ci, k: 'checkin', room: s.room, guest: s.guest, sid: s.id, tx: s.walk ? ['Заселение без брони (walk-in)'] : [s.early ? 'Ранний заезд по брони {0}' : 'Заселение по брони {0}', s.id] });
+  for (const s of deps) push({ t: s.co, k: 'checkout', room: s.room, guest: s.guest, sid: s.id, tx: [s.late ? 'Поздний выезд' : 'Выезд'] });
+
+  for (const s of stays) {
+    if (!((s.st === 'in' || s.st === 'out') && s.a < 0 && s.d >= 0 && s.meal === 'BB')) continue;
+    const p = s.ad + s.chd, hi = s.d === 0 ? Math.min(10 * 60 + 30, s.co - 15) : 10 * 60 + 30;
+    chg(tm(7 * 60, Math.max(7 * 60, hi)), s, 'Завтрак', p * PRICES.breakfast, ['Завтрак, {0} чел.', p]);
+  }
+  for (const s of deps) {
+    if (s.late) chg(s.co - 1, s, 'Поздний выезд', s.rate / 2, ['Поздний выезд до {0} — 50% тарифа', hhmm(s.co)]);
+    if (chance(.3)) chg(s.co - 5, s, 'Мини-бар', m100(1500, 7800), ['Мини-бар — проверка при выезде']);
+    if (chance(.14)) { const air = chance(.65); chg(s.co - 5, s, 'Трансфер', air ? PRICES.trAir : PRICES.trRail, [air ? 'Трансфер в аэропорт' : 'Трансфер на ж/д вокзал']); }
+  }
+  for (const s of arrs) {
+    if (s.early) chg(s.ci, s, 'Ранний заезд', s.rate / 2, ['Ранний заезд в {0} — 50% тарифа', hhmm(s.ci)]);
+    if (!s.walk && chance(.15)) { const air = chance(.65); chg(s.ci, s, 'Трансфер', air ? PRICES.trAir : PRICES.trRail, [air ? 'Трансфер из аэропорта' : 'Трансфер с ж/д вокзала']); }
+  }
+  const after = (s, from) => s.a === 0 ? Math.max(from, s.ci + 20) : from;
+  for (const s of shuffle(inhouse).slice(0, ri(2, 4))) {
+    const from = after(s, 12 * 60), to = 22 * 60 + 30;
+    if (from > to) continue;
+    const t = tm(from, to), amt = m100(5500, 26000), spot = chance(.45);
+    chg(t, s, 'Ресторан', amt, [spot ? '{0} — оплачено на месте' : '{0} — на счёт номера', pick(REST)]);
+    if (spot) pay(t, s, method(), amt, ['Оплата счёта ресторана']);
+  }
+  for (const s of shuffle(stayovers.filter(s => !dnd.has(s.room))).slice(0, ri(1, 3))) chg(tm(10 * 60, 16 * 60), s, 'Мини-бар', m100(1200, 6500), ['Мини-бар — пополнение при уборке']);
+  for (const s of shuffle(inhouse).slice(0, ri(0, 2))) { const from = after(s, 9 * 60), to = 19 * 60; if (from > to) continue; chg(tm(from, to), s, 'Прачечная', m100(2500, 9000), [pick(LAUNDRY)]); }
+
+  for (const s of arrs) {
+    if (s.ch === 'CORP' || s.ch === 'TA') continue;
+    const n = s.d - s.a, ex = sumCh(s, s.ci);
+    pay(s.ci, s, method(), n * s.rate + ex, [ex ? 'Оплата проживания, {0} ноч. + доп. услуги' : 'Оплата проживания, {0} ноч.', n]);
+  }
+  for (const s of deps) {
+    if (s.ch === 'CORP') continue;
+    const tot = sumCh(s, s.co);
+    if (tot > 0) pay(s.co, s, method(), tot, ['Оплата доп. услуг при выезде']);
+  }
+  for (let i = 0, n = ri(0, 2); i < n; i++) pay(tm(10 * 60, 17 * 60), null, 'Безнал', ri(2, 6) * pick([22000, 29000, 39000]), ['Поступление на р/с по счёту № {0}', ri(118, 460)], pick(COMPANIES));
+  const rc = deps.filter(s => s.ch !== 'CORP' && s.ch !== 'TA');
+  if (rc.length && chance(.35)) { const s = pick(rc); push({ t: s.co + 2, k: 'refund', room: s.room, guest: s.guest, sid: s.id, method: 'Наличные', amount: s.rate, tx: ['Возврат за неиспользованную ночь (выезд на день раньше)'] }); }
+  for (const s of stays.filter(s => s.st === 'cx')) push({ t: tm(8 * 60, 20 * 60), k: 'cancel', room: s.room, guest: s.guest, sid: s.id, tx: ['Отмена брони {0}: заезд {1}, {2} ноч., {3}', s.id, ddmm(addD(d0, s.a)), s.d - s.a, CH[s.ch].short] });
+  stays.filter(s => s.st === 'ns').forEach((s, i) => push({ t: Math.min(23 * 60 + 59, 23 * 60 + 40 + i * 5), k: 'noshow', room: s.room, guest: s.guest, sid: s.id, tx: ['Гость не прибыл. Бронь {0} аннулирована', s.id] }));
+  const T = 18 * 60 + 30;
+  const cashBefore = PRICES.openingCash + sum(ev.filter(e => e.k === 'pay' && e.method === 'Наличные' && e.t < T).map(e => e.amount)) - sum(ev.filter(e => e.k === 'refund' && e.t < T).map(e => e.amount));
+  if (chance(.8)) { const amt = Math.floor((cashBefore - 40000) / 10000) * 10000; if (amt >= 10000) push({ t: T, k: 'inkass', room: '', guest: 'Бухгалтерия', method: 'Наличные', amount: amt, tx: ['Инкассация: наличные сданы в бухгалтерию'] }); }
+  ev.sort((x, y) => x.t - y.t || x.q - y.q);
+
+  // статусы службы горничных и вечерний обход
+  const occRooms = new Set(inhouse.map(s => s.room));
+  const ooo0 = new Map(ooo.filter(o => o.a <= 0 && 0 < o.d).map(o => [o.room, o]));
+  const hk = {};
+  for (const r of ROOMS) {
+    const no = r.no;
+    if (ooo0.has(no)) hk[no] = { st: 'ooo', obh: 'Ремонт', note: ooo0.get(no).reason };
+    else if (occRooms.has(no)) hk[no] = { st: dnd.has(no) ? 'dirty' : 'clean', dnd: dnd.has(no), obh: 'Занят' };
+    else if (depRooms.has(no)) hk[no] = { st: wpick([['dirty', .25], ['clean', .3], ['insp', .45]]), obh: 'Свободен' };
+    else hk[no] = { st: wpick([['insp', .8], ['clean', .2]]), obh: 'Свободен' };
+  }
+  const disc = [];
+  const nD = ri(1, 3);
+  const skipC = shuffle(stayovers.filter(s => !dnd.has(s.room)).map(s => s.room));
+  const sleepC = shuffle(ROOMS.map(r => r.no).filter(no => !ooo0.has(no) && !occRooms.has(no)));
+  for (let i = 0; i < nD; i++) {
+    if (chance(.5) && skipC.length) { const no = skipC.pop(); Object.assign(hk[no], { obh: 'Свободен', note: 'Вещей нет, постель не тронута' }); disc.push(no); }
+    else if (sleepC.length) { const no = sleepC.pop(); Object.assign(hk[no], { obh: 'Занят', st: 'dirty', note: 'В номере вещи гостя' }); disc.push(no); }
+  }
+  return { seed, dISO, ooo, stays, events: ev, hk, disc, dnd: [...dnd] };
+}
+// Текст операции журнала на текущем языке
+const evText = e => L(e.tx[0], ...e.tx.slice(1).map(a => (typeof a === 'string' ? L(a) : a)));
+
+/* ================= отчёты ================= */
+const REPORTS = [
+  { key: 'NA', tab: 'Аудит', name: 'Ночной аудит', form: 'Форма ФО-1', title: 'Отчёт ночного аудитора', about: 'загрузка, ADR, RevPAR, заезды и выезды',
+    desc: d => L('Итоги бизнес-даты {0} по шахматке и журналу смены. «На ночь» — ночь с {0} на {1}.', ddmm(d), ddmm(addD(d, 1))),
+    fields: [
+      { id: 'ooo', label: 'Номера вне продажи (OOO) на ночь', type: 'int', unit: 'ном.' },
+      { id: 'avail', label: 'Номера к продаже', type: 'int', unit: 'ном.' },
+      { id: 'occ', label: 'Занятые номера на ночь', type: 'int', unit: 'ном.' },
+      { id: 'vac', label: 'Свободные номера на ночь', type: 'int', unit: 'ном.' },
+      { id: 'pct', label: 'Загрузка', type: 'pct', unit: '%' },
+      { id: 'pax', label: 'Проживающие гости', hint: 'взрослые и дети в занятых номерах', type: 'int', unit: 'чел.' },
+      { id: 'arr', label: 'Заезды за день', hint: 'включая walk-in', type: 'int', unit: 'ном.' },
+      { id: 'dep', label: 'Выезды за день', type: 'int', unit: 'ном.' },
+      { id: 'ns', label: 'No-show', type: 'int', unit: 'брон.' },
+      { id: 'cx', label: 'Отмены бронирований за смену', type: 'int', unit: 'брон.' },
+      { id: 'rev', label: 'Выручка от проживания за ночь', type: 'money', unit: '₸' },
+      { id: 'adr', label: 'Средний тариф (ADR)', type: 'money', unit: '₸' },
+      { id: 'revpar', label: 'RevPAR', type: 'money', unit: '₸' }
+    ] },
+  { key: 'HK', tab: 'Уборка', name: 'Уборка номеров', form: 'Форма ХС-2', title: 'План уборки и сверка статусов', about: 'план уборки, горничные, расхождения статусов',
+    desc: d => L('План работы горничных на {0} и сверка шахматки с вечерним обходом в 21:00.', ddmm(d)),
+    fields: [
+      { id: 'depc', label: 'Выездные уборки', hint: 'номера, из которых гости выехали сегодня', type: 'int', unit: 'ном.' },
+      { id: 'stay', label: 'Текущие уборки — всего', hint: 'гости жили прошлую ночь и остаются на следующую', type: 'int', unit: 'ном.' },
+      { id: 'todo', label: 'Текущие уборки к выполнению', hint: 'без номеров с табличкой DND', type: 'int', unit: 'ном.' },
+      { id: 'min', label: 'Трудозатраты на уборку', hint: 'по нормам из справочника', type: 'int', unit: 'мин' },
+      { id: 'maids', label: 'Нужно горничных на смену', type: 'int', unit: 'чел.' },
+      { id: 'ready', label: 'Свободные номера в статусе «Проверен»', hint: 'свободны на ночь по шахматке', type: 'int', unit: 'ном.' },
+      { id: 'disc', label: 'Номера с расхождением статуса', hint: 'шахматка ↔ вечерний обход; номера через запятую', type: 'list', pts: 2 }
+    ] },
+  { key: 'SL', tab: 'Продажи', name: 'Продажи', form: 'Форма ФО-3', title: 'Выручка и каналы продаж', about: 'выручка по статьям, канал OTA, комиссия',
+    desc: d => L('Выручка за {0} по статьям (журнал смены и ночной аудит) и анализ канала OTA на ночь.', ddmm(d)),
+    fields: [
+      { id: 'fnb', label: 'Выручка F&B', hint: 'завтраки, ресторан и бар, мини-бар', type: 'money', unit: '₸' },
+      { id: 'oth', label: 'Выручка прочих услуг', hint: 'прачечная, трансфер, ранний заезд, поздний выезд', type: 'money', unit: '₸' },
+      { id: 'tot', label: 'Общая выручка за сутки', hint: 'проживание + F&B + прочие', type: 'money', unit: '₸' },
+      { id: 'rshare', label: 'Доля проживания в общей выручке', type: 'pct', unit: '%' },
+      { id: 'otan', label: 'Номера, проданные через OTA, на ночь', type: 'int', unit: 'ном.' },
+      { id: 'otarev', label: 'Выручка от проживания по OTA', type: 'money', unit: '₸' },
+      { id: 'otacom', label: 'Комиссия OTA к оплате', type: 'money', unit: '₸' },
+      { id: 'otashare', label: 'Доля OTA в выручке от проживания', type: 'pct', unit: '%' }
+    ] },
+  { key: 'CS', tab: 'Касса', name: 'Касса', form: 'Форма КО-4', title: 'Кассовый отчёт смены', about: 'оплаты по способам, возвраты, остаток кассы',
+    desc: d => L('Оплаты и движение наличных за {0} по журналу смены. Размен на начало смены — {1}.', ddmm(d), fmtMoney(PRICES.openingCash)),
+    fields: [
+      { id: 'cash', label: 'Оплаты наличными', type: 'money', unit: '₸' },
+      { id: 'card', label: 'Оплаты банковской картой', type: 'money', unit: '₸' },
+      { id: 'kaspi', label: 'Оплаты Kaspi QR', type: 'money', unit: '₸' },
+      { id: 'bank', label: 'Поступления на расчётный счёт', type: 'money', unit: '₸' },
+      { id: 'total', label: 'Итого оплат за смену', hint: 'все способы, без вычета возвратов', type: 'money', unit: '₸' },
+      { id: 'refund', label: 'Возвраты наличными', type: 'money', unit: '₸' },
+      { id: 'inkass', label: 'Сдано по инкассации', type: 'money', unit: '₸' },
+      { id: 'endcash', label: 'Наличные в кассе на конец смены', type: 'money', unit: '₸' }
+    ] }
+];
+const REP = Object.fromEntries(REPORTS.map(r => [r.key, r]));
+const fieldIds = mods => REPORTS.filter(r => mods.includes(r.key)).flatMap(r => r.fields.map(f => r.key + '.' + f.id));
+const formNo = r => r.form.replace('Форма ', '');
+
+/* ================= обучение: сокращения и подсказки ================= */
+const GLOSS = {
+  ru: {
+    'OOO': ['Out of Order', 'номер «вне строя» — в ремонте. Не продаётся и не входит в номера к продаже.'],
+    'DND': ['Do Not Disturb', '«Не беспокоить» — табличка на двери. Горничная этот номер сегодня не убирает.'],
+    'BAR': ['Best Available Rate', 'базовый тариф отеля: прямые бронирования, OTA и walk-in.'],
+    'OTA': ['Online Travel Agency', 'онлайн-агентство бронирования (здесь Booking.com). Получает комиссию 15% от выручки проживания.'],
+    'F&B': ['Food & Beverage', '«еда и напитки»: завтраки, ресторан, лобби-бар, room service, мини-бар.'],
+    'ADR': ['Average Daily Rate', 'средний тариф — сколько в среднем принёс один занятый номер за ночь. ADR = Выручка от проживания ÷ Занятые номера.'],
+    'RevPAR': ['Revenue Per Available Room', 'выручка на один номер к продаже. RevPAR = Выручка от проживания ÷ Номера к продаже.'],
+    'BB': ['Bed & Breakfast', 'проживание с завтраком. Завтрак начисляется отдельно каждое утро — 4 500 ₸ за человека.'],
+    'RO': ['Room Only', 'только проживание, без питания.'],
+    'No-show': ['No-show', 'гость с бронью не приехал. Бронь аннулируется целиком, номер свободен.'],
+    'Walk-in': ['Walk-in', 'гость без брони: пришёл в отель и заселился сегодня по тарифу BAR.'],
+    'Kaspi QR': ['Kaspi QR', 'оплата через банковское приложение по QR-коду. Это безнал: деньги идут на счёт, а не в кассу.'],
+    'р/с': ['расчётный счёт', 'банковский счёт отеля. Сюда компании переводят деньги по выставленным счетам.'],
+    'STD': ['Standard', 'Стандарт — базовая категория номера.'],
+    'SUP': ['Superior', 'Улучшенный номер: больше площадь или лучше вид.'],
+    'DLX': ['Deluxe', 'Делюкс — просторный номер повышенной категории.'],
+    'LUX': ['Люкс', 'номер высшей категории: спальня и гостиная.'],
+    'Корп.': ['Корпоративный клиент', 'компания по договору: корпоративный тариф, оплата по счёту компании, не в кассу.'],
+    'Турагент': ['Турагентство', 'бронь через турагентство по нетто-тарифу. Проживание оплачено агентством заранее.'],
+    'Прямое': ['Прямое бронирование', 'гость забронировал сам — через сайт или по телефону. Тариф BAR, оплата при заезде.']
+  },
+  kz: {
+    'OOO': ['Out of Order', '«істен шыққан» нөмір — жөндеуде. Сатылмайды және сатуға арналған нөмірлерге кірмейді.'],
+    'DND': ['Do Not Disturb', '«Мазаламаңыз» — есіктегі белгі. Бөлме күтушісі бұл нөмірді бүгін жинамайды.'],
+    'BAR': ['Best Available Rate', 'қонақүйдің базалық тарифі: тікелей брондау, OTA және walk-in.'],
+    'OTA': ['Online Travel Agency', 'онлайн брондау агенттігі (мұнда Booking.com). Тұрудан түсетін түсімнің 15% мөлшерінде комиссия алады.'],
+    'F&B': ['Food & Beverage', '«тамақ және сусындар»: таңғы ас, мейрамхана, лобби-бар, room service, мини-бар.'],
+    'ADR': ['Average Daily Rate', 'орташа тариф — бір бос емес нөмір бір түнде орта есеппен қанша түсім әкелді. ADR = Тұрудан түсім ÷ Бос емес нөмірлер.'],
+    'RevPAR': ['Revenue Per Available Room', 'сатуға арналған бір нөмірге шаққандағы түсім. RevPAR = Тұрудан түсім ÷ Сатуға арналған нөмірлер.'],
+    'BB': ['Bed & Breakfast', 'таңғы асымен тұру. Таңғы ас әр таң сайын бөлек есептеледі — бір адамға 4 500 ₸.'],
+    'RO': ['Room Only', 'тек тұру, тамақсыз.'],
+    'No-show': ['No-show', 'броны бар қонақ келмеді. Брондау толығымен жойылады, нөмір бос.'],
+    'Walk-in': ['Walk-in', 'брондаусыз қонақ: қонақүйге өзі келіп, бүгін BAR тарифі бойынша орналасты.'],
+    'Kaspi QR': ['Kaspi QR', 'банк қосымшасы арқылы QR-кодпен төлеу. Бұл қолма-қолсыз төлем: ақша кассаға емес, шотқа түседі.'],
+    'STD': ['Standard', 'Стандарт — нөмірдің базалық санаты.'],
+    'SUP': ['Superior', 'Жақсартылған нөмір: ауданы үлкенірек немесе көрінісі жақсырақ.'],
+    'DLX': ['Deluxe', 'Делюкс — жоғары санаттағы кең нөмір.'],
+    'LUX': ['Люкс', 'ең жоғары санаттағы нөмір: жатын бөлме және қонақ бөлме.'],
+    'Корп.': ['Корпоративтік клиент', 'шарт бойынша компания: корпоративтік тариф, төлем компания шоты бойынша, кассаға емес.'],
+    'Турагент': ['Турагенттік', 'турагенттік арқылы нетто-тариф бойынша брондау. Тұру ақысын агенттік алдын ала төлеген.'],
+    'Тікелей': ['Тікелей брондау', 'қонақ өзі брондады — сайт немесе телефон арқылы. BAR тарифі, төлем келген кезде.']
+  }
+};
+const AB_ALIAS = { 'no-show': 'No-show', 'walk-in': 'Walk-in' };
+let abRe = null;
+function abRegex() {
+  if (abRe) return abRe;
+  const keys = Object.keys(pick2(GLOSS)).concat(Object.keys(AB_ALIAS)).sort((a, b) => b.length - a.length)
+    .map(k => k.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&'));
+  abRe = new RegExp('(?<![\\p{L}\\d-])(' + keys.join('|') + ')(?![\\p{L}\\d-])', 'gu');
+  return abRe;
+}
+const ab = (t, label) => '<span class="ab" data-ab="' + esc(AB_ALIAS[t] || t) + '">' + esc(label || t) + '</span>';
+function abbrify(text) {
+  text = String(text); let out = '', last = 0;
+  for (const m of text.matchAll(abRegex())) { out += esc(text.slice(last, m.index)) + ab(m[0]); last = m.index + m[0].length; }
+  return out + esc(text.slice(last));
+}
+const TERMS = {
+  ru: [
+    ['Шахматка', 'таблица занятости номеров: строки — номера, столбцы — даты, полосы — проживания и брони.'],
+    ['Бизнес-дата', 'учётный день отеля — день вашей смены. В шахматке выделена золотым столбцом.'],
+    ['Ночной аудит', 'закрытие дня: начисление проживания за ночь каждому гостю и сводный отчёт ФО-1.'],
+    ['Фолио', 'лицевой счёт гостя: все начисления и оплаты по его брони. Открывается нажатием на бронь или строку журнала.'],
+    ['Начисление', 'услуга, которую гость получил. Это выручка отеля.'],
+    ['Оплата', 'деньги, которые заплатил гость или компания. Это касса, а не выручка.'],
+    ['Номерной фонд', 'все номера отеля — 30.'],
+    ['Номера к продаже', 'номерной фонд минус номера в ремонте (OOO).'],
+    ['Загрузка (Occupancy)', 'доля занятых номеров от номеров к продаже, в процентах.'],
+    ['Выездная уборка', 'полная уборка после выезда гостя (departure clean) — 45 мин.'],
+    ['Текущая уборка', 'ежедневная уборка номера, где гость продолжает жить (stayover) — 25 мин.'],
+    ['Скиппер (skipper)', 'по шахматке номер занят, а горничная видит, что он пуст.'],
+    ['Слипер (sleeper)', 'по шахматке номер свободен, а в нём фактически живут.'],
+    ['Размен', 'наличные в кассе на начало смены — 50 000 ₸.'],
+    ['Инкассация', 'сдача наличных из кассы в бухгалтерию. Уменьшает остаток наличных.'],
+    ['Нетто-тариф', 'цена для турагентства без его наценки.'],
+    ['Взр. / дети', 'в столбце «Гости» запись 2+1 — двое взрослых и один ребёнок, всего 3 человека.']
+  ],
+  kz: [
+    ['Шахматка', 'нөмірлердің толу кестесі: жолдар — нөмірлер, бағандар — күндер, жолақтар — тұрулар мен брондар.'],
+    ['Бизнес-күн', 'қонақүйдің есептік күні — сіздің ауысымыңыздың күні. Шахматкада алтын түсті бағанмен белгіленген.'],
+    ['Түнгі аудит', 'күнді жабу: әр қонаққа түнгі тұруды есептеу және ФО-1 жиынтық есебі.'],
+    ['Фолио', 'қонақтың дербес шоты: оның брондауы бойынша барлық есептеулер мен төлемдер. Бронды немесе журнал жолын басқанда ашылады.'],
+    ['Есептеу', 'қонақ алған қызмет. Бұл — қонақүйдің түсімі.'],
+    ['Төлем', 'қонақ немесе компания төлеген ақша. Бұл — касса, түсім емес.'],
+    ['Нөмір қоры', 'қонақүйдің барлық нөмірлері — 30.'],
+    ['Сатуға арналған нөмірлер', 'нөмір қоры минус жөндеудегі нөмірлер (OOO).'],
+    ['Толымдылық (Occupancy)', 'сатуға арналған нөмірлердің ішіндегі бос емес нөмірлердің үлесі, пайызбен.'],
+    ['Кетуден кейінгі жинау', 'қонақ кеткеннен кейінгі толық жинау (departure clean) — 45 мин.'],
+    ['Ағымдағы жинау', 'қонақ тұруын жалғастыратын нөмірді күнделікті жинау (stayover) — 25 мин.'],
+    ['Скиппер (skipper)', 'шахматка бойынша нөмір бос емес, ал бөлме күтушісі оның бос екенін көреді.'],
+    ['Слипер (sleeper)', 'шахматка бойынша нөмір бос, ал онда іс жүзінде біреу тұрып жатыр.'],
+    ['Ұсақ ақша (размен)', 'ауысым басында кассада тұратын қолма-қол ақша — 50 000 ₸.'],
+    ['Инкассация', 'кассадағы қолма-қол ақшаны бухгалтерияға тапсыру. Қолма-қол қалдықты азайтады.'],
+    ['Нетто-тариф', 'турагенттікке арналған, оның үстемесі қосылмаған баға.'],
+    ['Ересек / бала', '«Қонақтар» бағанындағы 2+1 жазбасы — екі ересек және бір бала, барлығы 3 адам.']
+  ]
+};
+
+const HELP = {
+  ru: {
+    'NA.ooo': { what: 'Номера в ремонте (OOO — Out of Order, «вне строя») в ночь с бизнес-даты на завтра. Продать их нельзя.', where: 'Шахматка: тёмные заштрихованные полосы «Ремонт», которые пересекают золотой пунктир ночи. Или вкладка «Статусы номеров» — статус «Ремонт».', ex: 'Пунктир пересекают 2 полосы «Ремонт» → 2.' },
+    'NA.avail': { what: 'Сколько номеров отель реально может продать на эту ночь.', f: 'Номера к продаже = Номерной фонд (30) − OOO', ex: '30 − 2 = 28' },
+    'NA.occ': { what: 'Номера, в которых гости ночуют с бизнес-даты на завтра (проданные номера).', where: 'Шахматка: синие сплошные полосы (в том числе с золотой меткой «заехал сегодня»), которые пересекают золотой пунктир. Проверка: во вкладке «Бронирования» это все брони со статусом «Проживает».', note: 'Не считаются: No-show, «Выехал», «Бронь» (светлые полосы), «Ремонт».', ex: 'Пунктир пересекают 21 синяя полоса → 21.' },
+    'NA.vac': { what: 'Номера к продаже, в которых этой ночью никто не живёт.', f: 'Свободные = Номера к продаже − Занятые', ex: '28 − 21 = 7' },
+    'NA.pct': { what: 'Загрузка (Occupancy) — доля проданных номеров от номеров к продаже.', f: 'Загрузка, % = Занятые ÷ Номера к продаже × 100', ex: '21 ÷ 28 × 100 = 75,0 %. Округляйте до 0,1.' },
+    'NA.pax': { what: 'Сколько человек ночует в отеле: взрослые и дети.', where: '«Бронирования», столбец «Гости» у броней «Проживает». Запись 2+1 — 2 взрослых и 1 ребёнок = 3 человека.', f: 'Гости = сумма (взрослые + дети) по всем занятым номерам', ex: '2 + 3 + 1 + 2 + … = 38' },
+    'NA.arr': { what: 'Сколько номеров заселилось сегодня, включая walk-in — гостей без брони.', where: 'Журнал смены: операции «Заезд». В шахматке — синие полосы с золотой меткой слева, которые начинаются в золотом столбце.', note: 'No-show и отменённые брони — не заезды.' },
+    'NA.dep': { what: 'Сколько номеров выехало сегодня.', where: 'Журнал смены: операции «Выезд». В шахматке — серые полосы, которые заканчиваются в золотом столбце. В «Бронированиях» — статус «Выехал» и выезд сегодня.' },
+    'NA.ns': { what: 'No-show — гость с бронью на сегодня не приехал, бронь аннулирована.', where: 'Журнал смены: операции «No-show». В шахматке — красные штрихованные полосы.' },
+    'NA.cx': { what: 'Сколько броней отменили во время вашей смены — на любую дату заезда, не только на сегодня.', where: 'Журнал смены: операции «Отмена» (фильтр «Отмены и no-show»). В «Бронированиях» — статус «Отменена».', note: 'В шахматке отменённых броней нет.' },
+    'NA.rev': { what: 'Выручка от проживания (Room Revenue) за ночь. Её начисляет ночной аудит: каждому занятому номеру — его тариф за ночь.', where: 'Тариф — в «Бронированиях» (столбец «Тариф/ночь») или в фолио гостя. Берите только брони «Проживает».', f: 'Выручка от проживания = сумма тарифов за ночь всех занятых номеров', note: 'Доп. услуги и оплаты сюда не входят. Предоплата за несколько ночей — тоже не выручка этой ночи.', ex: '26 000 + 34 000 + 22 000 + … = 588 000 ₸' },
+    'NA.adr': { what: 'ADR (Average Daily Rate) — средний тариф: сколько в среднем принёс один занятый номер за ночь.', f: 'ADR = Выручка от проживания ÷ Занятые номера', ex: '588 000 ÷ 21 = 28 000 ₸. Округляйте до целого тенге.' },
+    'NA.revpar': { what: 'RevPAR (Revenue Per Available Room) — выручка на один номер к продаже. Показывает, сколько отель заработал с каждого номера, который мог продать.', f: 'RevPAR = Выручка от проживания ÷ Номера к продаже<br>Проверка: RevPAR = ADR × Загрузка', ex: '588 000 ÷ 28 = 21 000 ₸ (28 000 × 0,75 = 21 000)' },
+    'HK.depc': { what: 'Выездная уборка (departure clean) — полная уборка после выезда гостя: смена белья и полотенец, проверка мини-бара.', where: 'Номера, из которых сегодня выехали гости: журнал смены — операции «Выезд». Это то же число, что строка 08 отчёта ФО-1.' },
+    'HK.stay': { what: 'Текущая уборка (stayover) — гость жил прошлую ночь и остаётся ещё на ночь.', where: '«Бронирования»: статус «Проживает» и дата заезда раньше сегодняшней. В шахматке — синие полосы, которые начались до золотого столбца и идут дальше пунктира.', note: 'Номера, заселённые сегодня, не считаются: их подготовили к заезду.' },
+    'HK.todo': { what: 'Сколько текущих уборок горничные выполнят на самом деле.', where: 'Номера с DND (Do Not Disturb — «Не беспокоить») — во вкладке «Статусы номеров», чёрная метка DND.', f: 'К выполнению = Текущие уборки всего − номера с DND', ex: '16 − 2 = 14' },
+    'HK.min': { what: 'Сколько минут работы нужно на все уборки. Нормы — в «Справочнике».', f: 'Трудозатраты = Выездные × 45 + Текущие к выполнению × 25', ex: '6 × 45 + 14 × 25 = 270 + 350 = 620 мин' },
+    'HK.maids': { what: 'Сколько горничных вывести на смену. У одной горничной 420 минут на уборку.', f: 'Горничные = Трудозатраты ÷ 420, округлить ВВЕРХ до целого', ex: '620 ÷ 420 = 1,48 → 2 горничные' },
+    'HK.ready': { what: 'Номера, которые можно сразу продать гостю без брони: свободны на ночь и проверены супервайзером.', where: 'Сначала по шахматке найдите номера, свободные на ночь (без ремонта). Затем во вкладке «Статусы номеров» отберите среди них статус «Проверен» (зелёный).', note: 'Номер, где по шахматке живёт гость, не считается, даже если он «Проверен».' },
+    'HK.disc': { what: 'Расхождение — шахматка и горничная видят номер по-разному. Скиппер (skipper): по шахматке номер занят, а на обходе «Свободен» — гость мог уехать, не оформив выезд. Слипер (sleeper): по шахматке свободен, а на обходе «Занят» — выезд не оформлен или гость живёт без регистрации.', where: 'Для каждого номера сравните: занят ли он на ночь в шахматке и что написано в строке «Обход 21:00» во вкладке «Статусы номеров». Номера в ремонте не сверяются.', note: 'Ответ — номера через запятую. 2 балла за полный ответ, 1 балл — если ошибка в одном номере.', ex: '305, 412' },
+    'SL.fnb': { what: 'F&B (Food & Beverage, «еда и напитки») — выручка питания за сутки.', where: 'Журнал смены, фильтр «Начисления»: строки со статьёй «Завтрак», «Ресторан», «Мини-бар». То же видно в фолио каждого гостя.', f: 'F&B = Завтраки + Ресторан + Мини-бар', note: 'Считайте начисления, а не оплаты. Ресторан «оплачено на месте» входит один раз.' },
+    'SL.oth': { what: 'Выручка от остальных услуг отеля.', where: 'Журнал смены, фильтр «Начисления»: статьи «Прачечная», «Трансфер», «Ранний заезд», «Поздний выезд».', f: 'Прочие = Прачечная + Трансфер + Ранний заезд + Поздний выезд' },
+    'SL.tot': { what: 'Вся выручка отеля за сутки.', f: 'Общая выручка = Выручка от проживания (ФО-1, строка 11) + F&B + Прочие', ex: '588 000 + 96 500 + 31 000 = 715 500 ₸' },
+    'SL.rshare': { what: 'Какую часть выручки дало проживание.', f: 'Доля проживания, % = Выручка от проживания ÷ Общая выручка × 100', ex: '588 000 ÷ 715 500 × 100 = 82,2 %' },
+    'SL.otan': { what: 'OTA (Online Travel Agency) — онлайн-агентство, здесь Booking.com. Сколько занятых на ночь номеров продано через него.', where: '«Бронирования»: статус «Проживает» и канал «OTA».' },
+    'SL.otarev': { what: 'Выручка от проживания только по броням OTA.', where: 'Те же брони, что в строке 05.', f: 'Выручка OTA = сумма тарифов за ночь занятых номеров с каналом OTA', ex: '26 000 + 34 000 + 26 000 + 46 000 = 132 000 ₸' },
+    'SL.otacom': { what: 'Сколько отель должен заплатить OTA за проданные ночи. Ставка — 15% (см. «Справочник»).', f: 'Комиссия = Выручка OTA × 0,15', ex: '132 000 × 0,15 = 19 800 ₸' },
+    'SL.otashare': { what: 'Насколько отель зависит от OTA.', f: 'Доля OTA, % = Выручка OTA ÷ Выручка от проживания × 100', ex: '132 000 ÷ 588 000 × 100 = 22,4 %' },
+    'CS.cash': { what: 'Все оплаты наличными за смену.', where: 'Журнал смены, фильтр «Оплаты и касса»: операции «Оплата» со способом «Наличные».', note: 'Возвраты и инкассацию здесь не вычитайте — для них отдельные строки.' },
+    'CS.card': { what: 'Оплаты банковскими картами через терминал.', where: 'Журнал смены: операции «Оплата» со способом «Карта».' },
+    'CS.kaspi': { what: 'Kaspi QR — оплата через приложение банка по QR-коду. Это безнал: деньги идут на счёт, а не в кассу.', where: 'Журнал смены: операции «Оплата» со способом «Kaspi QR».' },
+    'CS.bank': { what: 'Переводы от компаний на р/с (расчётный счёт) отеля по выставленным счетам.', where: 'Журнал смены: операции «Оплата» со способом «Безнал».' },
+    'CS.total': { what: 'Все деньги, полученные за смену любым способом.', f: 'Итого оплат = Наличные + Карта + Kaspi QR + Безнал', note: 'Возвраты не вычитаются.' },
+    'CS.refund': { what: 'Деньги, которые вернули гостям из кассы.', where: 'Журнал смены: операции «Возврат».' },
+    'CS.inkass': { what: 'Инкассация — администратор сдаёт часть наличных из кассы в бухгалтерию.', where: 'Журнал смены: операции «Инкассация».' },
+    'CS.endcash': { what: 'Сколько наличных должно лежать в кассе при сдаче смены.', f: 'Остаток = Размен (50 000) + Оплаты наличными − Возвраты наличными − Инкассация', note: 'Карта, Kaspi QR и безнал в кассу наличными не попадают.', ex: '50 000 + 132 000 − 26 000 − 100 000 = 56 000 ₸' }
+  },
+  kz: {
+    'NA.ooo': { what: 'Бизнес-күннен ертеңге қараған түні жөндеудегі нөмірлер (OOO — Out of Order, «істен шыққан»). Оларды сатуға болмайды.', where: 'Шахматка: түнгі алтын пунктирді қиып өтетін қараңғы штрихталған «Жөндеу» жолақтары. Немесе «Нөмірлер мәртебесі» қойындысы — «Жөндеу» мәртебесі.', ex: 'Пунктирді 2 «Жөндеу» жолағы қиып өтеді → 2.' },
+    'NA.avail': { what: 'Қонақүй осы түнге нақты сата алатын нөмірлер саны.', f: 'Сатуға арналған нөмірлер = Нөмір қоры (30) − OOO', ex: '30 − 2 = 28' },
+    'NA.occ': { what: 'Қонақтар бизнес-күннен ертеңге қараған түні түнейтін нөмірлер (сатылған нөмірлер).', where: 'Шахматка: алтын пунктирді қиып өтетін көк тұтас жолақтар (соның ішінде «бүгін келді» алтын белгісі барлары). Тексеру: «Брондаулар» қойындысында бұл — «Тұрып жатыр» мәртебесіндегі барлық брондар.', note: 'Есептелмейді: No-show, «Кетті», «Бронь» (ашық түсті жолақтар), «Жөндеу».', ex: 'Пунктирді 21 көк жолақ қиып өтеді → 21.' },
+    'NA.vac': { what: 'Осы түні ешкім тұрмайтын сатуға арналған нөмірлер.', f: 'Бос нөмірлер = Сатуға арналған нөмірлер − Бос емес нөмірлер', ex: '28 − 21 = 7' },
+    'NA.pct': { what: 'Толымдылық (Occupancy) — сатуға арналған нөмірлердің ішіндегі сатылған нөмірлердің үлесі.', f: 'Толымдылық, % = Бос емес нөмірлер ÷ Сатуға арналған нөмірлер × 100', ex: '21 ÷ 28 × 100 = 75,0 %. 0,1-ге дейін дөңгелектеңіз.' },
+    'NA.pax': { what: 'Қонақүйде қанша адам түнейді: ересектер мен балалар.', where: '«Брондаулар», «Тұрып жатыр» брондарының «Қонақтар» бағаны. 2+1 жазбасы — 2 ересек және 1 бала = 3 адам.', f: 'Қонақтар = барлық бос емес нөмірлер бойынша (ересектер + балалар) сомасы', ex: '2 + 3 + 1 + 2 + … = 38' },
+    'NA.arr': { what: 'Бүгін қанша нөмір орналасты, walk-in — брондаусыз қонақтарды қоса алғанда.', where: 'Ауысым журналы: «Келу» операциялары. Шахматкада — алтын бағаннан басталатын, сол жағында алтын белгісі бар көк жолақтар.', note: 'No-show және жойылған брондар келуге жатпайды.' },
+    'NA.dep': { what: 'Бүгін қанша нөмір кетті.', where: 'Ауысым журналы: «Кету» операциялары. Шахматкада — алтын бағанда аяқталатын сұр жолақтар. «Брондауларда» — «Кетті» мәртебесі және кету күні бүгін.' },
+    'NA.ns': { what: 'No-show — бүгінге броны бар қонақ келмеді, брондау жойылды.', where: 'Ауысым журналы: «No-show» операциялары. Шахматкада — қызыл штрихталған жолақтар.' },
+    'NA.cx': { what: 'Сіздің ауысымыңыз кезінде қанша брондаудан бас тартылды — тек бүгінгі емес, кез келген келу күніне.', where: 'Ауысым журналы: «Бас тарту» операциялары («Бас тартулар және no-show» сүзгісі). «Брондауларда» — «Жойылды» мәртебесі.', note: 'Шахматкада жойылған брондар көрсетілмейді.' },
+    'NA.rev': { what: 'Түнгі тұрудан түсім (Room Revenue). Оны түнгі аудит есептейді: әр бос емес нөмірге — оның түнгі тарифі.', where: 'Тариф — «Брондауларда» («Тариф/түн» бағаны) немесе қонақтың фолиосында. Тек «Тұрып жатыр» брондарын алыңыз.', f: 'Тұрудан түсім = барлық бос емес нөмірлердің түнгі тарифтерінің сомасы', note: 'Қосымша қызметтер мен төлемдер бұған кірмейді. Бірнеше түнге алдын ала төлем де осы түннің түсімі емес.', ex: '26 000 + 34 000 + 22 000 + … = 588 000 ₸' },
+    'NA.adr': { what: 'ADR (Average Daily Rate) — орташа тариф: бір бос емес нөмір бір түнде орта есеппен қанша түсім әкелді.', f: 'ADR = Тұрудан түсім ÷ Бос емес нөмірлер', ex: '588 000 ÷ 21 = 28 000 ₸. Бүтін теңгеге дейін дөңгелектеңіз.' },
+    'NA.revpar': { what: 'RevPAR (Revenue Per Available Room) — сатуға арналған бір нөмірге шаққандағы түсім. Қонақүй сата алатын әр нөмірден қанша тапқанын көрсетеді.', f: 'RevPAR = Тұрудан түсім ÷ Сатуға арналған нөмірлер<br>Тексеру: RevPAR = ADR × Толымдылық', ex: '588 000 ÷ 28 = 21 000 ₸ (28 000 × 0,75 = 21 000)' },
+    'HK.depc': { what: 'Кетуден кейінгі жинау (departure clean) — қонақ кеткеннен кейінгі толық жинау: төсек жабдықтары мен сүлгілерді ауыстыру, мини-барды тексеру.', where: 'Бүгін қонақтар кеткен нөмірлер: ауысым журналы — «Кету» операциялары. Бұл ФО-1 есебінің 08-жолындағы сан.' },
+    'HK.stay': { what: 'Ағымдағы жинау (stayover) — қонақ өткен түні тұрды және тағы бір түнге қалады.', where: '«Брондаулар»: «Тұрып жатыр» мәртебесі және келу күні бүгіннен ерте. Шахматкада — алтын бағанға дейін басталып, пунктирден әрі өтетін көк жолақтар.', note: 'Бүгін орналасқан нөмірлер есептелмейді: олар келуге дайындалған.' },
+    'HK.todo': { what: 'Бөлме күтушілері нақты қанша ағымдағы жинау орындайды.', where: 'DND (Do Not Disturb — «Мазаламаңыз») белгісі бар нөмірлер — «Нөмірлер мәртебесі» қойындысында, қара DND белгісі.', f: 'Орындалатын жинаулар = Ағымдағы жинаулар барлығы − DND нөмірлері', ex: '16 − 2 = 14' },
+    'HK.min': { what: 'Барлық жинауға қанша минут жұмыс керек. Нормалар — «Анықтамалықта».', f: 'Еңбек шығыны = Кетуден кейінгі жинаулар × 45 + Орындалатын ағымдағы жинаулар × 25', ex: '6 × 45 + 14 × 25 = 270 + 350 = 620 мин' },
+    'HK.maids': { what: 'Ауысымға қанша бөлме күтушісін шығару керек. Бір күтушіде жинауға 420 минут бар.', f: 'Күтушілер = Еңбек шығыны ÷ 420, бүтінге дейін ЖОҒАРЫ қарай дөңгелектеу', ex: '620 ÷ 420 = 1,48 → 2 күтуші' },
+    'HK.ready': { what: 'Брондаусыз қонаққа бірден сатуға болатын нөмірлер: түнге бос және супервайзер тексерген.', where: 'Алдымен шахматка бойынша түнге бос нөмірлерді табыңыз (жөндеудегілерсіз). Содан кейін «Нөмірлер мәртебесі» қойындысында олардың ішінен «Тексерілген» (жасыл) мәртебесін таңдаңыз.', note: 'Шахматка бойынша қонақ тұрып жатқан нөмір «Тексерілген» болса да есептелмейді.' },
+    'HK.disc': { what: 'Сәйкессіздік — шахматка мен бөлме күтушісі нөмірді әртүрлі көреді. Скиппер (skipper): шахматка бойынша нөмір бос емес, ал аралауда «Бос» — қонақ кетуді рәсімдемей кетіп қалуы мүмкін. Слипер (sleeper): шахматка бойынша бос, ал аралауда «Бос емес» — кету рәсімделмеген немесе қонақ тіркеусіз тұр.', where: 'Әр нөмір үшін салыстырыңыз: шахматкада ол түнге бос емес пе және «Нөмірлер мәртебесі» қойындысындағы «Аралау 21:00» жолында не жазылған. Жөндеудегі нөмірлер салыстырылмайды.', note: 'Жауап — нөмірлер үтір арқылы. Толық жауапқа 2 балл, бір нөмірде қате болса — 1 балл.', ex: '305, 412' },
+    'SL.fnb': { what: 'F&B (Food & Beverage, «тамақ және сусындар») — тәуліктегі тамақтанудан түсім.', where: 'Ауысым журналы, «Есептеулер» сүзгісі: «Таңғы ас», «Мейрамхана», «Мини-бар» баптары бар жолдар. Әр қонақтың фолиосында да көрінеді.', f: 'F&B = Таңғы ас + Мейрамхана + Мини-бар', note: 'Төлемдерді емес, есептеулерді санаңыз. «Орнында төленді» деген мейрамхана шоты бір рет қана кіреді.' },
+    'SL.oth': { what: 'Қонақүйдің басқа қызметтерінен түсім.', where: 'Ауысым журналы, «Есептеулер» сүзгісі: «Кір жуу», «Трансфер», «Ерте келу», «Кеш кету» баптары.', f: 'Басқа қызметтер = Кір жуу + Трансфер + Ерте келу + Кеш кету' },
+    'SL.tot': { what: 'Қонақүйдің тәуліктегі бүкіл түсімі.', f: 'Жалпы түсім = Тұрудан түсім (ФО-1, 11-жол) + F&B + Басқа қызметтер', ex: '588 000 + 96 500 + 31 000 = 715 500 ₸' },
+    'SL.rshare': { what: 'Түсімнің қандай бөлігін тұру берді.', f: 'Тұрудың үлесі, % = Тұрудан түсім ÷ Жалпы түсім × 100', ex: '588 000 ÷ 715 500 × 100 = 82,2 %' },
+    'SL.otan': { what: 'OTA (Online Travel Agency) — онлайн-агенттік, мұнда Booking.com. Түнге бос емес нөмірлердің қаншасы ол арқылы сатылды.', where: '«Брондаулар»: «Тұрып жатыр» мәртебесі және «OTA» арнасы.' },
+    'SL.otarev': { what: 'Тек OTA брондары бойынша тұрудан түсім.', where: '05-жолдағы брондар.', f: 'OTA түсімі = OTA арнасы бар бос емес нөмірлердің түнгі тарифтерінің сомасы', ex: '26 000 + 34 000 + 26 000 + 46 000 = 132 000 ₸' },
+    'SL.otacom': { what: 'Сатылған түндер үшін қонақүй OTA-ға қанша төлеуі керек. Мөлшерлеме — 15% («Анықтамалықты» қараңыз).', f: 'Комиссия = OTA түсімі × 0,15', ex: '132 000 × 0,15 = 19 800 ₸' },
+    'SL.otashare': { what: 'Қонақүй OTA-ға қаншалықты тәуелді.', f: 'OTA үлесі, % = OTA түсімі ÷ Тұрудан түсім × 100', ex: '132 000 ÷ 588 000 × 100 = 22,4 %' },
+    'CS.cash': { what: 'Ауысымдағы барлық қолма-қол төлемдер.', where: 'Ауысым журналы, «Төлемдер және касса» сүзгісі: «Қолма-қол» тәсілімен жасалған «Төлем» операциялары.', note: 'Мұнда қайтарулар мен инкассацияны шегермеңіз — олар үшін бөлек жолдар бар.' },
+    'CS.card': { what: 'Терминал арқылы банк картасымен төлемдер.', where: 'Ауысым журналы: «Карта» тәсілімен жасалған «Төлем» операциялары.' },
+    'CS.kaspi': { what: 'Kaspi QR — банк қосымшасы арқылы QR-кодпен төлеу. Бұл қолма-қолсыз төлем: ақша кассаға емес, шотқа түседі.', where: 'Ауысым журналы: «Kaspi QR» тәсілімен жасалған «Төлем» операциялары.' },
+    'CS.bank': { what: 'Компаниялардан қонақүйдің есеп шотына шоттар бойынша аударымдар.', where: 'Ауысым журналы: «Қолма-қолсыз» тәсілімен жасалған «Төлем» операциялары.' },
+    'CS.total': { what: 'Ауысым кезінде кез келген тәсілмен алынған барлық ақша.', f: 'Төлемдер жиыны = Қолма-қол + Карта + Kaspi QR + Қолма-қолсыз', note: 'Қайтарулар шегерілмейді.' },
+    'CS.refund': { what: 'Кассадан қонақтарға қайтарылған ақша.', where: 'Ауысым журналы: «Қайтару» операциялары.' },
+    'CS.inkass': { what: 'Инкассация — әкімші кассадағы қолма-қол ақшаның бір бөлігін бухгалтерияға тапсырады.', where: 'Ауысым журналы: «Инкассация» операциялары.' },
+    'CS.endcash': { what: 'Ауысымды тапсырғанда кассада қанша қолма-қол ақша болуы керек.', f: 'Қалдық = Ұсақ ақша (50 000) + Қолма-қол төлемдер − Қолма-қол қайтарулар − Инкассация', note: 'Карта, Kaspi QR және қолма-қолсыз төлемдер кассаға қолма-қол ақша болып түспейді.', ex: '50 000 + 132 000 − 26 000 − 100 000 = 56 000 ₸' }
+  }
+};
+function helpHTML(id) {
+  const h = pick2(HELP)[id]; if (!h) return '';
+  const [k, fid] = id.split('.'), r = REP[k], i = r.fields.findIndex(x => x.id === fid);
+  return '<h4>' + L('{0}, строка {1}', formNo(r), pad(i + 1)) + ' · ' + esc(L(r.fields[i].label)) + '</h4>' +
+    '<p>' + h.what + '</p>' +
+    (h.where ? '<span class="tk">' + L('Где взять') + '</span><p>' + h.where + '</p>' : '') +
+    (h.f ? '<span class="tk">' + L('Формула') + '</span><div class="formula">' + h.f + '</div>' : '') +
+    (h.note ? '<p class="tnote">' + h.note + '</p>' : '') +
+    (h.ex ? '<span class="tk">' + L('Пример (цифры не из вашего варианта)') + '</span><p>' + h.ex + '</p>' : '');
+}
+
+/* ================= проверка ответов ================= */
+function computeAnswers(sc) {
+  const S = sc.stays, cov = (s, k) => s.a <= k && k < s.d;
+  const oooN = k => sc.ooo.filter(o => o.a <= k && k < o.d).length;
+  const occ0 = S.filter(s => s.st === 'in' && cov(s, 0));
+  const ooo0 = oooN(0), avail = ROOMS.length - ooo0, occ = occ0.length, rev = sum(occ0.map(s => s.rate));
+  const ev = sc.events, ch = ev.filter(e => e.k === 'charge');
+  const fnb = sum(ch.filter(e => FNB.includes(e.cat)).map(e => e.amount));
+  const oth = sum(ch.filter(e => !FNB.includes(e.cat)).map(e => e.amount));
+  const tot = rev + fnb + oth;
+  const ota = occ0.filter(s => s.ch === 'OTA'), otarev = sum(ota.map(s => s.rate));
+  const pays = ev.filter(e => e.k === 'pay'), by = m => sum(pays.filter(e => e.method === m).map(e => e.amount));
+  const cash = by('Наличные'), card = by('Карта'), kaspi = by('Kaspi QR'), bank = by('Безнал');
+  const refund = sum(ev.filter(e => e.k === 'refund').map(e => e.amount));
+  const inkass = sum(ev.filter(e => e.k === 'inkass').map(e => e.amount));
+  const stay = S.filter(s => s.st === 'in' && s.a < 0 && s.d > 0).length;
+  const depc = S.filter(s => s.st === 'out' && s.d === 0).length;
+  const todo = stay - sc.dnd.length, min = depc * PRICES.cleanDep + todo * PRICES.cleanStay;
+  const occRooms = new Set(occ0.map(s => s.room));
+  const oooRooms = new Set(sc.ooo.filter(o => o.a <= 0 && 0 < o.d).map(o => o.room));
+  const ready = ROOMS.filter(r => !occRooms.has(r.no) && !oooRooms.has(r.no) && sc.hk[r.no].st === 'insp').length;
+  return {
+    'NA.ooo': ooo0, 'NA.avail': avail, 'NA.occ': occ, 'NA.vac': avail - occ, 'NA.pct': occ / avail * 100,
+    'NA.pax': sum(occ0.map(s => s.ad + s.chd)), 'NA.arr': S.filter(s => s.st === 'in' && s.a === 0).length,
+    'NA.dep': depc, 'NA.ns': S.filter(s => s.st === 'ns').length, 'NA.cx': S.filter(s => s.st === 'cx').length,
+    'NA.rev': rev, 'NA.adr': occ ? rev / occ : 0, 'NA.revpar': rev / avail,
+    'HK.depc': depc, 'HK.stay': stay, 'HK.todo': todo, 'HK.min': min, 'HK.maids': Math.ceil(min / PRICES.maidMin), 'HK.ready': ready, 'HK.disc': sc.disc.slice().sort(),
+    'SL.fnb': fnb, 'SL.oth': oth, 'SL.tot': tot, 'SL.rshare': tot ? rev / tot * 100 : 0, 'SL.otan': ota.length, 'SL.otarev': otarev,
+    'SL.otacom': otarev * PRICES.otaComm, 'SL.otashare': rev ? otarev / rev * 100 : 0,
+    'CS.cash': cash, 'CS.card': card, 'CS.kaspi': kaspi, 'CS.bank': bank, 'CS.total': cash + card + kaspi + bank,
+    'CS.refund': refund, 'CS.inkass': inkass, 'CS.endcash': PRICES.openingCash + cash - refund - inkass
+  };
+}
+function parseNum(s) {
+  const t = String(s || '').toLowerCase().replace(/[\s  ]/g, '').replace(/₸|тенге|теңге|тг\.?|%|мин\.?|чел\.?|адам|ном\.?|нөм\.?|брон\.?/g, '').replace(',', '.');
+  if (!/^-?\d+(\.\d+)?$/.test(t)) return NaN;
+  return parseFloat(t);
+}
+const parseList = s => [...new Set(String(s || '').match(/\d{3}/g) || [])];
+function checkField(f, given, exp) {
+  const max = f.pts || 1;
+  if (f.type === 'list') {
+    const G = parseList(given), E = exp.map(String);
+    if (!G.length) return 0;
+    const hit = G.filter(x => E.includes(x)).length, wrong = G.length - hit, miss = E.length - hit;
+    if (!wrong && !miss) return max;
+    return hit > 0 && wrong + miss <= 1 ? 1 : 0;
+  }
+  const g = parseNum(given);
+  if (isNaN(g)) return 0;
+  const tol = f.type === 'money' ? 1.0001 : f.type === 'pct' ? 0.0601 : 0.0001;
+  return Math.abs(g - exp) <= tol ? max : 0;
+}
+const fmtExp = (f, e) => f.type === 'money' ? fmtMoney(e) : f.type === 'pct' ? fmtPct(e) : f.type === 'list' ? (e.length ? e.join(', ') : L('нет')) : String(e);
+const markOf = p => p >= 90 ? [5, 'отлично'] : p >= 75 ? [4, 'хорошо'] : p >= 50 ? [3, 'удовлетворительно'] : [2, 'неудовлетворительно'];
+
+function gradeAll(sc, answers, mods) {
+  const E = computeAnswers(sc);
+  const reps = []; let score = 0, max = 0;
+  for (const r of REPORTS) {
+    if (!mods.includes(r.key)) continue;
+    const items = r.fields.map((f, i) => {
+      const id = r.key + '.' + f.id;
+      return { id, code: pad(i + 1), label: L(f.label), given: answers[id] || '', exp: fmtExp(f, E[id]), pts: checkField(f, answers[id], E[id]), max: f.pts || 1 };
+    });
+    const s = sum(items.map(x => x.pts)), m = sum(items.map(x => x.max));
+    reps.push({ key: r.key, name: L(r.name), score: s, max: m, items });
+    score += s; max += m;
+  }
+  const pct = max ? Math.round(score / max * 1000) / 10 : 0;
+  const [mark, word] = markOf(pct);
+  return { reps, score, max, pct, mark, word: L(word) };
+}
+
+/* ================= код результата ================= */
+const SALT = 'sapar-fo-v1';
+function fnv(str) { let h = 0x811c9dc5; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); }
+function b64e(str) { const b = new TextEncoder().encode(str); let s = ''; for (const x of b) s += String.fromCharCode(x); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+function b64d(s) { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; const bin = atob(s); return new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0))); }
+function makeCode(st) {
+  const p = [1, st.student.last, st.student.first, st.student.group, st.seed, st.dISO, st.mods, st.genAt, st.submitAt, st.regen, fieldIds(st.mods).map(id => st.answers[id] || '')];
+  const body = b64e(JSON.stringify(p));
+  return 'SPR1.' + body + '.' + fnv(SALT + body);
+}
+function decodeCode(code) {
+  const m = /^SPR1\.([A-Za-z0-9_-]+)\.([0-9a-z]+)$/.exec(code);
+  if (!m) return { err: L('неверный формат кода') };
+  if (fnv(SALT + m[1]) !== m[2]) return { err: L('код изменён или скопирован не полностью') };
+  let p; try { p = JSON.parse(b64d(m[1])); } catch (e) { return { err: L('код повреждён') }; }
+  const [, last, first, group, seed, dISO, mods, genAt, subAt, regen, arr] = p;
+  const answers = {}; fieldIds(mods).forEach((id, i) => { answers[id] = arr[i] || ''; });
+  const g = gradeAll(buildScenario(seed, dISO), answers, mods);
+  return { code, last, first, group, seed, dISO, mods, genAt, subAt, regen, g };
+}
+
+/* ================= состояние ================= */
+const app = document.getElementById('app');
+let state = null, sc = null, screen = 'start', journal = [], prefill = null, modalOk = null, tOpen = null, tMsg = null, saveT = null;
+const save = () => lsSet(LS_SHIFT, state);
+const saveSoon = () => { clearTimeout(saveT); saveT = setTimeout(save, 250); };
+
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.hidden = false;
+  clearTimeout(toast.t); toast.t = setTimeout(() => { t.hidden = true; }, 2600);
+}
+function openModal(html) {
+  $('#modal-body').innerHTML = html; $('#modal').hidden = false;
+  const f = $('#modal [data-autofocus]') || $('#modal button'); if (f) f.focus();
+}
+function closeModal() { $('#modal').hidden = true; modalOk = null; }
+function confirmBox(title, text, okLabel, onOk, danger) {
+  modalOk = onOk;
+  openModal('<h2 class="m-title" id="m-title">' + title + '</h2><p class="m-text">' + text + '</p><div class="m-actions"><button class="btn" data-act="mclose">' + L('Отменить') + '</button><button class="btn ' + (danger ? 'btn-danger' : 'btn-primary') + '" data-act="mok" data-autofocus>' + okLabel + '</button></div>');
+}
+function copyText(text, okMsg) {
+  const fallback = () => {
+    openModal('<h2 class="m-title" id="m-title">' + L('Скопируйте вручную') + '</h2><p class="m-text">' + L('Текст выделен — нажмите Ctrl+C (на телефоне — «Копировать»).') + '</p><textarea id="cpy" class="cpy" readonly>' + esc(text) + '</textarea><div class="m-actions"><button class="btn btn-primary" data-act="mclose">' + L('Готово') + '</button></div>');
+    const ta = $('#cpy'); ta.focus(); ta.select();
+  };
+  try { navigator.clipboard.writeText(text).then(() => toast(okMsg || L('Скопировано')), fallback); } catch (e) { fallback(); }
+}
+
+/* ================= стартовый экран ================= */
+function miniRack() {
+  const t = new Date();
+  let head = '<div class="mini-row mini-head"><div class="mini-no"></div><div class="mini-days">';
+  for (let i = 0; i < 10; i++) head += '<span class="' + (i === 3 ? 'is-today' : '') + '">' + pad(addD(t, i - 3).getDate()) + '</span>';
+  head += '</div></div>';
+  const rows = [['201', [[.5, 3.5, 'out'], [3.5, 6.5, 'in arr'], [7.5, 10, 'res']]], ['202', [[0, 4.5, 'in'], [5.5, 8.5, 'res']]], ['203', [[1.5, 5.5, 'ooo']]],
+    ['204', [[0, 2.5, 'out'], [3.5, 5.5, 'ns'], [6.5, 10, 'res']]], ['205', [[2.5, 7.5, 'in']]], ['206', [[0, 3.5, 'out'], [4.5, 6.5, 'res'], [6.5, 9.5, 'res']]]];
+  return head + rows.map(([no, bars]) => '<div class="mini-row"><div class="mini-no">' + no + '</div><div class="mini-track"><i class="mini-today"></i>' +
+    bars.map(([a, b, c]) => '<i class="mb ' + c.split(' ').map(x => 'm-' + x).join(' ') + '" style="left:' + a * 10 + '%;width:calc(' + (b - a) * 10 + '% - 3px)"></i>').join('') + '</div></div>').join('');
+}
+function viewStart() {
+  const last = lsGet(LS_LAST) || {};
+  const pf = prefill || { group: last.group || '' };
+  let mods = (prefill ? prefill.mods : (last.mods || [])).filter(k => REP[k]);
+  if (!mods.length) mods = REPORTS.map(r => r.key);
+  const unfinished = state && state.student && !state.submitted ? state : null;
+  return '<section class="start">' +
+    '<div class="start-intro">' +
+      '<div class="brand"><span class="brand-key">' + ICON.key + '</span><span>' + L('Учебный отель «Сапар» · служба приёма и размещения') + '</span>' + langSwitch() + '</div>' +
+      '<h1 class="display">' + L('Учебная шахматка') + '</h1>' +
+      '<p class="lead">' + L('Суточная смена администратора в отеле на 30 номеров. Программа генерирует день: <b>заезды, выезды, no-show, отмены, начисления и оплаты</b>. Отчёты вы считаете сами — программа проверяет их только после сдачи смены.') + '</p>' +
+      '<div><div class="mini" aria-hidden="true">' + miniRack() + '</div><p class="mini-cap">' + L('Так выглядит шахматка: строки — номера, столбцы — даты, золотой столбец — сегодня (пример).') + '</p></div>' +
+      '<ol class="steps">' +
+        '<li><b>' + L('Откройте смену и пройдите «Обучение»') + '</b><span>' + L('Как читать шахматку, где брать данные, формулы и сокращения.') + '</span></li>' +
+        '<li><b>' + L('Сгенерируйте день') + '</b><span>' + L('Кнопка справа вверху. У каждого свой вариант.') + '</span></li>' +
+        '<li><b>' + L('Заполните отчёты') + '</b><span>' + L('У каждой строки кнопка «?» — формула, где взять данные и пример.') + '</span></li>' +
+        '<li><b>' + L('Сдайте смену') + '</b><span>' + L('Баллы, оценка, разбор ошибок и код для преподавателя.') + '</span></li>' +
+      '</ol>' +
+    '</div>' +
+    '<div class="start-side">' +
+      '<form id="startForm" class="card start-card" novalidate>' +
+        '<h2>' + L('Открытие смены') + '</h2>' +
+        (unfinished ? '<div class="resume"><span>' + L('Есть незавершённая смена: {0}, группа {1}. Новая смена её заменит.', '<b>' + esc(unfinished.student.last + ' ' + unfinished.student.first) + '</b>', esc(unfinished.student.group)) + '</span><button type="button" class="btn" data-act="resume">' + L('Продолжить эту смену') + '</button></div>' : '') +
+        '<div class="row2"><div class="field"><label for="st-last">' + L('Фамилия') + '</label><input id="st-last" autocomplete="family-name" value="' + esc(pf.last || '') + '"></div>' +
+        '<div class="field"><label for="st-first">' + L('Имя') + '</label><input id="st-first" autocomplete="given-name" value="' + esc(pf.first || '') + '"></div></div>' +
+        '<div class="field"><label for="st-group">' + L('Группа') + '</label><input id="st-group" placeholder="' + L('например, ОМ-31') + '" value="' + esc(pf.group || '') + '"></div>' +
+        '<fieldset class="mods"><legend>' + L('Отчёты в задании') + '</legend>' +
+          REPORTS.map(r => '<label class="mod" for="mod-' + r.key + '"><input type="checkbox" name="mod" id="mod-' + r.key + '" value="' + r.key + '"' + (mods.includes(r.key) ? ' checked' : '') + '><span><b>' + L(r.name) + '</b><small>' + esc(L(r.about)) + '</small></span></label>').join('') +
+        '</fieldset>' +
+        (LIVE ? '<p class="live-note">' + L('Вы в компьютерном классе: преподаватель видит ход вашей смены и результат автоматически.') + '</p>' : '') +
+        '<p class="form-err" id="startErr" hidden></p>' +
+        '<button class="btn btn-primary btn-lg" type="submit">' + L('Начать смену') + '</button>' +
+      '</form>' +
+      '<div class="start-foot"><button class="linkbtn" data-act="teacher">' + L('Преподавателю: проверка результатов студентов →') + '</button></div>' +
+    '</div>' +
+  '</section>';
+}
+function startShift() {
+  const last = $('#st-last').value.trim(), first = $('#st-first').value.trim(), group = $('#st-group').value.trim();
+  const mods = [...document.querySelectorAll('input[name="mod"]:checked')].map(x => x.value);
+  const err = $('#startErr');
+  if (!last || !first || !group) { err.textContent = L('Заполните фамилию, имя и группу.'); err.hidden = false; return; }
+  if (!mods.length) { err.textContent = L('Отметьте хотя бы один отчёт.'); err.hidden = false; return; }
+  state = { v: 1, sid: newSid(), student: { last, first, group }, mods, startedAt: Date.now(), seed: null, dISO: null, genAt: null, regen: 0, answers: {}, submitted: false, submitAt: null, tabL: 'learn', tabR: mods[0], jf: 'all' };
+  lsSet(LS_LAST, { group, mods });
+  sc = null; prefill = null; save(); screen = 'work'; render(); liveSend();
+}
+
+/* ================= компьютерный класс: связь с журналом преподавателя ================= */
+// Включается, только когда страницу раздаёт локальный сервер класса (server.js).
+const LIVE = !!window.SAPAR_LIVE;
+let liveT = null, liveOk = null, liveAt = 0;
+const newSid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+function liveSnapshot() {
+  if (!state || !state.student) return null;
+  const p = progress(), s = state.student;
+  const o = { sid: state.sid, last: s.last, first: s.first, group: s.group, mods: state.mods, seed: state.seed, regen: state.regen,
+    tab: state.tabL, screen, lang: LANG, filled: p.filled, total: p.total, by: p.by, submitted: !!state.submitted };
+  if (state.submitted && sc) {
+    const g = gradeAll(sc, state.answers, state.mods);
+    o.result = { score: g.score, max: g.max, pct: g.pct, mark: g.mark, word: g.word, code: makeCode(state),
+      reps: g.reps.map(r => ({ key: r.key, name: r.name, score: r.score, max: r.max, items: r.items.map(x => ({ code: x.code, label: x.label, given: x.given, exp: x.exp, pts: x.pts, max: x.max })) })) };
+  }
+  return o;
+}
+const liveLabel = ok => ok ? L('на связи с преподавателем') : L('нет связи с преподавателем');
+function setLive(ok) {
+  liveOk = ok;
+  const el = $('#liveDot'); if (!el) return;
+  el.classList.toggle('off', !ok);
+  el.textContent = liveLabel(ok);
+}
+function liveSend() {
+  if (!LIVE) return;
+  const o = liveSnapshot(); if (!o) return;
+  liveAt = Date.now(); clearTimeout(liveT);
+  try {
+    fetch('/api/hb', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(o), keepalive: true })
+      .then(r => setLive(r.ok), () => setLive(false));
+  } catch (e) { setLive(false); }
+}
+const liveSoon = () => { if (!LIVE) return; clearTimeout(liveT); liveT = setTimeout(liveSend, 1500); };
+
+/* ================= рабочее место ================= */
+function viewWork() {
+  const st = state, d = sc ? dOf(sc.dISO) : null;
+  const g = st.submitted && sc ? gradeAll(sc, st.answers, st.mods) : null;
+  return '<div class="work" data-mpane="' + (st.mpane === 'rep' ? 'rep' : 'data') + '">' +
+    '<header class="tb">' +
+      '<div class="tb-block"><span class="brand-key">' + ICON.key + '</span><div><div class="tb-name">' + L('Отель «Сапар»') + '</div><div class="tb-sub">' +
+        (sc ? L('Бизнес-дата {0}, {1} · вариант {2}', '<span class="mono">' + ddmmyyyy(d) + '</span>', WDL(d.getDay()), '<span class="mono">' + sc.seed + '</span>') : L('День ещё не сгенерирован')) + '</div></div></div>' +
+      '<div class="tb-block"><div><div class="tb-name">' + esc(st.student.last + ' ' + st.student.first) + '</div><div class="tb-sub">' + L('Группа') + ' ' + esc(st.student.group) + ' · ' +
+        (g ? '<span class="tb-done">' + L('Смена сдана · {0} из {1} · оценка {2}', g.score, g.max, g.mark) + '</span>' : L('в смене') + ' <span class="mono" id="timer">00:00:00</span>') +
+        (LIVE ? ' · <span id="liveDot" class="live' + (liveOk === false ? ' off' : '') + '">' + liveLabel(liveOk !== false) + '</span>' : '') + '</div></div></div>' +
+      '<div class="tb-actions">' +
+        (st.submitted ? '<button class="btn btn-gen" data-act="newshift">' + ICON.dice + L('Новая смена') + '</button>'
+          : '<button class="btn btn-gen" data-act="gen">' + ICON.dice + L('Сгенерировать день') + '</button><button class="btn btn-light" data-act="submit"' + (sc ? '' : ' disabled') + '>' + L('Сдать смену') + '</button>') +
+        langSwitch() + '<button class="btn btn-ghost" data-act="exit">' + L('Выйти') + '</button>' +
+      '</div>' +
+    '</header>' +
+    '<div class="panes"><section class="pane" id="paneL">' + viewLeft() + '</section><aside class="pane pane-rep" id="paneR">' + viewRight() + '</aside></div>' +
+    mobileNav() +
+  '</div>';
+}
+// Нижняя панель на телефоне: «Данные смены» и «Отчёты» по очереди, а не друг под другом
+function mobileNav() {
+  const rep = state.mpane === 'rep', p = progress();
+  return '<nav class="mnav" aria-label="' + L('Данные смены') + ' / ' + L('Отчёты') + '">' +
+    '<button type="button" data-act="mpane" data-p="data" aria-pressed="' + !rep + '">' + L('Данные смены') + '</button>' +
+    '<button type="button" data-act="mpane" data-p="rep" aria-pressed="' + rep + '">' + (state.submitted && sc ? L('Результат') : L('Отчёты') + (sc ? ' <span class="cnt" id="mnavCnt">' + p.filled + '/' + p.total + '</span>' : '')) + '</button></nav>';
+}
+function setMobilePane(p) {
+  state.mpane = p === 'rep' ? 'rep' : 'data'; save();
+  const w = $('.work'); if (!w) return;
+  w.dataset.mpane = state.mpane;
+  document.querySelectorAll('.mnav button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.p === state.mpane)));
+  const panes = $('.panes'); if (panes && panes.getBoundingClientRect().top < 0) panes.scrollIntoView({ block: 'start' });
+}
+const LTABS = [['learn', 'Обучение'], ['rack', 'Шахматка'], ['list', 'Бронирования'], ['jr', 'Журнал смены'], ['rooms', 'Статусы номеров'], ['ref', 'Справочник']];
+function viewLeft() {
+  if (!LTABS.some(x => x[0] === state.tabL)) state.tabL = 'learn';
+  const t = state.tabL;
+  const tabs = '<div class="pane-head"><div class="tabs" role="tablist" aria-label="' + L('Данные смены') + '">' + LTABS.map(([k, l]) => '<button class="tab" role="tab" aria-selected="' + (k === t) + '" data-act="tabL" data-tab="' + k + '">' + L(l) + '</button>').join('') + '</div></div>';
+  let body;
+  if (t === 'ref') body = viewRef();
+  else if (t === 'learn') body = viewLearn();
+  else if (!sc) body = viewEmpty();
+  else body = t === 'rack' ? viewRack() : t === 'list' ? viewList() : t === 'jr' ? viewJournal() : viewRooms();
+  return tabs + '<div class="pane-body' + (t === 'rack' && sc ? ' is-rack' : '') + '">' + body + '</div>';
+}
+function viewEmpty() {
+  return '<div class="empty"><div class="empty-ic">' + ICON.dice + '</div><h3>' + L('Смена открыта') + '</h3><p>' + L('Нажмите «Сгенерировать день» справа вверху. Появятся заезды, выезды, бронирования, операции кассы и статусы номеров — у вас будет свой вариант.') + '</p><button class="btn btn-gen" data-act="gen">' + ICON.dice + L('Сгенерировать день') + '</button><p class="small muted">' + L('Если ещё не читали — начните со вкладки «Обучение». «Справочник» с тарифами и нормами тоже открыт уже сейчас.') + '</p></div>';
+}
+const ST = { in: ['Проживает', 'c-in'], out: ['Выехал', 'c-out'], res: ['Бронь', 'c-res'], ns: ['No-show', 'c-bad'], cx: ['Отменена', 'c-bad'] };
+const HKS = { dirty: ['Грязный', 'h-dirty'], clean: ['Чистый', 'h-clean'], insp: ['Проверен', 'h-insp'], ooo: ['Ремонт', 'h-ooo'] };
+
+const isSmall = () => (window.innerWidth || 1200) < 600; // телефон: колонки шахматки уже
+function rackHTML(o) {
+  const small = isSmall();
+  const CW = small ? 46 : 58, RH = small ? 30 : 32, LBL = small ? 70 : 90, S = o.S, N = o.N, W = N * CW, d0 = o.d0, tag = o.live ? 'button' : 'span';
+  let head = '', cols = '';
+  for (let i = 0; i < N; i++) {
+    const k = S + i, dt = addD(d0, k), wd = dt.getDay(), cls = (k === 0 ? ' is-today' : '') + ((wd === 0 || wd === 6) ? ' is-we' : '');
+    head += '<div class="rk-day' + cls + '"><span class="wd">' + WD(wd) + '</span><span class="dm">' + ddmm(dt) + '</span></div>';
+    cols += '<div class="rk-col' + cls + '"></div>';
+  }
+  const place = (a, d) => { let x0 = (a - S + .5) * CW, x1 = (d - S + .5) * CW; const cl = x0 < 0, cr = x1 > W; x0 = Math.max(0, x0); x1 = Math.min(W, x1); return x1 - x0 < 6 ? null : { x0, x1, cl, cr }; };
+  const style = p => ' style="left:' + (p.x0 + 1) + 'px;width:' + (p.x1 - p.x0 - 3) + 'px"';
+  const cut = p => (p.cl ? ' cl' : '') + (p.cr ? ' cr' : '');
+  const bars = no => {
+    let out = '';
+    o.ooo.forEach((x, i) => { if (x.room !== no) return; const p = place(x.a, x.d); if (p) out += '<' + tag + ' class="bar st-ooo' + cut(p) + '"' + style(p) + (o.live ? ' data-act="ooo" data-i="' + i + '" title="' + esc(L('Ремонт') + ': ' + L(x.reason)) + '"' : '') + '>' + L('Ремонт') + '</' + tag + '>'; });
+    for (const s of o.stays) {
+      if (s.room !== no || s.st === 'cx') continue;
+      const p = place(s.a, s.d); if (!p) continue;
+      const arr = s.a === 0 && s.st === 'in';
+      const tip = (s.guest || s.short) + ' · ' + ddmm(addD(d0, s.a)) + '–' + ddmm(addD(d0, s.d)) + ' · ' + L(ST[s.st][0]) + ' · ' + L('нажмите: бронь и фолио');
+      out += '<' + tag + ' class="bar st-' + s.st + (arr ? ' arr' : '') + cut(p) + '"' + style(p) + (o.live ? ' data-act="bk" data-sid="' + s.id + '" title="' + esc(tip) + '"' : '') + '>' + (s.st === 'ns' ? 'No-show · ' : '') + esc(s.short) + '</' + tag + '>';
+    }
+    return out;
+  };
+  const row = r => '<div class="rk-row"><div class="rk-room"><b>' + r.no + '</b>' + ab(r.cat) + '</div><div class="rk-track" style="width:' + W + 'px">' + bars(r.no) + '</div></div>';
+  let rows = '';
+  if (o.floors) for (const f of [2, 3, 4, 5]) { rows += '<div class="rk-floor"><span>' + L('{0} этаж', f) + '</span></div>'; rows += o.rooms.filter(r => r.floor === f).map(row).join(''); }
+  else rows = o.rooms.map(row).join('');
+  return '<div class="rk-wrap"><div class="rk" style="--cw:' + CW + 'px;--rh:' + RH + 'px;--lbl:' + LBL + 'px"><div class="rk-head"><div class="rk-corner">' + L('Номер') + '</div>' + head + '</div><div class="rk-body"><div class="rk-cols">' + cols + '</div>' + rows +
+    '<div class="rk-night" style="left:' + (LBL + (1 - S) * CW - 1) + 'px" title="' + L('Ночь аудита: с бизнес-даты на завтра') + '"></div></div></div></div>';
+}
+function legendHTML(hint) {
+  return '<div class="legend">' +
+    '<span class="lg"><i class="st-in"></i>' + L('Проживает') + '</span><span class="lg"><i class="st-in arr"></i>' + L('Заехал сегодня') + '</span><span class="lg"><i class="st-res" style="border:1px solid"></i>' + L('Бронь') + '</span>' +
+    '<span class="lg"><i class="st-out"></i>' + L('Выехал') + '</span><span class="lg"><i class="st-ns" style="border:1px solid"></i>' + ab('No-show') + '</span><span class="lg"><i class="st-ooo"></i>' + L('Ремонт') + ' (' + ab('OOO') + ')</span>' +
+    '<span class="lg"><i class="today-sw"></i>' + L('Бизнес-дата') + '</span><span class="lg"><i class="night-sw"></i>' + L('Ночь аудита') + '</span>' + (hint ? '<span class="lg hint">' + hint + '</span>' : '') + '</div>';
+}
+function viewRack() {
+  return legendHTML(L('Номер занят на ночь, если его полоса пересекает золотой пунктир. Нажмите на полосу — бронь и фолио гостя.')) +
+    rackHTML({ d0: dOf(sc.dISO), S: -3, N: 14, rooms: ROOMS, stays: sc.stays, ooo: sc.ooo, live: true, floors: true });
+}
+
+/* ---------- обучение ---------- */
+const LEARN = {
+  ru: {
+    h: 'Обучение: как работать со сменой',
+    lead: n => 'Вы — администратор службы приёма учебного отеля «Сапар» на 30 номеров. За смену нужно собрать данные из системы и заполнить ' + n + ' ' + (n === 1 ? 'отчёт' : 'отчёта') + '. Ответы программа не показывает, но объясняет, что и как считать: у каждой строки отчёта есть кнопка <span class="qh qh-static">?</span> — там формула, где взять данные и пример. Сокращения с пунктирным подчёркиванием, например [[ADR]] или [[OOO]], расшифровываются при наведении или нажатии.',
+    orderH: 'Порядок работы',
+    order: forms => [
+      'Прочитайте этот раздел до конца. Потом нажмите «Сгенерировать день» справа вверху — появится ваш вариант.',
+      'Откройте «Шахматку». Найдите золотой столбец — это бизнес-дата (сегодня), и золотой пунктир — ночь с сегодня на завтра. Ночной аудит считается именно за эту ночь.',
+      'Откройте «Журнал смены» — там все операции дня по времени. Фильтры отбирают заезды и выезды, начисления, оплаты.',
+      'Заполняйте бланки справа по порядку: ' + forms + '. Наводите на «?» у каждой строки.',
+      'Нажмите «Сдать смену». Появятся баллы и разбор: где ошибка и какой был верный ответ. Данные смены слева остаются открытыми — найдите, почему ошиблись.'],
+    whereH: 'Где какие данные', whereCols: ['Что нужно', 'Где смотреть'],
+    where: [
+      ['Кто ночует в номере, ремонт, [[No-show]]', '<b>Шахматка</b>'],
+      ['Тариф, гости (взрослые+дети), канал продаж, питание, статус брони', '<b>Бронирования</b> или карточка брони'],
+      ['Заезды, выезды, отмены, no-show за день', '<b>Журнал смены</b> (и шахматка)'],
+      ['Доп. услуги: завтрак, ресторан, мини-бар, прачечная, трансфер, ранний заезд, поздний выезд', '<b>Журнал смены</b> → «Начисления», или <b>фолио гостя</b>'],
+      ['Оплаты, возвраты, инкассация', '<b>Журнал смены</b> → «Оплаты и касса», или фолио гостя'],
+      ['Статус уборки, [[DND]], вечерний обход горничных', '<b>Статусы номеров</b>'],
+      ['Тарифы, нормы уборки, комиссия [[OTA]], размен кассы', '<b>Справочник</b>']],
+    whereP: 'Нажмите на бронь в шахматке, на строку в «Бронированиях» или в журнале — откроется <b>карточка брони</b> и <b>фолио гостя</b>: проживание по ночам, все начисления и оплаты по этому номеру за сегодня.',
+    rackH: 'Как читать шахматку',
+    rackP: 'Строки — номера, столбцы — даты. Полоса — проживание или бронь: она начинается с середины дня заезда (заселение с 14:00) и заканчивается на середине дня выезда (выезд до 12:00). Поэтому в один день в номере может закончиться одна полоса и начаться другая.',
+    demoCap: 'Пример, не ваш вариант.',
+    rackLi: [
+      '<b>201</b> — серая полоса «Выехал» заканчивается в золотом столбце: гость выехал сегодня (выездная уборка). В том же столбце начинается синяя полоса с золотой меткой — новый гость заехал сегодня. Синяя пересекает пунктир → номер <b>занят</b> на ночь.',
+      '<b>202</b> — гость живёт с прошлых дней и уезжает позже → <b>занят</b>, нужна текущая уборка.',
+      '<b>203</b> — красная штриховка [[No-show]]: гость не приехал → номер <b>свободен</b>. Светлая полоса справа — бронь на будущие даты, в сегодняшнюю ночь не входит.',
+      '<b>204</b> — «Ремонт» ([[OOO]]) пересекает пунктир → номер <b>не продаётся</b> этой ночью.'],
+    sumH: 'Итог примера',
+    sum: 'Номеров 4, из них в ремонте 1 → к продаже 4 − 1 = 3. Занято 2 (201 и 202). Загрузка = 2 ÷ 3 × 100 = 66,7 %. Заезд 1, выезд 1, no-show 1.',
+    chH: 'Начисление или оплата',
+    chP: '<b>Начисление</b> — гость получил услугу: ночь проживания, завтрак, ужин, трансфер. Это <b>выручка</b> — отчёты ФО-1 и ФО-3.<br><b>Оплата</b> — деньги поступили: наличные, карта, [[Kaspi QR]], безнал. Это <b>касса</b> — отчёт КО-4. Одна и та же сумма может быть и там, и там, а может только в одном месте.',
+    chCols: ['Ситуация', 'Выручка сегодня', 'Касса сегодня'],
+    ch: [
+      ['Гость заехал на 3 ночи по 26 000 ₸ и сразу оплатил всё картой', '26 000 — только одна ночь (начислит ночной аудит)', '78 000 — карта'],
+      ['Ужин 12 400 ₸, «оплачено на месте» наличными', '12 400 — [[F&B]]', '12 400 — наличные'],
+      ['Ужин 9 800 ₸, «на счёт номера»', '9 800 — [[F&B]]', '0 — гость заплатит при выезде'],
+      ['Корпоративный гость выехал, мини-бар 3 200 ₸', '3 200 — [[F&B]]', '0 — оплатит компания по счёту'],
+      ['Компания перевела 116 000 ₸ по счёту', '0 — выручка была в прошлые дни', '116 000 — безнал на [[р/с]]']],
+    formH: 'Формулы по отчётам', formCols: ['Стр.', 'Показатель', 'Как считать'],
+    glH: 'Сокращения и термины',
+    errH: 'Частые ошибки',
+    errs: [
+      'Считать no-show занятым номером. No-show — номер свободен.',
+      'Искать отмены в шахматке. Отменённых броней там нет — смотрите журнал смены.',
+      'Путать оплату с выручкой: гость заплатил за 3 ночи, а выручка этой ночи — один тариф.',
+      'Складывать в F&B оплаты ресторана. Берите только начисления.',
+      'Считать Kaspi QR наличными. Это безналичная оплата.',
+      'Забыть вычесть инкассацию и возвраты из остатка наличных.',
+      'Считать номер в ремонте свободным. OOO не входит в номера к продаже.',
+      'Округлять число горничных вниз. Только вверх: 1,1 горничной — это 2 человека.',
+      'Исправлять ночной аудит по обходу горничных. Аудит — строго по шахматке, а расхождения — в отчёт ХС-2.']
+  },
+  kz: {
+    h: 'Оқыту: ауысыммен қалай жұмыс істеу керек',
+    lead: n => 'Сіз — 30 нөмірлі «Сапар» оқу қонақүйінің қабылдау қызметінің әкімшісісіз. Ауысым ішінде жүйеден деректерді жинап, ' + n + ' есепті толтыру керек. Бағдарлама жауаптарды көрсетпейді, бірақ нені және қалай есептеу керектігін түсіндіреді: есептің әр жолында <span class="qh qh-static">?</span> батырмасы бар — онда формула, деректерді қайдан алу керектігі және мысал. Пунктирмен асты сызылған қысқартулар, мысалы [[ADR]] немесе [[OOO]], меңзерді апарғанда немесе басқанда ашылады.',
+    orderH: 'Жұмыс реті',
+    order: forms => [
+      'Осы бөлімді соңына дейін оқыңыз. Содан кейін жоғарғы оң жақтағы «Күнді генерациялау» батырмасын басыңыз — сіздің нұсқаңыз пайда болады.',
+      '«Шахматканы» ашыңыз. Алтын түсті бағанды табыңыз — бұл бизнес-күн (бүгін), ал алтын пунктир — бүгіннен ертеңге қараған түн. Түнгі аудит дәл осы түн үшін есептеледі.',
+      '«Ауысым журналын» ашыңыз — онда күннің барлық операциялары уақыт бойынша берілген. Сүзгілер келулер мен кетулерді, есептеулерді, төлемдерді іріктейді.',
+      'Оң жақтағы бланкілерді ретімен толтырыңыз: ' + forms + '. Әр жолдағы «?» белгісіне меңзерді апарыңыз.',
+      '«Ауысымды тапсыру» батырмасын басыңыз. Балл мен талдау пайда болады: қай жерде қате және дұрыс жауап қандай болды. Сол жақтағы ауысым деректері ашық қалады — неліктен қателескеніңізді табыңыз.'],
+    whereH: 'Қандай деректер қайда', whereCols: ['Не керек', 'Қайдан қарау керек'],
+    where: [
+      ['Нөмірде кім түнейді, жөндеу, [[No-show]]', '<b>Шахматка</b>'],
+      ['Тариф, қонақтар (ересектер+балалар), сату арнасы, тамақтану, бронь мәртебесі', '<b>Брондаулар</b> немесе бронь картасы'],
+      ['Күндегі келулер, кетулер, бас тартулар, no-show', '<b>Ауысым журналы</b> (және шахматка)'],
+      ['Қосымша қызметтер: таңғы ас, мейрамхана, мини-бар, кір жуу, трансфер, ерте келу, кеш кету', '<b>Ауысым журналы</b> → «Есептеулер» немесе <b>қонақ фолиосы</b>'],
+      ['Төлемдер, қайтарулар, инкассация', '<b>Ауысым журналы</b> → «Төлемдер және касса» немесе қонақ фолиосы'],
+      ['Жинау мәртебесі, [[DND]], бөлме күтушілерінің кешкі аралауы', '<b>Нөмірлер мәртебесі</b>'],
+      ['Тарифтер, жинау нормалары, [[OTA]] комиссиясы, кассадағы ұсақ ақша', '<b>Анықтамалық</b>']],
+    whereP: 'Шахматкадағы бронды, «Брондаулардағы» немесе журналдағы жолды басыңыз — <b>бронь картасы</b> мен <b>қонақ фолиосы</b> ашылады: түндер бойынша тұру, осы нөмір бойынша бүгінгі барлық есептеулер мен төлемдер.',
+    rackH: 'Шахматканы қалай оқу керек',
+    rackP: 'Жолдар — нөмірлер, бағандар — күндер. Жолақ — тұру немесе бронь: ол келу күнінің ортасынан (орналасу 14:00-ден) басталып, кету күнінің ортасында (кету 12:00-ге дейін) аяқталады. Сондықтан бір күнде бір нөмірде бір жолақ аяқталып, екіншісі басталуы мүмкін.',
+    demoCap: 'Мысал, сіздің нұсқаңыз емес.',
+    rackLi: [
+      '<b>201</b> — «Кетті» деген сұр жолақ алтын бағанда аяқталады: қонақ бүгін кетті (кетуден кейінгі жинау). Сол бағанда алтын белгісі бар көк жолақ басталады — жаңа қонақ бүгін келді. Көк жолақ пунктирді қиып өтеді → нөмір түнге <b>бос емес</b>.',
+      '<b>202</b> — қонақ өткен күндерден бері тұрып жатыр және кейінірек кетеді → <b>бос емес</b>, ағымдағы жинау қажет.',
+      '<b>203</b> — қызыл штрих [[No-show]]: қонақ келмеді → нөмір <b>бос</b>. Оң жақтағы ашық түсті жолақ — болашақ күндерге бронь, бүгінгі түнге кірмейді.',
+      '<b>204</b> — «Жөндеу» ([[OOO]]) пунктирді қиып өтеді → нөмір бұл түні <b>сатылмайды</b>.'],
+    sumH: 'Мысалдың қорытындысы',
+    sum: 'Нөмірлер саны 4, оның ішінде жөндеуде 1 → сатуға 4 − 1 = 3. Бос емес 2 (201 және 202). Толымдылық = 2 ÷ 3 × 100 = 66,7 %. Келу 1, кету 1, no-show 1.',
+    chH: 'Есептеу ме, әлде төлем бе',
+    chP: '<b>Есептеу</b> — қонақ қызмет алды: тұру түні, таңғы ас, кешкі ас, трансфер. Бұл — <b>түсім</b>, ФО-1 және ФО-3 есептері.<br><b>Төлем</b> — ақша түсті: қолма-қол, карта, [[Kaspi QR]], қолма-қолсыз. Бұл — <b>касса</b>, КО-4 есебі. Бір сома екеуінде де болуы мүмкін, ал кейде тек біреуінде ғана болады.',
+    chCols: ['Жағдай', 'Бүгінгі түсім', 'Бүгінгі касса'],
+    ch: [
+      ['Қонақ түнгі бағасы 26 000 ₸ нөмірге 3 түнге келіп, бәрін бірден картамен төледі', '26 000 — тек бір түн (түнгі аудит есептейді)', '78 000 — карта'],
+      ['Кешкі ас 12 400 ₸, «орнында төленді», қолма-қол', '12 400 — [[F&B]]', '12 400 — қолма-қол'],
+      ['Кешкі ас 9 800 ₸, «нөмір шотына»', '9 800 — [[F&B]]', '0 — қонақ кетерде төлейді'],
+      ['Корпоративтік қонақ кетті, мини-бар 3 200 ₸', '3 200 — [[F&B]]', '0 — компания шот бойынша төлейді'],
+      ['Компания шот бойынша 116 000 ₸ аударды', '0 — түсім өткен күндері болған', '116 000 — есеп шотына қолма-қолсыз']],
+    formH: 'Есептер бойынша формулалар', formCols: ['Жол', 'Көрсеткіш', 'Қалай есептеу керек'],
+    glH: 'Қысқартулар мен терминдер',
+    errH: 'Жиі кездесетін қателер',
+    errs: [
+      'No-show нөмірін бос емес деп санау. No-show — нөмір бос.',
+      'Бас тартуларды шахматкадан іздеу. Жойылған брондар онда жоқ — ауысым журналын қараңыз.',
+      'Төлемді түсіммен шатастыру: қонақ 3 түнге төледі, ал осы түннің түсімі — бір тариф.',
+      'F&B-ге мейрамхана төлемдерін қосу. Тек есептеулерді алыңыз.',
+      'Kaspi QR-ды қолма-қол деп санау. Бұл қолма-қолсыз төлем.',
+      'Қолма-қол қалдықтан инкассация мен қайтаруларды шегеруді ұмыту.',
+      'Жөндеудегі нөмірді бос деп санау. OOO сатуға арналған нөмірлерге кірмейді.',
+      'Бөлме күтушілерінің санын төмен қарай дөңгелектеу. Тек жоғары қарай: 1,1 күтуші — бұл 2 адам.',
+      'Түнгі аудитті бөлме күтушілерінің аралауы бойынша түзету. Аудит — қатаң шахматка бойынша, ал сәйкессіздіктер — ХС-2 есебіне.']
+  }
+};
+function viewLearn() {
+  const X = pick2(LEARN), d0 = sc ? dOf(sc.dISO) : new Date();
+  const demo = rackHTML({ d0, S: -2, N: 6, rooms: ROOMS.slice(0, 4), live: false, ooo: [{ room: '204', a: -1, d: 2 }], stays: [
+    { room: '201', a: -3, d: 0, st: 'out', short: 'Омаров Е.' }, { room: '201', a: 0, d: 2, st: 'in', short: 'Ким А.' },
+    { room: '202', a: -2, d: 3, st: 'in', short: 'Петрова О.' }, { room: '203', a: 0, d: 1, st: 'ns', short: 'Smith J.' },
+    { room: '203', a: 2, d: 4, st: 'res', short: 'Абенов Д.' }] });
+  const mine = REPORTS.filter(r => state.mods.includes(r.key));
+  const H = pick2(HELP);
+  const formulas = mine.map(r => '<h4>' + L(r.form) + ' · ' + L(r.title) + '</h4><div class="tbl-wrap"><table class="t"><thead><tr>' + X.formCols.map(c => '<th>' + c + '</th>').join('') + '</tr></thead><tbody>' +
+    r.fields.map((f, i) => { const h = H[r.key + '.' + f.id] || {}; return '<tr><td class="mono">' + pad(i + 1) + '</td><td>' + abbrify(L(f.label)) + '</td><td>' + (h.f ? '<div class="formula">' + h.f + '</div>' : '') + (h.where ? '<div class="small muted">' + h.where + '</div>' : '') + '</td></tr>'; }).join('') +
+    '</tbody></table></div>').join('');
+  const gl = Object.entries(pick2(GLOSS)).map(([k, [full, txt]]) => '<dt>' + esc(k) + '</dt><dd>' + (full !== k ? '<b>' + esc(full) + '</b> — ' : '') + esc(txt) + '</dd>').join('') +
+    pick2(TERMS).map(([k, txt]) => '<dt>' + esc(k) + '</dt><dd>' + esc(txt) + '</dd>').join('');
+  const table = (cols, rows) => '<div class="tbl-wrap"><table class="t"><thead><tr>' + cols.map(c => '<th>' + c + '</th>').join('') + '</tr></thead><tbody>' + rows.map(r => '<tr>' + r.map(c => '<td>' + rich(c) + '</td>').join('') + '</tr>').join('') + '</tbody></table></div>';
+  return '<div class="learn">' +
+    '<section><h2>' + X.h + '</h2><p class="lead2">' + rich(X.lead(state.mods.length)) + '</p></section>' +
+    '<section><h3>' + X.orderH + '</h3><ol>' + X.order(mine.map(formNo).join(' → ')).map(t => '<li>' + t + '</li>').join('') + '</ol></section>' +
+    '<section><h3>' + X.whereH + '</h3>' + table(X.whereCols, X.where) + '<p>' + X.whereP + '</p></section>' +
+    '<section><h3>' + X.rackH + '</h3><p>' + X.rackP + '</p>' +
+      '<div class="demo">' + legendHTML() + demo + '<p class="small muted">' + X.demoCap + '</p></div>' +
+      '<ul>' + X.rackLi.map(t => '<li>' + rich(t) + '</li>').join('') + '</ul>' +
+      '<div class="callout"><b>' + X.sumH + '</b><span>' + X.sum + '</span></div></section>' +
+    '<section><h3>' + X.chH + '</h3><p>' + rich(X.chP) + '</p>' + table(X.chCols, X.ch) + '</section>' +
+    '<section><h3>' + X.formH + '</h3>' + formulas + '</section>' +
+    '<section><h3>' + X.glH + '</h3><dl class="gl">' + gl + '</dl></section>' +
+    '<section><h3>' + X.errH + '</h3><ul>' + X.errs.map(t => '<li>' + esc(t) + '</li>').join('') + '</ul></section>' +
+  '</div>';
+}
+
+/* ---------- бронирования, журнал, статусы номеров ---------- */
+let tq = '';
+const dl = s => ' data-l="' + esc(L(s)) + '"'; // подпись ячейки в карточке на телефоне
+function viewList() {
+  const d0 = dOf(sc.dISO);
+  const rows = sc.stays.slice().sort((x, y) => x.a - y.a || x.room - y.room).map(s => {
+    const q = (s.id + ' ' + s.guest + ' ' + s.room).toLowerCase();
+    return '<tr data-act="bk" data-sid="' + s.id + '" data-q="' + esc(q) + '"' + (tq && !q.includes(tq) ? ' hidden' : '') + '>' +
+      '<td class="mono nw">' + s.id + '</td><td class="nw">' + esc(s.guest) + '</td><td class="mono">' + s.room + '</td><td' + dl('Кат.') + '>' + ab(s.cat) + '</td>' +
+      '<td class="mono nw"' + dl('Заезд') + '>' + ddmm(addD(d0, s.a)) + '</td><td class="mono nw"' + dl('Выезд') + '>' + ddmm(addD(d0, s.d)) + '</td><td class="num"' + dl('Ноч.') + '>' + (s.d - s.a) + '</td>' +
+      '<td class="num"' + dl('Гости') + '>' + s.ad + (s.chd ? '+' + s.chd : '') + '</td><td class="num"' + dl('Тариф/ночь') + '>' + fmtMoney(s.rate) + '</td><td class="nw"' + dl('Канал') + '>' + abbrify(L(CH[s.ch].short)) + '</td><td' + dl('Пит.') + '>' + ab(s.meal) + '</td>' +
+      '<td><span class="chip ' + ST[s.st][1] + '">' + L(ST[s.st][0]) + '</span></td></tr>';
+  }).join('');
+  return '<div class="toolbar"><input id="bkq" class="search" type="search" placeholder="' + L('Поиск: гость, номер или бронь') + '" value="' + esc(tq) + '" aria-label="' + L('Поиск по бронированиям') + '"><span class="small muted">' + L('Отменённые брони есть только здесь — в шахматке их нет. Гости: взрослые+дети. Нажмите на строку — бронь и фолио гостя.') + '</span></div>' +
+    '<div class="tbl-wrap"><table class="t t-bk"><thead><tr><th>' + L('Бронь') + '</th><th>' + L('Гость') + '</th><th>' + L('Номер') + '</th><th>' + L('Кат.') + '</th><th>' + L('Заезд') + '</th><th>' + L('Выезд') + '</th><th class="num">' + L('Ноч.') + '</th><th class="num">' + L('Гости') + '</th><th class="num">' + L('Тариф/ночь') + '</th><th>' + L('Канал') + '</th><th>' + L('Пит.') + '</th><th>' + L('Статус') + '</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+}
+
+const JF = [['all', 'Все'], ['move', 'Заезды и выезды'], ['charge', 'Начисления'], ['pay', 'Оплаты и касса'], ['other', 'Отмены и no-show']];
+const JK = { checkin: ['Заезд', 'move', 'c-checkin'], checkout: ['Выезд', 'move', 'c-out'], charge: ['Начисление', 'charge', 'c-charge'], pay: ['Оплата', 'pay', 'c-pay'], refund: ['Возврат', 'pay', 'c-bad'], inkass: ['Инкассация', 'pay', 'c-warn'], cancel: ['Отмена', 'other', 'c-bad'], noshow: ['No-show', 'other', 'c-bad'] };
+function viewJournal() {
+  const f = state.jf || 'all', d0 = dOf(sc.dISO);
+  const rows = sc.events.filter(e => f === 'all' || JK[e.k][1] === f).map(e => '<tr' + (e.sid ? ' data-act="bk" data-tab="folio" data-sid="' + e.sid + '" title="' + L('Открыть фолио гостя') + '"' : '') + '>' +
+    '<td class="mono">' + hhmm(e.t) + '</td><td><span class="chip ' + JK[e.k][2] + '">' + L(JK[e.k][0]) + '</span></td><td class="mono">' + (e.room || '—') + '</td>' +
+    '<td>' + esc(L(e.guest) || '—') + '</td><td>' + esc(evText(e)) + '</td><td class="nw">' + abbrify(L(e.cat || e.method || '')) + '</td><td class="num">' + (e.amount ? fmtMoney(e.amount) : '') + '</td></tr>').join('');
+  return '<div class="toolbar"><p class="jr-meta">' + L('Журнал операций за {0}. Размен в кассе на начало смены: {1}.', '<b>' + longDate(d0) + '</b>', '<b>' + fmtMoney(PRICES.openingCash) + '</b>') + '</p>' +
+    '<div class="filters" role="group" aria-label="' + L('Фильтр операций') + '">' + JF.map(([k, l]) => '<button class="fbtn" data-act="jf" data-f="' + k + '" aria-pressed="' + (k === f) + '">' + L(l) + '</button>').join('') + '</div></div>' +
+    '<div class="tbl-wrap"><table class="t t-jr"><thead><tr><th>' + L('Время') + '</th><th>' + L('Операция') + '</th><th>' + L('Номер') + '</th><th>' + L('Гость / плательщик') + '</th><th>' + L('Содержание') + '</th><th>' + L('Статья / способ') + '</th><th class="num">' + L('Сумма') + '</th></tr></thead><tbody>' + (rows || '<tr><td colspan="7" class="muted">' + L('Операций этого типа нет.') + '</td></tr>') + '</tbody></table></div>';
+}
+
+function viewRooms() {
+  const d0 = dOf(sc.dISO);
+  const tiles = f => ROOMS.filter(r => r.floor === f).map(r => {
+    const h = sc.hk[r.no];
+    return '<div class="tile"><div class="tile-top"><span class="tile-no">' + r.no + '</span><span class="tile-cat">' + ab(r.cat) + '</span></div>' +
+      '<div class="tile-st"><span class="chip ' + HKS[h.st][1] + '">' + L(HKS[h.st][0]) + '</span>' + (h.dnd ? '<span class="dnd" data-ab="DND">DND</span>' : '') + '</div>' +
+      '<div class="tile-obh">' + L('Обход 21:00') + ': <b>' + L(h.obh) + '</b></div>' + (h.note ? '<div class="tile-note">' + esc(L(h.note)) + '</div>' : '') + '</div>';
+  }).join('');
+  return '<p class="intro-note">' + L('Данные службы горничных на вечер {0}. «Уборка» — статус номера в системе горничных. «Обход 21:00» — что горничная фактически увидела в номере. {1} — табличка «Не беспокоить», номер сегодня не убирали. Занят ли номер по системе — смотрите в шахматке.', ddmm(d0), ab('DND')) + '</p>' +
+    '<div class="floors">' + [2, 3, 4, 5].map(f => '<div class="floor"><h3>' + L('{0} этаж', f) + '</h3><div class="tiles">' + tiles(f) + '</div></div>').join('') + '</div>';
+}
+
+/* ---------- справочник ---------- */
+const REF = {
+  ru: () => ({
+    hotel: ['Отель', 'Учебный отель «Сапар»: 30 номеров на 2–5 этажах. Заезд с 14:00, выезд до 12:00. Валюта — тенге (₸).'],
+    catsH: 'Категории и тарифы за ночь', catsCols: ['Категория', 'Код', 'Номеров', 'BAR', 'Корпоративный', 'Турагентства'],
+    catsNote: 'BAR — базовый тариф для прямых бронирований, OTA и walk-in. Тарифы без завтрака. Тариф каждой брони указан в её карточке.',
+    sections: [
+      ['Услуги', ['Завтрак — ' + fmtMoney(PRICES.breakfast) + ' за человека (взрослый или ребёнок), начисляется утром на номер.',
+        'Ранний заезд с 08:00 и поздний выезд до 18:00 — 50% тарифа ночи.',
+        'Трансфер: аэропорт — ' + fmtMoney(PRICES.trAir) + ', ж/д вокзал — ' + fmtMoney(PRICES.trRail) + '.',
+        'Ресторан, лобби-бар, room service, мини-бар, прачечная — по фактическому счёту.']],
+      ['Учётная политика', ['Бизнес-дата — день вашей смены. «На ночь» — ночь с бизнес-даты на следующий день.',
+        'Все отчёты составляются по шахматке (данным системы), даже если обход горничных показал другое.',
+        'Номера в ремонте (OOO) не продаются и не входят в номера к продаже. Загрузка и RevPAR считаются от номеров к продаже.',
+        'Выручку от проживания за ночь начисляет ночной аудит по тарифам занятых номеров — в журнале смены её нет.',
+        'No-show: бронь аннулируется полностью, номер свободен на все её даты. Отменённые брони в шахматке не показываются.',
+        'F&B — завтраки, ресторан, лобби-бар, room service, мини-бар. Прочие услуги — прачечная, трансфер, ранний заезд, поздний выезд.',
+        'Комиссия OTA — ' + Math.round(PRICES.otaComm * 100) + '% от выручки проживания по брони OTA.']],
+      ['Служба горничных', ['Норма выездной уборки — ' + PRICES.cleanDep + ' мин, текущей — ' + PRICES.cleanStay + ' мин.',
+        'Рабочее время горничной на уборку — ' + PRICES.maidMin + ' мин за смену. Количество горничных округляется вверх.',
+        'Номера с табличкой DND в этот день не убираются.',
+        'Статусы: «Грязный» — нужна уборка; «Чистый» — убран, не проверен; «Проверен» — проверен супервайзером, готов к заселению; «Ремонт» — вне продажи.']],
+      ['Касса', ['Размен на начало смены — ' + fmtMoney(PRICES.openingCash) + '.',
+        'Способы оплаты: наличные, банковская карта, Kaspi QR, безналичный перевод на расчётный счёт.',
+        'Прямые, OTA и walk-in гости оплачивают проживание при заезде. Корпоративные клиенты платят по счёту компании, бронь турагентства оплачена агентством заранее.']],
+      ['Как вводить ответы', ['Проценты — с точностью до 0,1 (можно через запятую): 76,7.',
+        'Суммы — в тенге, округляйте до целого. Пробелы между разрядами допустимы.',
+        'Списки номеров — через запятую: 204, 312.']]]
+  }),
+  kz: () => ({
+    hotel: ['Қонақүй', '«Сапар» оқу қонақүйі: 2–5 қабаттарда 30 нөмір. Келу 14:00-ден, кету 12:00-ге дейін. Валюта — теңге (₸).'],
+    catsH: 'Санаттар және түнгі тарифтер', catsCols: ['Санат', 'Код', 'Нөмірлер', 'BAR', 'Корпоративтік', 'Турагенттіктер'],
+    catsNote: 'BAR — тікелей брондау, OTA және walk-in үшін базалық тариф. Тарифтерге таңғы ас кірмейді. Әр брондаудың тарифі оның картасында көрсетілген.',
+    sections: [
+      ['Қызметтер', ['Таңғы ас — бір адамға ' + fmtMoney(PRICES.breakfast) + ' (ересек немесе бала), таңертең нөмірге есептеледі.',
+        'Ерте келу 08:00-ден және кеш кету 18:00-ге дейін — түнгі тарифтің 50%.',
+        'Трансфер: әуежай — ' + fmtMoney(PRICES.trAir) + ', теміржол вокзалы — ' + fmtMoney(PRICES.trRail) + '.',
+        'Мейрамхана, лобби-бар, room service, мини-бар, кір жуу — нақты шот бойынша.']],
+      ['Есеп саясаты', ['Бизнес-күн — сіздің ауысымыңыздың күні. «Түнге» — бизнес-күннен келесі күнге қараған түн.',
+        'Барлық есептер шахматка (жүйе деректері) бойынша жасалады, тіпті бөлме күтушілерінің аралауы басқаны көрсетсе де.',
+        'Жөндеудегі нөмірлер (OOO) сатылмайды және сатуға арналған нөмірлерге кірмейді. Толымдылық пен RevPAR сатуға арналған нөмірлерден есептеледі.',
+        'Түнгі тұрудан түсімді түнгі аудит бос емес нөмірлердің тарифтері бойынша есептейді — ол ауысым журналында жоқ.',
+        'No-show: брондау толығымен жойылады, нөмір оның барлық күндеріне бос. Жойылған брондар шахматкада көрсетілмейді.',
+        'F&B — таңғы ас, мейрамхана, лобби-бар, room service, мини-бар. Басқа қызметтер — кір жуу, трансфер, ерте келу, кеш кету.',
+        'OTA комиссиясы — OTA брондары бойынша тұрудан түсімнің ' + Math.round(PRICES.otaComm * 100) + '%.']],
+      ['Бөлме күтушілері қызметі', ['Кетуден кейінгі жинау нормасы — ' + PRICES.cleanDep + ' мин, ағымдағы жинау — ' + PRICES.cleanStay + ' мин.',
+        'Бөлме күтушісінің жинауға арналған жұмыс уақыты — бір ауысымға ' + PRICES.maidMin + ' мин. Күтушілер саны жоғары қарай дөңгелектенеді.',
+        'DND белгісі бар нөмірлер бұл күні жиналмайды.',
+        'Мәртебелер: «Лас» — жинау керек; «Таза» — жиналған, тексерілмеген; «Тексерілген» — супервайзер тексерген, орналасуға дайын; «Жөндеу» — сатудан тыс.']],
+      ['Касса', ['Ауысым басындағы ұсақ ақша (размен) — ' + fmtMoney(PRICES.openingCash) + '.',
+        'Төлем тәсілдері: қолма-қол, банк картасы, Kaspi QR, есеп шотына қолма-қолсыз аударым.',
+        'Тікелей, OTA және walk-in қонақтары тұру ақысын келген кезде төлейді. Корпоративтік клиенттер компания шоты бойынша төлейді, турагенттік броны агенттікпен алдын ала төленген.']],
+      ['Жауаптарды қалай енгізу керек', ['Пайыздар — 0,1 дәлдікпен (үтір арқылы жазуға болады): 76,7.',
+        'Сомалар — теңгемен, бүтінге дейін дөңгелектеңіз. Разрядтар арасындағы бос орындарға рұқсат етіледі.',
+        'Нөмірлер тізімі — үтір арқылы: 204, 312.']]]
+  })
+};
+function viewRef() {
+  const X = pick2(REF)();
+  const catRows = Object.entries(CATS).map(([k, c]) => '<tr><td>' + L(c.name) + '</td><td class="mono">' + ab(k) + '</td><td class="num">' + ROOMS.filter(r => r.cat === k).length + '</td><td class="num">' + fmtMoney(c.bar) + '</td><td class="num">' + fmtMoney(c.corp) + '</td><td class="num">' + fmtMoney(c.ta) + '</td></tr>').join('');
+  return '<div class="ref">' +
+    '<section><h3>' + X.hotel[0] + '</h3><p>' + X.hotel[1] + '</p></section>' +
+    '<section><h3>' + X.catsH + '</h3><div class="tbl-wrap"><table class="t"><thead><tr>' + X.catsCols.map((c, i) => '<th' + (i > 1 ? ' class="num"' : '') + '>' + c + '</th>').join('') + '</tr></thead><tbody>' + catRows + '</tbody></table></div>' +
+      '<p class="small muted">' + X.catsNote + '</p></section>' +
+    X.sections.map(([h, items]) => '<section><h3>' + h + '</h3><ul>' + items.map(t => '<li>' + esc(t) + '</li>').join('') + '</ul></section>').join('') +
+  '</div>';
+}
+
+/* ---------- правая панель: отчёты ---------- */
+function progress() {
+  const by = {}; let f = 0, t = 0;
+  for (const k of state.mods) {
+    const r = REP[k];
+    const ff = r.fields.filter(x => String(state.answers[k + '.' + x.id] || '').trim() !== '').length;
+    by[k] = { f: ff, t: r.fields.length }; f += ff; t += r.fields.length;
+  }
+  return { by, filled: f, total: t };
+}
+function viewRight() {
+  if (state.submitted && sc) return '<div class="pane-body">' + viewResult() + '</div>';
+  const p = progress();
+  if (!state.mods.includes(state.tabR)) state.tabR = state.mods[0];
+  const head = '<div class="rp-head"><div class="rp-title"><h2>' + L('Отчёты смены') + '</h2><span class="prog" id="progAll">' + (sc ? L('Заполнено {0} из {1}', p.filled, p.total) : '') + '</span></div>' +
+    '<div class="tabs rtabs" role="tablist" aria-label="' + L('Отчёты') + '">' + state.mods.map(k => '<button class="tab' + (p.by[k].f === p.by[k].t ? ' done' : '') + '" role="tab" aria-selected="' + (k === state.tabR) + '" data-act="tabR" data-tab="' + k + '">' + L(REP[k].tab) + '<span class="cnt" data-cnt="' + k + '">' + p.by[k].f + '/' + p.by[k].t + '</span></button>').join('') + '</div></div>';
+  if (!sc) return head + '<div class="pane-body"><div class="rp-wait"><p class="small muted">' + L('Бланки откроются после генерации дня. В задании:') + '</p>' + state.mods.map(k => '<div class="wi"><b>' + L(REP[k].form) + ' · ' + L(REP[k].title) + '</b><span>' + L('{0} показателей — {1}', REP[k].fields.length, esc(L(REP[k].about))) + '</span></div>').join('') + '</div></div>';
+  return head + '<div class="pane-body">' + viewForm(state.tabR) +
+    '<div class="rp-foot"><p>' + L('Ответы сохраняются автоматически. Пустое поле при сдаче считается ошибкой.') + '</p><button class="btn btn-primary" data-act="submit">' + L('Сдать смену') + '</button></div></div>';
+}
+function viewForm(key) {
+  const r = REP[key], d = dOf(sc.dISO);
+  const hd = '<div class="form-hd"><span class="form-code">' + L(r.form) + ' · ' + L('за {0}', ddmmyyyy(d)) + '</span><h3>' + L(r.title) + '</h3><p>' + abbrify(r.desc(d)) + '</p></div>';
+  const inp = (id, f, extra) => '<input id="f-' + id.replace('.', '-') + '" data-ans="' + id + '" inputmode="' + (f.type === 'list' ? 'numeric' : 'decimal') + '" autocomplete="off" spellcheck="false" value="' + esc(state.answers[id] || '') + '"' + (extra || '') + '>';
+  return '<div class="form">' + hd + '<div class="form-body">' + r.fields.map((f, i) => {
+    const id = key + '.' + f.id, wide = f.type === 'list', label = L(f.label);
+    return '<div class="fr' + (wide ? ' wide' : '') + '"><span class="fr-code">' + pad(i + 1) + '</span><label class="fr-label" for="f-' + key + '-' + f.id + '">' + abbrify(label) +
+      '<button type="button" class="qh" data-help="' + id + '" aria-expanded="false" aria-label="' + esc(L('Как считать: {0}', label)) + '">?</button>' +
+      (f.pts ? '<span class="pts2">' + L('{0} балла', f.pts) + '</span>' : '') + (f.hint ? '<small>' + abbrify(L(f.hint)) + '</small>' : '') + '</label>' +
+      '<div class="fr-in">' + inp(id, f, wide ? ' placeholder="' + L('например, 204, 312') + '"' : '') + (wide ? '' : '<span class="unit">' + L(f.unit) + '</span>') + '</div></div>';
+  }).join('') + '</div></div><p class="form-tip">' + L('Наведите на {0} или нажмите на него — формула, где взять данные и пример. Подробнее — во вкладке «Обучение».', '<span class="qh qh-static">?</span>') + '</p>';
+}
+function updateProgress() {
+  const p = progress(), a = $('#progAll');
+  if (a) a.textContent = L('Заполнено {0} из {1}', p.filled, p.total);
+  const mc = $('#mnavCnt'); if (mc) mc.textContent = p.filled + '/' + p.total;
+  for (const k of state.mods) { const el = document.querySelector('[data-cnt="' + k + '"]'); if (el) { el.textContent = p.by[k].f + '/' + p.by[k].t; el.closest('.tab').classList.toggle('done', p.by[k].f === p.by[k].t); } }
+}
+
+/* ---------- результат ---------- */
+function resultMessage(g, code) {
+  const s = state.student;
+  return L('Учебная шахматка — результат смены') + '\n' +
+    L('Студент: {0}, группа {1}', s.last + ' ' + s.first, s.group) + '\n' +
+    L('Вариант {0}, бизнес-дата {1}', state.seed, ddmmyyyy(dOf(state.dISO))) + '\n' +
+    L('Результат: {0} из {1} баллов ({2} %), оценка {3}', g.score, g.max, String(g.pct).replace('.', ','), g.mark) + '\n' +
+    g.reps.map(r => r.name + ' ' + r.score + '/' + r.max).join('; ') + '\n' +
+    L('Код проверки') + ': ' + code;
+}
+function reviewTables(g, openAll) {
+  return g.reps.map(r => '<details class="rv"' + (openAll ? ' open' : '') + '><summary><span>' + esc(r.name) + '</span><span class="mono">' + L('{0} из {1}', r.score, r.max) + '</span></summary><table>' +
+    r.items.map(x => { const ok = x.pts === x.max, part = x.pts > 0 && !ok;
+      return '<tr><td class="mono muted" style="width:30px">' + x.code + '</td><td>' + esc(x.label) + '</td><td class="ans"><span class="' + (ok ? 'ok' : part ? '' : 'bad') + '">' + (x.given.trim() ? esc(x.given) : '—') + '</span>' + (ok ? '' : '<br><span class="exp">' + L('верно') + ': ' + esc(x.exp) + '</span>') + '</td><td class="mk ' + (ok ? 'ok' : 'bad') + '">' + (ok ? '✓' : part ? '½' : '✗') + '</td></tr>'; }).join('') +
+    '</table></details>').join('');
+}
+function viewResult() {
+  const g = gradeAll(sc, state.answers, state.mods), code = makeCode(state), s = state.student;
+  return '<div class="res">' +
+    '<div class="res-hero"><span class="eyebrow">' + L('Смена сдана') + ' · ' + stamp(state.submitAt) + '</span>' +
+      '<div class="res-score"><span class="big">' + g.score + '</span><span class="of">' + L('из {0} баллов', g.max) + ' · ' + String(g.pct).replace('.', ',') + ' %</span></div>' +
+      '<span class="mark mk-' + g.mark + '">' + L('Оценка {0} — {1}', g.mark, g.word) + '</span>' +
+      '<span class="res-who">' + esc(s.last + ' ' + s.first) + ' · ' + L('группа') + ' ' + esc(s.group) + ' · ' + L('вариант') + ' ' + state.seed + ' · ' + L('время работы') + ' ' + dur(state.submitAt - state.genAt) + '</span></div>' +
+    '<div class="reps">' + g.reps.map(r => '<div class="rep-row"><b>' + esc(r.name) + '</b><span class="mono">' + r.score + '/' + r.max + '</span><span class="meter"><i style="width:' + (r.max ? r.score / r.max * 100 : 0) + '%"></i></span></div>').join('') + '</div>' +
+    '<div class="res-code">' + (LIVE ? '<h3>' + L('Результат уже у преподавателя') + '</h3><p>' + L('Он передан автоматически. Сообщение с кодом ниже — запасной вариант, если связь пропала.') + '</p>'
+      : '<h3>' + L('Отправьте результат преподавателю') + '</h3><p>' + L('Скопируйте сообщение целиком и отправьте преподавателю. Код внутри позволяет перепроверить вашу работу.') + '</p>') +
+      '<textarea class="cpy" id="resMsg" readonly aria-label="' + L('Сообщение с результатом') + '">' + esc(resultMessage(g, code)) + '</textarea>' +
+      '<button class="btn btn-primary" data-act="copyres">' + ICON.copy + L('Скопировать сообщение') + '</button></div>' +
+    '<h3>' + L('Разбор ответов') + '</h3><p class="small muted">' + L('Слева данные смены остаются открытыми — сверяйтесь с шахматкой и журналом, чтобы найти ошибку.') + '</p>' + reviewTables(g, false) +
+  '</div>';
+}
+
+/* ================= преподаватель ================= */
+function viewTeacher() {
+  const rows = journal.slice().sort((a, b) => (a.group || '').localeCompare(b.group || '', 'ru') || (a.last || '').localeCompare(b.last || '', 'ru') || a.subAt - b.subAt);
+  const cell = (e, k) => { const r = e.reps.find(x => x.key === k); return r ? r.score + '/' + r.max : '—'; };
+  let body = '';
+  for (const e of rows) {
+    body += '<tr><td class="nw"><b>' + esc(e.last + ' ' + e.first) + '</b></td><td class="nw">' + esc(e.group) + '</td><td class="mono nw">' + stamp(e.subAt) + '</td><td class="mono">' + e.seed + '</td>' +
+      REPORTS.map(r => '<td class="num">' + cell(e, r.key) + '</td>').join('') +
+      '<td class="num"><b>' + e.score + '/' + e.max + '</b></td><td class="num">' + String(e.pct).replace('.', ',') + '</td><td><span class="mark mk-' + e.mark + '">' + e.mark + '</span></td><td class="num">' + L('{0} мин', e.min) + '</td><td class="num">' + e.regen + '</td>' +
+      '<td class="nw"><button class="btn" data-act="tdet" data-c="' + esc(e.chk) + '">' + (tOpen === e.chk ? L('Скрыть') : L('Разбор')) + '</button> <button class="xbtn" data-act="tdel" data-c="' + esc(e.chk) + '" aria-label="' + L('Удалить запись') + '">×</button></td></tr>';
+    if (tOpen === e.chk) { const dec = decodeCode(e.code); body += '<tr class="tdet"><td colspan="' + (10 + REPORTS.length) + '"><div class="tdet-in">' + (dec.err ? esc(dec.err) : reviewTables(dec.g, true)) + '</div></td></tr>'; }
+  }
+  return '<div class="teacher"><header class="tb"><div class="tb-block"><span class="brand-key">' + ICON.key + '</span><div><div class="tb-name">' + L('Отель «Сапар» · журнал преподавателя') + '</div><div class="tb-sub">' + L('Проверка результатов учебных смен') + '</div></div></div>' +
+    '<div class="tb-actions">' + langSwitch() + '<button class="btn btn-ghost" data-act="home">' + L('← На главную') + '</button></div></header>' +
+    '<main class="t-main">' +
+      '<section class="card"><h2>' + L('Проверка результатов') + '</h2><p>' + L('После сдачи смены студент копирует сообщение с кодом и отправляет вам. Вставьте сюда одно или сразу несколько сообщений — программа заново построит вариант каждого студента и пересчитает баллы. Код, изменённый вручную, не пройдёт проверку.') + '</p>' +
+        '<textarea id="tIn" class="inp" rows="5" placeholder="' + L('Вставьте сообщения студентов целиком') + '"></textarea>' +
+        '<div class="hrow"><button class="btn btn-primary" data-act="tcheck">' + ICON.check + L('Проверить и добавить в журнал') + '</button>' + (tMsg ? '<span class="tmsg ' + tMsg.cls + '">' + esc(tMsg.text) + '</span>' : '') + '</div></section>' +
+      '<section class="card"><div class="hrow"><h2>' + L('Журнал') + ' · ' + journal.length + '</h2><div class="acts"><button class="btn" data-act="tcopy"' + (journal.length ? '' : ' disabled') + '>' + ICON.copy + L('Скопировать для Excel') + '</button><button class="btn btn-danger" data-act="tclear"' + (journal.length ? '' : ' disabled') + '>' + L('Очистить журнал') + '</button></div></div>' +
+        '<p class="small">' + L('Журнал хранится только в этом браузере на этом компьютере. Оценка: 90% и выше — 5, от 75% — 4, от 50% — 3.') + '</p>' +
+        (journal.length ? '<div class="tbl-wrap"><table class="t"><thead><tr><th>' + L('Студент') + '</th><th>' + L('Группа') + '</th><th>' + L('Сдано') + '</th><th>' + L('Вариант') + '</th>' + REPORTS.map(r => '<th class="num" title="' + L(r.name) + '">' + L(r.tab) + '</th>').join('') + '<th class="num">' + L('Баллы') + '</th><th class="num">%</th><th>' + L('Оценка') + '</th><th class="num">' + L('Время') + '</th><th class="num" title="' + L('Сколько раз студент перегенерировал день') + '">' + L('Перег.') + '</th><th></th></tr></thead><tbody>' + body + '</tbody></table></div>'
+          : '<div class="empty" style="margin:16px auto"><h3>' + L('Пока пусто') + '</h3><p>' + L('Вставьте сообщение студента в поле выше — здесь появится строка с баллами по каждому отчёту и разбором ответов.') + '</p></div>') +
+      '</section></main></div>';
+}
+function teacherCheck() {
+  const txt = $('#tIn').value, codes = [...new Set(txt.match(/SPR1\.[A-Za-z0-9_-]+\.[0-9a-z]+/g) || [])];
+  if (!codes.length) { tMsg = { cls: 'badc', text: L('Код не найден. Вставьте сообщение студента целиком, вместе со строкой «Код проверки».') }; return render(); }
+  let added = 0, dup = 0; const errs = [];
+  for (const c of codes) {
+    const r = decodeCode(c);
+    if (r.err) { errs.push(r.err); continue; }
+    const chk = c.slice(c.lastIndexOf('.') + 1) + ':' + c.length;
+    if (journal.some(e => e.chk === chk)) { dup++; continue; }
+    journal.push({ chk, code: c, last: r.last, first: r.first, group: r.group, seed: r.seed, dISO: r.dISO, subAt: r.subAt, regen: r.regen, min: Math.round((r.subAt - r.genAt) / 60000),
+      score: r.g.score, max: r.g.max, pct: r.g.pct, mark: r.g.mark, reps: r.g.reps.map(x => ({ key: x.key, score: x.score, max: x.max })) });
+    added++;
+  }
+  lsSet(LS_JOURNAL, journal);
+  const parts = [];
+  if (added) parts.push(L('Добавлено: {0}', added));
+  if (dup) parts.push(L('уже в журнале: {0}', dup));
+  if (errs.length) parts.push(L('не прошли проверку: {0} ({1})', errs.length, errs[0]));
+  tMsg = { cls: errs.length && !added ? 'badc' : 'okc', text: parts.join(', ') + '.' };
+  render();
+  if (added && !errs.length) { const t = $('#tIn'); if (t) t.value = ''; }
+}
+function teacherTSV() {
+  const head = [L('Фамилия'), L('Имя'), L('Группа'), L('Сдано'), L('Вариант'), ...REPORTS.map(r => L(r.name)), L('Баллы'), L('Максимум'), '%', L('Оценка'), L('Минут'), L('Перегенераций')];
+  const lines = journal.map(e => [e.last, e.first, e.group, stamp(e.subAt), e.seed, ...REPORTS.map(r => { const x = e.reps.find(y => y.key === r.key); return x ? x.score + '/' + x.max : ''; }), e.score, e.max, String(e.pct).replace('.', ','), e.mark, e.min, e.regen].join('\t'));
+  return [head.join('\t'), ...lines].join('\n');
+}
+
+/* ================= рендер и события ================= */
+function render() {
+  hideTip();
+  if (screen === 'work' && state) app.innerHTML = viewWork();
+  else if (screen === 'teacher') app.innerHTML = viewTeacher();
+  else { screen = 'start'; app.innerHTML = viewStart(); }
+  tick();
+}
+function renderLeft() { hideTip(); const el = $('#paneL'); if (el) el.innerHTML = viewLeft(); }
+function renderRight() { hideTip(); const el = $('#paneR'); if (el) el.innerHTML = viewRight(); }
+function tick() {
+  if (LIVE && state && state.student && Date.now() - liveAt > 10000) liveSend();
+  const el = $('#timer'); if (!el || !state) return;
+  el.textContent = dur(Date.now() - (state.genAt || state.startedAt));
+}
+function generate() {
+  if (state.seed) state.regen++;
+  state.seed = 100000 + Math.floor(Math.random() * 900000);
+  state.dISO = isoToday(); state.genAt = Date.now(); state.answers = {};
+  if (state.tabL === 'learn' || state.tabL === 'ref') state.tabL = 'rack';
+  state.mpane = 'data';
+  sc = buildScenario(state.seed, state.dISO);
+  save(); render(); liveSend(); toast(L('День сгенерирован · вариант {0}', state.seed));
+}
+function doSubmit() {
+  state.submitted = true; state.submitAt = Date.now(); state.mpane = 'rep'; save();
+  render(); liveSend(); toast(L('Смена сдана'));
+}
+function folioHTML(s) {
+  if (s.st === 'ns' || s.st === 'cx') return '<p class="m-text">' + L('Фолио пустое: бронь аннулирована, начислений и оплат нет.') + '</p>';
+  const d0 = dOf(sc.dISO), evs = sc.events.filter(e => e.sid === s.id && (e.k === 'charge' || e.k === 'pay' || e.k === 'refund'));
+  const refund = sum(evs.filter(e => e.k === 'refund').map(e => e.amount));
+  const sec = t => '<tr class="fsec"><td colspan="3">' + t + '</td></tr>';
+  let h = '<div class="folio"><table>' + sec(L('Проживание по ночам'));
+  for (let k = s.a; k < s.d; k++) {
+    const st = k < 0 ? L('начислено ночным аудитом') : k === 0 ? (s.st === 'in' ? L('начислит ночной аудит сегодня — входит в выручку от проживания') : '') : L('будет начислено в эту ночь');
+    h += '<tr' + (k < 0 ? '' : ' class="pend"') + '><td class="fdate">' + ddmm(addD(d0, k)) + '</td><td>' + L('Проживание, ночь {0}→{1}', ddmm(addD(d0, k)), ddmm(addD(d0, k + 1))) + (st ? '<br><small>' + st + '</small>' : '') + '</td><td class="famt">' + fmtMoney(s.rate) + '</td></tr>';
+  }
+  if (s.a < 0 && (s.ch === 'DIR' || s.ch === 'OTA' || s.ch === 'WALK')) {
+    const nights = s.d - s.a + (refund ? Math.round(refund / s.rate) : 0);
+    h += sec(L('Оплаты прошлых дней')) + '<tr class="pend"><td class="fdate">' + ddmm(addD(d0, s.a)) + '</td><td>' + L('Оплата проживания при заезде, {0} ноч.', nights) + '<br><small>' + L('прошлая смена — в кассу сегодняшней смены не входит') + '</small></td><td class="famt">−' + fmtMoney(nights * s.rate) + '</td></tr>';
+  }
+  h += sec(L('Операции за {0} — те же строки есть в журнале смены', ddmm(d0)));
+  if (!evs.length) h += '<tr><td colspan="3"><small>' + L('Сегодня по фолио не было доп. услуг и оплат.') + '</small></td></tr>';
+  for (const e of evs) {
+    const label = e.k === 'charge' ? esc(evText(e)) + '<br><small>' + L('начисление · статья') + ': ' + abbrify(L(e.cat)) + '</small>'
+      : e.k === 'refund' ? esc(evText(e)) + '<br><small>' + L('возврат гостю') + ' · ' + esc(L(e.method)) + '</small>'
+      : esc(evText(e)) + '<br><small>' + L('оплата · способ') + ': ' + abbrify(L(e.method)) + '</small>';
+    h += '<tr><td class="fdate">' + hhmm(e.t) + '</td><td>' + label + '</td><td class="famt' + (e.k === 'pay' ? ' neg' : '') + '">' + (e.k === 'pay' ? '−' : '') + fmtMoney(e.amount) + '</td></tr>';
+  }
+  h += '</table></div>';
+  const chg = sum(evs.filter(e => e.k === 'charge').map(e => e.amount)), paid = sum(evs.filter(e => e.k === 'pay').map(e => e.amount));
+  h += '<div class="ftot"><span>' + L('Доп. услуги за сегодня') + ': <b>' + fmtMoney(chg) + '</b></span><span>' + L('Оплачено сегодня') + ': <b>' + fmtMoney(paid) + '</b></span></div>';
+  const note = s.ch === 'CORP' ? L('Плательщик — {0}: проживание и доп. услуги оплачиваются по счёту компании, в кассу смены не поступают.', L(s.payer))
+    : s.ch === 'TA' ? L('Проживание оплачено турагентством {0} заранее. Доп. услуги гость оплачивает сам при выезде.', L(s.payer))
+    : L('Проживание гость оплачивает при заезде за все ночи сразу. Доп. услуги «на счёт номера» — при выезде.');
+  return h + '<p class="small muted">' + esc(note) + ' ' + L('Минус (−) — оплата, без знака — начисление.') + '</p>';
+}
+function bookingModal(s, tab) {
+  const d0 = dOf(sc.dISO), n = s.d - s.a;
+  const pay = s.ch === 'CORP' ? L('Безнал, счёт компании {0}', L(s.payer)) : s.ch === 'TA' ? L('Оплачено турагентством {0}', L(s.payer)) : L('Гость оплачивает проживание при заезде');
+  const kv = [
+    [L('Гость'), esc(s.guest)],
+    [L('Номер'), s.room + ' · ' + L(CATS[s.cat].name) + ' (' + s.cat + ')'],
+    [L('Заезд'), ddmm(addD(d0, s.a)) + ', ' + WD(addD(d0, s.a).getDay()) + (s.ci ? ' · ' + L('заселение в {0}', hhmm(s.ci)) + (s.early ? ' (' + L('ранний') + ')' : '') : '')],
+    [L('Выезд'), ddmm(addD(d0, s.d)) + ', ' + WD(addD(d0, s.d).getDay()) + (s.co ? ' · ' + L('выехал в {0}', hhmm(s.co)) + (s.late ? ' (' + L('поздний') + ')' : '') : '')],
+    [L('Ночей'), n],
+    [L('Гости'), L('{0} взр.', s.ad) + (s.chd ? ' + ' + L('{0} реб.', s.chd) : '')],
+    [L('Тариф за ночь'), fmtMoney(s.rate)],
+    [L('Канал продаж'), abbrify(L(CH[s.ch].name))],
+    [L('Оплата'), esc(pay)],
+    [L('Питание'), s.meal === 'BB' ? ab('BB') + ' — ' + L('завтрак, начисляется отдельно каждое утро') : ab('RO') + ' — ' + L('без питания')]
+  ];
+  const note = s.st === 'ns' ? L('Гость не прибыл. Бронь аннулирована, номер свободен на все даты брони.') : s.st === 'cx' ? L('Бронь отменена сегодня. В шахматке не отображается.') : '';
+  const f = tab === 'folio';
+  openModal('<div class="m-head"><h2 class="m-title" id="m-title">' + esc(s.guest) + ' · ' + L('номер') + ' ' + s.room + '</h2><span class="chip ' + ST[s.st][1] + '">' + L(ST[s.st][0]) + '</span></div>' +
+    '<div class="mtabs" role="tablist"><button class="tab" role="tab" data-act="mtab" data-t="card" aria-selected="' + !f + '">' + L('Бронь {0}', s.id) + '</button><button class="tab" role="tab" data-act="mtab" data-t="folio" aria-selected="' + f + '">' + L('Фолио гостя') + '</button></div>' +
+    '<div data-mt="card"' + (f ? ' hidden' : '') + '>' + (note ? '<p class="m-text" style="margin-bottom:10px">' + note + '</p>' : '') +
+      '<dl class="kv">' + kv.map(([k, v]) => '<dt>' + k + '</dt><dd>' + v + '</dd>').join('') + '</dl></div>' +
+    '<div data-mt="folio"' + (f ? '' : ' hidden') + ' style="display:flex;flex-direction:column;gap:10px">' + folioHTML(s) + '</div>' +
+    '<div class="m-actions"><button class="btn btn-primary" data-act="mclose" data-autofocus>' + L('Закрыть') + '</button></div>');
+}
+function oooModal(o) {
+  const d0 = dOf(sc.dISO);
+  openModal('<div class="m-head"><h2 class="m-title" id="m-title">' + L('Номер {0} вне продажи', o.room) + '</h2><span class="chip h-ooo">' + L('Ремонт') + '</span></div>' +
+    '<dl class="kv"><dt>' + L('Период') + '</dt><dd>' + L('с {0} по {1} (ночей: {2})', ddmm(addD(d0, o.a)), ddmm(addD(d0, o.d)), o.d - o.a) + '</dd><dt>' + L('Причина') + '</dt><dd>' + esc(L(o.reason)) + '</dd><dt>' + L('Возврат в продажу') + '</dt><dd>' + L('{0}, с 14:00', ddmm(addD(d0, o.d))) + '</dd></dl>' +
+    '<div class="m-actions"><button class="btn btn-primary" data-act="mclose" data-autofocus>' + L('Закрыть') + '</button></div>');
+}
+
+/* ---------- всплывающие подсказки ---------- */
+const tip = document.getElementById('tip');
+let tipPin = null;
+function tipContent(el) {
+  if (el.dataset.help) return helpHTML(el.dataset.help);
+  const g = pick2(GLOSS)[el.dataset.ab] || GLOSS.ru[el.dataset.ab]; if (!g) return '';
+  return '<h4>' + esc(el.dataset.ab) + (g[0] !== el.dataset.ab ? ' — ' + esc(g[0]) : '') + '</h4><p>' + esc(g[1]) + '</p>';
+}
+function showTip(el) {
+  const html = tipContent(el); if (!html) return;
+  tip.innerHTML = html; tip.hidden = false;
+  const r = el.getBoundingClientRect(), tw = tip.offsetWidth, th = tip.offsetHeight, vw = window.innerWidth, vh = window.innerHeight;
+  const x = Math.max(8, Math.min(r.left + r.width / 2 - tw / 2, vw - tw - 8));
+  let y = r.bottom + 8;
+  if (y + th > vh - 8) y = r.top - th - 8 >= 8 ? r.top - th - 8 : Math.max(8, vh - th - 8);
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
+function hideTip() {
+  tip.hidden = true; tip.classList.remove('pinned');
+  if (tipPin && tipPin.dataset.help) tipPin.setAttribute('aria-expanded', 'false');
+  tipPin = null;
+}
+const tipTarget = e => e.target && e.target.closest ? e.target.closest('[data-help],[data-ab]') : null;
+document.addEventListener('mouseover', e => { if (tipPin) return; const el = tipTarget(e); if (el) showTip(el); });
+document.addEventListener('mouseout', e => { if (tipPin) return; const el = tipTarget(e); if (el && !el.contains(e.relatedTarget)) tip.hidden = true; });
+document.addEventListener('focusin', e => { if (tipPin) return; const el = tipTarget(e); if (el) showTip(el); else tip.hidden = true; });
+document.addEventListener('scroll', e => { if (e.target !== tip && !tip.hidden) hideTip(); }, true);
+document.addEventListener('click', e => {
+  const el = tipTarget(e);
+  if (el) {
+    e.preventDefault(); e.stopImmediatePropagation();
+    if (tipPin === el) { hideTip(); return; }
+    hideTip(); tipPin = el; showTip(el); tip.classList.add('pinned');
+    if (el.dataset.help) el.setAttribute('aria-expanded', 'true');
+    return;
+  }
+  if (tipPin && !tip.contains(e.target)) hideTip();
+}, true);
+
+document.addEventListener('click', e => {
+  if (e.target.id === 'modal') { closeModal(); return; }
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const act = b.dataset.act;
+  switch (act) {
+    case 'mclose': closeModal(); break;
+    case 'mok': { const f = modalOk; closeModal(); if (f) f(); break; }
+    case 'lang': {
+      // сохранить введённое в форме входа, чтобы смена языка его не стёрла
+      if (screen === 'start' && $('#st-last')) prefill = { last: $('#st-last').value, first: $('#st-first').value, group: $('#st-group').value, mods: [...document.querySelectorAll('input[name="mod"]:checked')].map(x => x.value) };
+      setLang(b.dataset.l); render(); liveSoon(); break;
+    }
+    case 'teacher': screen = 'teacher'; tMsg = null; render(); break;
+    case 'home': screen = 'start'; render(); break;
+    case 'resume': screen = 'work'; render(); liveSend(); break;
+    case 'exit': screen = 'start'; prefill = null; render(); liveSend(); break;
+    case 'gen':
+      if (sc && Object.values(state.answers).some(v => String(v).trim())) confirmBox(L('Сгенерировать новый день?'), L('Появится другой вариант, а введённые ответы будут удалены. Преподаватель увидит, сколько раз день генерировался заново.'), L('Сгенерировать'), generate, true);
+      else generate();
+      break;
+    case 'submit': {
+      const p = progress(), empty = p.total - p.filled;
+      confirmBox(L('Сдать смену?'), L('Заполнено {0} из {1} полей.', p.filled, p.total) + (empty ? ' ' + L('Пустые поля ({0}) засчитываются как неверные.', empty) : '') + ' ' + L('После сдачи ответы изменить нельзя.'), L('Сдать смену'), doSubmit);
+      break;
+    }
+    case 'newshift': prefill = { last: state.student.last, first: state.student.first, group: state.student.group, mods: state.mods }; screen = 'start'; render(); break;
+    case 'tabL': state.tabL = b.dataset.tab; save(); renderLeft(); liveSoon(); break;
+    case 'tabR': state.tabR = b.dataset.tab; save(); renderRight(); break;
+    case 'mpane': setMobilePane(b.dataset.p); break;
+    case 'jf': state.jf = b.dataset.f; save(); renderLeft(); break;
+    case 'bk': { const s = sc && sc.stays.find(x => x.id === b.dataset.sid); if (s) bookingModal(s, b.dataset.tab); break; }
+    case 'mtab':
+      document.querySelectorAll('#modal [data-mt]').forEach(x => { x.hidden = x.dataset.mt !== b.dataset.t; });
+      document.querySelectorAll('#modal .mtabs .tab').forEach(x => x.setAttribute('aria-selected', String(x === b)));
+      break;
+    case 'ooo': { const o = sc && sc.ooo[+b.dataset.i]; if (o) oooModal(o); break; }
+    case 'copyres': copyText($('#resMsg').value, L('Сообщение скопировано')); break;
+    case 'tcheck': teacherCheck(); break;
+    case 'tcopy': copyText(teacherTSV(), L('Таблица скопирована — вставьте в Excel')); break;
+    case 'tclear': confirmBox(L('Очистить журнал?'), L('Все записи ({0}) будут удалены из этого браузера. Студентам придётся прислать коды заново.', journal.length), L('Очистить'), () => { journal = []; lsSet(LS_JOURNAL, journal); tOpen = null; tMsg = null; render(); }, true); break;
+    case 'tdel': { const c = b.dataset.c, e2 = journal.find(x => x.chk === c); if (e2) confirmBox(L('Удалить запись?'), esc(e2.last + ' ' + e2.first) + ', ' + L('вариант') + ' ' + e2.seed + '.', L('Удалить'), () => { journal = journal.filter(x => x.chk !== c); lsSet(LS_JOURNAL, journal); render(); }, true); break; }
+    case 'tdet': tOpen = tOpen === b.dataset.c ? null : b.dataset.c; render(); break;
+  }
+});
+// поворот телефона или смена ширины окна: перестроить шахматку под новый размер колонок
+let wasSmall = isSmall(), rsT = null;
+window.addEventListener('resize', () => {
+  clearTimeout(rsT);
+  rsT = setTimeout(() => { if (isSmall() !== wasSmall) { wasSmall = isSmall(); if (screen === 'work' && state && (state.tabL === 'rack' || state.tabL === 'learn')) renderLeft(); } }, 200);
+});
+document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (!tip.hidden) hideTip(); else if (!$('#modal').hidden) closeModal(); });
+app.addEventListener('submit', e => { if (e.target.id === 'startForm') { e.preventDefault(); startShift(); } });
+app.addEventListener('input', e => {
+  const t = e.target;
+  if (t.dataset && t.dataset.ans && state && !state.submitted) { state.answers[t.dataset.ans] = t.value; saveSoon(); updateProgress(); liveSoon(); }
+  else if (t.id === 'bkq') { tq = t.value.trim().toLowerCase(); document.querySelectorAll('tr[data-q]').forEach(r => { r.hidden = !!tq && !r.dataset.q.includes(tq); }); }
+});
+
+/* ================= словарь: русский → қазақша ================= */
+const KZ_DICT = {
+  // старт
+  'Учебный отель «Сапар» · служба приёма и размещения': '«Сапар» оқу қонақүйі · қабылдау және орналастыру қызметі',
+  'Учебная шахматка': 'Оқу шахматкасы',
+  'Суточная смена администратора в отеле на 30 номеров. Программа генерирует день: <b>заезды, выезды, no-show, отмены, начисления и оплаты</b>. Отчёты вы считаете сами — программа проверяет их только после сдачи смены.':
+    '30 нөмірлі қонақүйдегі әкімшінің тәуліктік ауысымы. Бағдарлама күнді өзі құрады: <b>келулер, кетулер, no-show, бас тартулар, есептеулер мен төлемдер</b>. Есептерді өзіңіз есептейсіз — бағдарлама оларды тек ауысым тапсырылғаннан кейін тексереді.',
+  'Так выглядит шахматка: строки — номера, столбцы — даты, золотой столбец — сегодня (пример).': 'Шахматка осылай көрінеді: жолдар — нөмірлер, бағандар — күндер, алтын түсті баған — бүгін (мысал).',
+  'Откройте смену и пройдите «Обучение»': 'Ауысымды ашып, «Оқытуды» өтіңіз',
+  'Как читать шахматку, где брать данные, формулы и сокращения.': 'Шахматканы оқу, деректерді қайдан алу, формулалар мен қысқартулар.',
+  'Сгенерируйте день': 'Күнді генерациялаңыз',
+  'Кнопка справа вверху. У каждого свой вариант.': 'Жоғарғы оң жақтағы батырма. Әркімнің өз нұсқасы болады.',
+  'Заполните отчёты': 'Есептерді толтырыңыз',
+  'У каждой строки кнопка «?» — формула, где взять данные и пример.': 'Әр жолда «?» батырмасы бар — формула, деректерді қайдан алу және мысал.',
+  'Сдайте смену': 'Ауысымды тапсырыңыз',
+  'Баллы, оценка, разбор ошибок и код для преподавателя.': 'Балл, баға, қателерді талдау және оқытушыға арналған код.',
+  'Открытие смены': 'Ауысымды ашу',
+  'Есть незавершённая смена: {0}, группа {1}. Новая смена её заменит.': 'Аяқталмаған ауысым бар: {0}, топ {1}. Жаңа ауысым оның орнына басталады.',
+  'Продолжить эту смену': 'Осы ауысымды жалғастыру',
+  'Фамилия': 'Тегі',
+  'Имя': 'Аты',
+  'Группа': 'Топ',
+  'группа': 'топ',
+  'например, ОМ-31': 'мысалы, ОМ-31',
+  'Отчёты в задании': 'Тапсырмадағы есептер',
+  'Вы в компьютерном классе: преподаватель видит ход вашей смены и результат автоматически.': 'Сіз компьютер сыныбындасыз: оқытушы ауысымыңыздың барысы мен нәтижесін автоматты түрде көреді.',
+  'Начать смену': 'Ауысымды бастау',
+  'Преподавателю: проверка результатов студентов →': 'Оқытушыға: студенттердің нәтижелерін тексеру →',
+  'Заполните фамилию, имя и группу.': 'Тегіңізді, атыңызды және тобыңызды толтырыңыз.',
+  'Отметьте хотя бы один отчёт.': 'Кемінде бір есепті белгілеңіз.',
+  // отчёты
+  'Аудит': 'Аудит', 'Ночной аудит': 'Түнгі аудит', 'Форма ФО-1': 'ФО-1 нысаны', 'Отчёт ночного аудитора': 'Түнгі аудитордың есебі',
+  'загрузка, ADR, RevPAR, заезды и выезды': 'толымдылық, ADR, RevPAR, келулер мен кетулер',
+  'Итоги бизнес-даты {0} по шахматке и журналу смены. «На ночь» — ночь с {0} на {1}.': '{0} бизнес-күнінің шахматка мен ауысым журналы бойынша қорытындысы. «Түнге» — {0} мен {1} аралығындағы түн.',
+  'Уборка': 'Жинау', 'Уборка номеров': 'Нөмірлерді жинау', 'Форма ХС-2': 'ХС-2 нысаны', 'План уборки и сверка статусов': 'Жинау жоспары және мәртебелерді салыстыру',
+  'план уборки, горничные, расхождения статусов': 'жинау жоспары, бөлме күтушілері, мәртебе сәйкессіздіктері',
+  'План работы горничных на {0} и сверка шахматки с вечерним обходом в 21:00.': '{0} күнгі бөлме күтушілерінің жұмыс жоспары және шахматканы 21:00-дегі кешкі аралаумен салыстыру.',
+  'Продажи': 'Сатылым', 'Форма ФО-3': 'ФО-3 нысаны', 'Выручка и каналы продаж': 'Түсім және сату арналары',
+  'выручка по статьям, канал OTA, комиссия': 'баптар бойынша түсім, OTA арнасы, комиссия',
+  'Выручка за {0} по статьям (журнал смены и ночной аудит) и анализ канала OTA на ночь.': '{0} күнгі баптар бойынша түсім (ауысым журналы және түнгі аудит) және түнге OTA арнасын талдау.',
+  'Касса': 'Касса', 'Форма КО-4': 'КО-4 нысаны', 'Кассовый отчёт смены': 'Ауысымның кассалық есебі',
+  'оплаты по способам, возвраты, остаток кассы': 'тәсілдер бойынша төлемдер, қайтарулар, касса қалдығы',
+  'Оплаты и движение наличных за {0} по журналу смены. Размен на начало смены — {1}.': '{0} күнгі төлемдер мен қолма-қол ақша қозғалысы (ауысым журналы бойынша). Ауысым басындағы ұсақ ақша (размен) — {1}.',
+  'Номера вне продажи (OOO) на ночь': 'Түнге сатудан тыс нөмірлер (OOO)',
+  'Номера к продаже': 'Сатуға арналған нөмірлер',
+  'Занятые номера на ночь': 'Түнге бос емес нөмірлер',
+  'Свободные номера на ночь': 'Түнге бос нөмірлер',
+  'Загрузка': 'Толымдылық',
+  'Проживающие гости': 'Тұрып жатқан қонақтар',
+  'взрослые и дети в занятых номерах': 'бос емес нөмірлердегі ересектер мен балалар',
+  'Заезды за день': 'Күндегі келулер',
+  'включая walk-in': 'walk-in қоса алғанда',
+  'Выезды за день': 'Күндегі кетулер',
+  'No-show': 'No-show',
+  'Отмены бронирований за смену': 'Ауысымдағы брондаудан бас тартулар',
+  'Выручка от проживания за ночь': 'Түнгі тұрудан түсім',
+  'Средний тариф (ADR)': 'Орташа тариф (ADR)',
+  'RevPAR': 'RevPAR',
+  'Выездные уборки': 'Кетуден кейінгі жинаулар',
+  'номера, из которых гости выехали сегодня': 'қонақтар бүгін кеткен нөмірлер',
+  'Текущие уборки — всего': 'Ағымдағы жинаулар — барлығы',
+  'гости жили прошлую ночь и остаются на следующую': 'қонақтар өткен түні тұрды және келесі түнге қалады',
+  'Текущие уборки к выполнению': 'Орындалатын ағымдағы жинаулар',
+  'без номеров с табличкой DND': 'DND белгісі бар нөмірлерсіз',
+  'Трудозатраты на уборку': 'Жинауға кететін еңбек шығыны',
+  'по нормам из справочника': 'анықтамалықтағы нормалар бойынша',
+  'Нужно горничных на смену': 'Ауысымға қажет бөлме күтушілері',
+  'Свободные номера в статусе «Проверен»': '«Тексерілген» мәртебесіндегі бос нөмірлер',
+  'свободны на ночь по шахматке': 'шахматка бойынша түнге бос',
+  'Номера с расхождением статуса': 'Мәртебесі сәйкес келмейтін нөмірлер',
+  'шахматка ↔ вечерний обход; номера через запятую': 'шахматка ↔ кешкі аралау; нөмірлерді үтір арқылы жазыңыз',
+  'Выручка F&B': 'F&B түсімі',
+  'завтраки, ресторан и бар, мини-бар': 'таңғы ас, мейрамхана мен бар, мини-бар',
+  'Выручка прочих услуг': 'Басқа қызметтерден түсім',
+  'прачечная, трансфер, ранний заезд, поздний выезд': 'кір жуу, трансфер, ерте келу, кеш кету',
+  'Общая выручка за сутки': 'Тәуліктегі жалпы түсім',
+  'проживание + F&B + прочие': 'тұру + F&B + басқа қызметтер',
+  'Доля проживания в общей выручке': 'Жалпы түсімдегі тұрудың үлесі',
+  'Номера, проданные через OTA, на ночь': 'Түнге OTA арқылы сатылған нөмірлер',
+  'Выручка от проживания по OTA': 'OTA бойынша тұрудан түсім',
+  'Комиссия OTA к оплате': 'Төленетін OTA комиссиясы',
+  'Доля OTA в выручке от проживания': 'Тұрудан түсімдегі OTA үлесі',
+  'Оплаты наличными': 'Қолма-қол төлемдер',
+  'Оплаты банковской картой': 'Банк картасымен төлемдер',
+  'Оплаты Kaspi QR': 'Kaspi QR төлемдері',
+  'Поступления на расчётный счёт': 'Есеп шотына түскен төлемдер',
+  'Итого оплат за смену': 'Ауысымдағы төлемдер жиыны',
+  'все способы, без вычета возвратов': 'барлық тәсілдер, қайтаруларды шегермей',
+  'Возвраты наличными': 'Қолма-қол қайтарулар',
+  'Сдано по инкассации': 'Инкассация бойынша тапсырылды',
+  'Наличные в кассе на конец смены': 'Ауысым соңында кассадағы қолма-қол ақша',
+  'ном.': 'нөм.', 'чел.': 'адам', 'брон.': 'брон.', 'мин': 'мин', '%': '%', '₸': '₸',
+  // подсказки
+  '{0}, строка {1}': '{0}, {1}-жол',
+  'Где взять': 'Қайдан алу керек',
+  'Формула': 'Формула',
+  'Пример (цифры не из вашего варианта)': 'Мысал (сандар сіздің нұсқаңыздан емес)',
+  'нет': 'жоқ',
+  'отлично': 'өте жақсы', 'хорошо': 'жақсы', 'удовлетворительно': 'қанағаттанарлық', 'неудовлетворительно': 'қанағаттанарлықсыз',
+  'неверный формат кода': 'код пішімі қате',
+  'код изменён или скопирован не полностью': 'код өзгертілген немесе толық көшірілмеген',
+  'код повреждён': 'код бүлінген',
+  // общие
+  'Отменить': 'Болдырмау', 'Отмена': 'Бас тарту',
+  'Скопируйте вручную': 'Қолмен көшіріңіз',
+  'Текст выделен — нажмите Ctrl+C (на телефоне — «Копировать»).': 'Мәтін белгіленді — Ctrl+C басыңыз (телефонда — «Көшіру»).',
+  'Готово': 'Дайын',
+  'Скопировано': 'Көшірілді',
+  'на связи с преподавателем': 'оқытушымен байланыс бар',
+  'нет связи с преподавателем': 'оқытушымен байланыс жоқ',
+  // рабочее место
+  'Отель «Сапар»': '«Сапар» қонақүйі',
+  'Бизнес-дата {0}, {1} · вариант {2}': 'Бизнес-күн {0}, {1} · нұсқа {2}',
+  'День ещё не сгенерирован': 'Күн әлі генерацияланбаған',
+  'Смена сдана · {0} из {1} · оценка {2}': 'Ауысым тапсырылды · {1} ішінен {0} · баға {2}',
+  'в смене': 'ауысымда',
+  'Новая смена': 'Жаңа ауысым',
+  'Сгенерировать день': 'Күнді генерациялау',
+  'Сдать смену': 'Ауысымды тапсыру',
+  'Выйти': 'Шығу',
+  'Обучение': 'Оқыту', 'Шахматка': 'Шахматка', 'Бронирования': 'Брондаулар', 'Журнал смены': 'Ауысым журналы', 'Статусы номеров': 'Нөмірлер мәртебесі', 'Справочник': 'Анықтамалық',
+  'Данные смены': 'Ауысым деректері',
+  'Смена открыта': 'Ауысым ашылды',
+  'Нажмите «Сгенерировать день» справа вверху. Появятся заезды, выезды, бронирования, операции кассы и статусы номеров — у вас будет свой вариант.':
+    'Жоғарғы оң жақтағы «Күнді генерациялау» батырмасын басыңыз. Келулер, кетулер, брондаулар, касса операциялары және нөмірлер мәртебесі пайда болады — сізде өз нұсқаңыз болады.',
+  'Если ещё не читали — начните со вкладки «Обучение». «Справочник» с тарифами и нормами тоже открыт уже сейчас.': 'Әлі оқымаған болсаңыз — «Оқыту» қойындысынан бастаңыз. Тарифтер мен нормалар жазылған «Анықтамалық» та қазір ашық.',
+  'Проживает': 'Тұрып жатыр', 'Выехал': 'Кетті', 'Бронь': 'Бронь', 'Отменена': 'Жойылды',
+  'Грязный': 'Лас', 'Чистый': 'Таза', 'Проверен': 'Тексерілген', 'Ремонт': 'Жөндеу',
+  'нажмите: бронь и фолио': 'басыңыз: бронь және фолио',
+  '{0} этаж': '{0}-қабат',
+  'Номер': 'Нөмір',
+  'номер': 'нөмір',
+  'Ночь аудита: с бизнес-даты на завтра': 'Аудит түні: бизнес-күннен ертеңге қараған түн',
+  'Заехал сегодня': 'Бүгін келді',
+  'Бизнес-дата': 'Бизнес-күн',
+  'Ночь аудита': 'Аудит түні',
+  'Номер занят на ночь, если его полоса пересекает золотой пунктир. Нажмите на полосу — бронь и фолио гостя.': 'Жолағы алтын пунктирді қиып өтсе, нөмір түнге бос емес. Жолақты басыңыз — бронь және қонақ фолиосы ашылады.',
+  // бронирования
+  'Поиск: гость, номер или бронь': 'Іздеу: қонақ, нөмір немесе бронь',
+  'Поиск по бронированиям': 'Брондаулар бойынша іздеу',
+  'Отменённые брони есть только здесь — в шахматке их нет. Гости: взрослые+дети. Нажмите на строку — бронь и фолио гостя.': 'Жойылған брондар тек осында бар — шахматкада олар жоқ. Қонақтар: ересектер+балалар. Жолды басыңыз — бронь және қонақ фолиосы ашылады.',
+  'Гость': 'Қонақ', 'Кат.': 'Сан.', 'Заезд': 'Келу', 'Выезд': 'Кету', 'Ноч.': 'Түн', 'Гости': 'Қонақтар', 'Тариф/ночь': 'Тариф/түн', 'Канал': 'Арна', 'Пит.': 'Там.', 'Статус': 'Мәртебе',
+  'Стандарт': 'Стандарт', 'Улучшенный': 'Жақсартылған', 'Делюкс': 'Делюкс', 'Люкс': 'Люкс',
+  'Прямое бронирование (сайт, телефон)': 'Тікелей брондау (сайт, телефон)', 'Прямое': 'Тікелей',
+  'OTA (Booking.com)': 'OTA (Booking.com)', 'OTA': 'OTA',
+  'Корпоративный клиент': 'Корпоративтік клиент', 'Корп.': 'Корп.',
+  'Турагентство': 'Турагенттік', 'Турагент': 'Турагент',
+  'Walk-in (без брони)': 'Walk-in (брондаусыз)', 'Walk-in': 'Walk-in',
+  // журнал
+  'Все': 'Барлығы', 'Заезды и выезды': 'Келулер мен кетулер', 'Начисления': 'Есептеулер', 'Оплаты и касса': 'Төлемдер және касса', 'Отмены и no-show': 'Бас тартулар және no-show',
+  'Начисление': 'Есептеу', 'Оплата': 'Төлем', 'Возврат': 'Қайтару', 'Инкассация': 'Инкассация',
+  'Открыть фолио гостя': 'Қонақ фолиосын ашу',
+  'Журнал операций за {0}. Размен в кассе на начало смены: {1}.': '{0} күнгі операциялар журналы. Ауысым басында кассадағы ұсақ ақша (размен): {1}.',
+  'Фильтр операций': 'Операциялар сүзгісі',
+  'Время': 'Уақыт', 'Операция': 'Операция', 'Гость / плательщик': 'Қонақ / төлеуші', 'Содержание': 'Мазмұны', 'Статья / способ': 'Бап / тәсіл', 'Сумма': 'Сома',
+  'Операций этого типа нет.': 'Мұндай операциялар жоқ.',
+  'Бухгалтерия': 'Бухгалтерия',
+  // статьи и способы оплаты
+  'Завтрак': 'Таңғы ас', 'Ресторан': 'Мейрамхана', 'Мини-бар': 'Мини-бар', 'Прачечная': 'Кір жуу', 'Трансфер': 'Трансфер', 'Ранний заезд': 'Ерте келу', 'Поздний выезд': 'Кеш кету',
+  'Наличные': 'Қолма-қол', 'Карта': 'Карта', 'Kaspi QR': 'Kaspi QR', 'Безнал': 'Қолма-қолсыз',
+  // тексты операций
+  'Заселение без брони (walk-in)': 'Брондаусыз орналасу (walk-in)',
+  'Ранний заезд по брони {0}': '{0} броны бойынша ерте келу',
+  'Заселение по брони {0}': '{0} броны бойынша орналасу',
+  'Завтрак, {0} чел.': 'Таңғы ас, {0} адам',
+  'Поздний выезд до {0} — 50% тарифа': 'Сағат {0} дейін кеш кету — тарифтің 50%',
+  'Мини-бар — проверка при выезде': 'Мини-бар — кету кезіндегі тексеру',
+  'Трансфер в аэропорт': 'Әуежайға трансфер',
+  'Трансфер на ж/д вокзал': 'Теміржол вокзалына трансфер',
+  'Ранний заезд в {0} — 50% тарифа': 'Сағат {0} ерте келу — тарифтің 50%',
+  'Трансфер из аэропорта': 'Әуежайдан трансфер',
+  'Трансфер с ж/д вокзала': 'Теміржол вокзалынан трансфер',
+  '{0} — оплачено на месте': '{0} — орнында төленді',
+  '{0} — на счёт номера': '{0} — нөмір шотына',
+  'Ужин в ресторане': 'Мейрамханада кешкі ас', 'Обед в ресторане': 'Мейрамханада түскі ас', 'Room service': 'Room service', 'Лобби-бар': 'Лобби-бар',
+  'Оплата счёта ресторана': 'Мейрамхана шотын төлеу',
+  'Мини-бар — пополнение при уборке': 'Мини-бар — жинау кезінде толықтыру',
+  'Стирка и глажка': 'Жуу және үтіктеу', 'Химчистка костюма': 'Костюмді химиялық тазалау', 'Глажка рубашек': 'Жейделерді үтіктеу',
+  'Оплата проживания, {0} ноч.': 'Тұру ақысы, {0} түн',
+  'Оплата проживания, {0} ноч. + доп. услуги': 'Тұру ақысы, {0} түн + қосымша қызметтер',
+  'Оплата доп. услуг при выезде': 'Кету кезінде қосымша қызметтерге төлем',
+  'Поступление на р/с по счёту № {0}': '№ {0} шот бойынша есеп шотына түсім',
+  'Возврат за неиспользованную ночь (выезд на день раньше)': 'Пайдаланылмаған түн үшін қайтару (бір күн ерте кетті)',
+  'Отмена брони {0}: заезд {1}, {2} ноч., {3}': '{0} броны жойылды: келу {1}, {2} түн, {3}',
+  'Гость не прибыл. Бронь {0} аннулирована': 'Қонақ келмеді. {0} броны жойылды',
+  'Инкассация: наличные сданы в бухгалтерию': 'Инкассация: қолма-қол ақша бухгалтерияға тапсырылды',
+  'ТОО «Дала Инжиниринг»': 'ЖШС «Дала Инжиниринг»', 'ТОО «Орда Консалт»': 'ЖШС «Орда Консалт»', 'АО «Береке Агро»': 'АҚ «Береке Агро»',
+  'ТОО «Жасыл Курылыс»': 'ЖШС «Жасыл Құрылыс»', 'ТОО «Altyn Trade Group»': 'ЖШС «Altyn Trade Group»', 'ТОО «Каспий Техсервис»': 'ЖШС «Каспий Техсервис»',
+  'ТОО «Көктем Тур»': 'ЖШС «Көктем Тур»', 'ТОО «Жибек Жолы Тур»': 'ЖШС «Жібек Жолы Тур»', 'ТОО «Asia Holiday KZ»': 'ЖШС «Asia Holiday KZ»', 'ТОО «Nomad Line»': 'ЖШС «Nomad Line»',
+  // статусы номеров
+  'Обход 21:00': 'Аралау 21:00',
+  'Занят': 'Бос емес', 'Свободен': 'Бос',
+  'Протечка в санузле': 'Санторапта су ағып тұр', 'Ремонт кондиционера': 'Кондиционерді жөндеу', 'Замена ковролина': 'Кілем жабынын ауыстыру',
+  'Покраска стен': 'Қабырғаларды бояу', 'Неисправность электропроводки': 'Электр сымдарының ақауы', 'Замена сантехники': 'Сантехниканы ауыстыру',
+  'Вещей нет, постель не тронута': 'Заттар жоқ, төсек қозғалмаған', 'В номере вещи гостя': 'Нөмірде қонақтың заттары бар',
+  'Данные службы горничных на вечер {0}. «Уборка» — статус номера в системе горничных. «Обход 21:00» — что горничная фактически увидела в номере. {1} — табличка «Не беспокоить», номер сегодня не убирали. Занят ли номер по системе — смотрите в шахматке.':
+    '{0} кешке бөлме күтушілері қызметінің деректері. «Жинау» — күтушілер жүйесіндегі нөмір мәртебесі. «Аралау 21:00» — бөлме күтушісі нөмірде іс жүзінде не көрді. {1} — «Мазаламаңыз» белгісі, нөмір бүгін жиналмаған. Нөмірдің жүйе бойынша бос емес екенін шахматкадан қараңыз.',
+  // правая панель
+  'Отчёты смены': 'Ауысым есептері',
+  'Заполнено {0} из {1}': '{1} ішінен {0} толтырылды',
+  'Отчёты': 'Есептер',
+  'Результат': 'Нәтиже',
+  'Бланки откроются после генерации дня. В задании:': 'Бланкілер күн генерацияланғаннан кейін ашылады. Тапсырмада:',
+  '{0} показателей — {1}': '{0} көрсеткіш — {1}',
+  'Ответы сохраняются автоматически. Пустое поле при сдаче считается ошибкой.': 'Жауаптар автоматты түрде сақталады. Тапсыру кезінде бос өріс қате деп есептеледі.',
+  'за {0}': '{0} күнге',
+  'Как считать: {0}': 'Қалай есептеу керек: {0}',
+  '{0} балла': '{0} балл',
+  'например, 204, 312': 'мысалы, 204, 312',
+  'Наведите на {0} или нажмите на него — формула, где взять данные и пример. Подробнее — во вкладке «Обучение».': '{0} белгісіне меңзерді апарыңыз немесе оны басыңыз — формула, деректерді қайдан алу және мысал. Толығырақ — «Оқыту» қойындысында.',
+  // результат
+  'Учебная шахматка — результат смены': 'Оқу шахматкасы — ауысым нәтижесі',
+  'Студент: {0}, группа {1}': 'Студент: {0}, топ {1}',
+  'Вариант {0}, бизнес-дата {1}': 'Нұсқа {0}, бизнес-күн {1}',
+  'Результат: {0} из {1} баллов ({2} %), оценка {3}': 'Нәтиже: {1} балдан {0} ({2} %), баға {3}',
+  'Код проверки': 'Тексеру коды',
+  '{0} из {1}': '{1} ішінен {0}',
+  'верно': 'дұрысы',
+  'Смена сдана': 'Ауысым тапсырылды',
+  'из {0} баллов': '{0} балдан',
+  'Оценка {0} — {1}': 'Баға {0} — {1}',
+  'вариант': 'нұсқа',
+  'время работы': 'жұмыс уақыты',
+  'Результат уже у преподавателя': 'Нәтиже оқытушыға жіберілді',
+  'Он передан автоматически. Сообщение с кодом ниже — запасной вариант, если связь пропала.': 'Ол автоматты түрде жіберілді. Төмендегі кодпен хабарлама — байланыс үзілген жағдайға арналған қосалқы нұсқа.',
+  'Отправьте результат преподавателю': 'Нәтижені оқытушыға жіберіңіз',
+  'Скопируйте сообщение целиком и отправьте преподавателю. Код внутри позволяет перепроверить вашу работу.': 'Хабарламаны толығымен көшіріп, оқытушыға жіберіңіз. Ішіндегі код жұмысыңызды қайта тексеруге мүмкіндік береді.',
+  'Сообщение с результатом': 'Нәтиже туралы хабарлама',
+  'Скопировать сообщение': 'Хабарламаны көшіру',
+  'Разбор ответов': 'Жауаптарды талдау',
+  'Слева данные смены остаются открытыми — сверяйтесь с шахматкой и журналом, чтобы найти ошибку.': 'Сол жақта ауысым деректері ашық қалады — қатені табу үшін шахматка мен журналды салыстырыңыз.',
+  // преподаватель (в тренажёре)
+  '{0} мин': '{0} мин',
+  'Скрыть': 'Жасыру', 'Разбор': 'Талдау', 'Удалить запись': 'Жазбаны жою',
+  'Отель «Сапар» · журнал преподавателя': '«Сапар» қонақүйі · оқытушы журналы',
+  'Проверка результатов учебных смен': 'Оқу ауысымдарының нәтижелерін тексеру',
+  '← На главную': '← Басты бетке',
+  'Проверка результатов': 'Нәтижелерді тексеру',
+  'После сдачи смены студент копирует сообщение с кодом и отправляет вам. Вставьте сюда одно или сразу несколько сообщений — программа заново построит вариант каждого студента и пересчитает баллы. Код, изменённый вручную, не пройдёт проверку.':
+    'Ауысымды тапсырғаннан кейін студент кодпен хабарламаны көшіріп, сізге жібереді. Мұнда бір немесе бірнеше хабарламаны бірден қойыңыз — бағдарлама әр студенттің нұсқасын қайта құрып, балдарды қайта есептейді. Қолмен өзгертілген код тексеруден өтпейді.',
+  'Вставьте сообщения студентов целиком': 'Студенттердің хабарламаларын толығымен қойыңыз',
+  'Проверить и добавить в журнал': 'Тексеріп, журналға қосу',
+  'Журнал': 'Журнал',
+  'Скопировать для Excel': 'Excel үшін көшіру',
+  'Очистить журнал': 'Журналды тазалау',
+  'Журнал хранится только в этом браузере на этом компьютере. Оценка: 90% и выше — 5, от 75% — 4, от 50% — 3.': 'Журнал тек осы компьютердегі осы браузерде сақталады. Баға: 90% және одан жоғары — 5, 75%-дан — 4, 50%-дан — 3.',
+  'Студент': 'Студент', 'Сдано': 'Тапсырылды', 'Вариант': 'Нұсқа', 'Баллы': 'Балл', 'Оценка': 'Баға', 'Перег.': 'Қайта ген.',
+  'Сколько раз студент перегенерировал день': 'Студент күнді неше рет қайта генерациялады',
+  'Пока пусто': 'Әзірге бос',
+  'Вставьте сообщение студента в поле выше — здесь появится строка с баллами по каждому отчёту и разбором ответов.': 'Студенттің хабарламасын жоғарыдағы өріске қойыңыз — мұнда әр есеп бойынша балдар мен жауаптарды талдау жолы пайда болады.',
+  'Код не найден. Вставьте сообщение студента целиком, вместе со строкой «Код проверки».': 'Код табылмады. Студенттің хабарламасын «Тексеру коды» жолымен бірге толығымен қойыңыз.',
+  'Добавлено: {0}': 'Қосылды: {0}',
+  'уже в журнале: {0}': 'журналда бар: {0}',
+  'не прошли проверку: {0} ({1})': 'тексеруден өтпеді: {0} ({1})',
+  'Максимум': 'Ең жоғары', 'Минут': 'Минут', 'Перегенераций': 'Қайта генерациялау',
+  // действия и модальные окна
+  'День сгенерирован · вариант {0}': 'Күн генерацияланды · нұсқа {0}',
+  'Фолио пустое: бронь аннулирована, начислений и оплат нет.': 'Фолио бос: брондау жойылды, есептеулер мен төлемдер жоқ.',
+  'Проживание по ночам': 'Түндер бойынша тұру',
+  'начислено ночным аудитом': 'түнгі аудит есептеген',
+  'начислит ночной аудит сегодня — входит в выручку от проживания': 'бүгін түнгі аудит есептейді — тұрудан түсімге кіреді',
+  'будет начислено в эту ночь': 'осы түні есептеледі',
+  'Проживание, ночь {0}→{1}': 'Тұру, {0}→{1} түні',
+  'Оплаты прошлых дней': 'Өткен күндердегі төлемдер',
+  'Оплата проживания при заезде, {0} ноч.': 'Келген кездегі тұру ақысы, {0} түн',
+  'прошлая смена — в кассу сегодняшней смены не входит': 'өткен ауысым — бүгінгі ауысымның кассасына кірмейді',
+  'Операции за {0} — те же строки есть в журнале смены': '{0} күнгі операциялар — дәл осы жолдар ауысым журналында бар',
+  'Сегодня по фолио не было доп. услуг и оплат.': 'Бүгін фолио бойынша қосымша қызметтер мен төлемдер болған жоқ.',
+  'начисление · статья': 'есептеу · бап',
+  'возврат гостю': 'қонаққа қайтару',
+  'оплата · способ': 'төлем · тәсіл',
+  'Доп. услуги за сегодня': 'Бүгінгі қосымша қызметтер',
+  'Оплачено сегодня': 'Бүгін төленді',
+  'Плательщик — {0}: проживание и доп. услуги оплачиваются по счёту компании, в кассу смены не поступают.': 'Төлеуші — {0}: тұру мен қосымша қызметтер компания шоты бойынша төленеді, ауысым кассасына түспейді.',
+  'Проживание оплачено турагентством {0} заранее. Доп. услуги гость оплачивает сам при выезде.': 'Тұру ақысын {0} турагенттігі алдын ала төлеген. Қосымша қызметтерді қонақ кетерде өзі төлейді.',
+  'Проживание гость оплачивает при заезде за все ночи сразу. Доп. услуги «на счёт номера» — при выезде.': 'Қонақ тұру ақысын келген кезде барлық түндер үшін бірден төлейді. «Нөмір шотына» жазылған қосымша қызметтер — кету кезінде.',
+  'Минус (−) — оплата, без знака — начисление.': 'Минус (−) — төлем, белгісіз сома — есептеу.',
+  'Безнал, счёт компании {0}': 'Қолма-қолсыз, {0} компаниясының шоты',
+  'Оплачено турагентством {0}': '{0} турагенттігі төлеген',
+  'Гость оплачивает проживание при заезде': 'Қонақ тұру ақысын келген кезде төлейді',
+  'заселение в {0}': 'орналасу уақыты {0}',
+  'ранний': 'ерте',
+  'выехал в {0}': 'кеткен уақыты {0}',
+  'поздний': 'кеш',
+  'Ночей': 'Түндер',
+  '{0} взр.': '{0} ересек',
+  '{0} реб.': '{0} бала',
+  'Тариф за ночь': 'Түнгі тариф',
+  'Канал продаж': 'Сату арнасы',
+  'Питание': 'Тамақтану',
+  'завтрак, начисляется отдельно каждое утро': 'таңғы ас, әр таң сайын бөлек есептеледі',
+  'без питания': 'тамақсыз',
+  'Гость не прибыл. Бронь аннулирована, номер свободен на все даты брони.': 'Қонақ келмеді. Брондау жойылды, нөмір брондаудың барлық күндеріне бос.',
+  'Бронь отменена сегодня. В шахматке не отображается.': 'Брондау бүгін жойылды. Шахматкада көрсетілмейді.',
+  'Бронь {0}': 'Бронь {0}',
+  'Фолио гостя': 'Қонақ фолиосы',
+  'Закрыть': 'Жабу',
+  'Номер {0} вне продажи': '{0} нөмірі сатудан тыс',
+  'Период': 'Кезең',
+  'с {0} по {1} (ночей: {2})': '{0} — {1} (түн саны: {2})',
+  'Причина': 'Себебі',
+  'Возврат в продажу': 'Сатуға қайтару',
+  '{0}, с 14:00': '{0}, 14:00-ден бастап',
+  'Сгенерировать новый день?': 'Жаңа күнді генерациялау керек пе?',
+  'Появится другой вариант, а введённые ответы будут удалены. Преподаватель увидит, сколько раз день генерировался заново.': 'Басқа нұсқа пайда болады, ал енгізілген жауаптар өшіріледі. Оқытушы күннің неше рет қайта генерацияланғанын көреді.',
+  'Сгенерировать': 'Генерациялау',
+  'Сдать смену?': 'Ауысымды тапсырасыз ба?',
+  'Заполнено {0} из {1} полей.': '{1} өрістің {0} толтырылды.',
+  'Пустые поля ({0}) засчитываются как неверные.': 'Бос өрістер ({0}) қате деп есептеледі.',
+  'После сдачи ответы изменить нельзя.': 'Тапсырғаннан кейін жауаптарды өзгертуге болмайды.',
+  'Сообщение скопировано': 'Хабарлама көшірілді',
+  'Таблица скопирована — вставьте в Excel': 'Кесте көшірілді — Excel-ге қойыңыз',
+  'Очистить журнал?': 'Журналды тазалау керек пе?',
+  'Все записи ({0}) будут удалены из этого браузера. Студентам придётся прислать коды заново.': 'Барлық жазбалар ({0}) осы браузерден өшіріледі. Студенттер кодтарды қайта жіберуі керек болады.',
+  'Очистить': 'Тазалау',
+  'Удалить запись?': 'Жазбаны жою керек пе?',
+  'Удалить': 'Жою'
+};
+
+/* ================= запуск ================= */
+function boot(data) {
+  document.documentElement.lang = LANG === 'kz' ? 'kk' : 'ru';
+  journal = lsGet(LS_JOURNAL) || [];
+  state = (data && data.state) || lsGet(LS_SHIFT);
+  if (state && state.mods) {
+    state.mods = state.mods.filter(k => REP[k]);
+    if (!state.mods.length) state.mods = REPORTS.map(r => r.key);
+    if (!state.sid) state.sid = newSid();
+  }
+  if (state && state.seed) sc = buildScenario(state.seed, state.dISO);
+  screen = (data && data.screen) || (state && state.student && !state.submitted ? 'work' : 'start');
+  render();
+  setInterval(tick, 1000);
+}
+const hot = window.claude && window.claude.hot;
+try { if (hot && typeof hot.snapshot === 'function') hot.snapshot(() => ({ state, screen })); } catch (e) {}
+if (hot && typeof hot.ready === 'function') { try { hot.ready(boot); } catch (e) { boot({}); } }
+else boot((hot && hot.data) || {});
+})();
+</script>
+
+</body></html>

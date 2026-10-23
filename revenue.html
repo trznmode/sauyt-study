@@ -1,0 +1,631 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Revenue-менеджер</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Onest:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: PMS-style dashboard — sticky day bar, calendar strip, controls column + report column */
+:root{
+  --bg:#EEF2F4; --panel:#FFFFFF; --panel2:#F6F8F9; --line:#D5DDE2;
+  --ink:#13232E; --muted:#5B6C78;
+  --accent:#0B7A80; --accent-ink:#FFFFFF; --accent-soft:#D6EEEF;
+  --event:#B86E00; --event-soft:#FBEBD2;
+  --good:#1E7B45; --good-soft:#DCF1E3; --bad:#B3261E; --bad-soft:#F9DEDC; --warn:#8A5A00;
+  --f-display:"Unbounded","Onest",system-ui,sans-serif;
+  --f-body:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E171D; --panel:#16222A; --panel2:#1B2932; --line:#2B3B46;
+  --ink:#E4ECF0; --muted:#94A6B2;
+  --accent:#3FC1C6; --accent-ink:#06232A; --accent-soft:#163E44;
+  --event:#F0A43A; --event-soft:#3A2A12;
+  --good:#5BD18A; --good-soft:#163524; --bad:#FF8A80; --bad-soft:#3D1C1A; --warn:#F0C060;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E171D; --panel:#16222A; --panel2:#1B2932; --line:#2B3B46;
+  --ink:#E4ECF0; --muted:#94A6B2;
+  --accent:#3FC1C6; --accent-ink:#06232A; --accent-soft:#163E44;
+  --event:#F0A43A; --event-soft:#3A2A12;
+  --good:#5BD18A; --good-soft:#163524; --bad:#FF8A80; --bad-soft:#3D1C1A; --warn:#F0C060;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--ink)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px;display:flex;flex-direction:column;gap:16px}
+h1,h2,h3{margin:0;text-wrap:balance}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(26px,5vw,40px);letter-spacing:-.01em;line-height:1.1}
+h2{font-family:var(--f-display);font-weight:500;font-size:17px}
+h3{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+p{margin:0}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:8px;padding:12px 18px;font-weight:600}
+.btn:hover{filter:brightness(1.07)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.big{font-size:17px;padding:14px 22px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* start */
+.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:16px}
+.hero .lead{font-size:17px;max-width:60ch}
+.kicker{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.rules{display:grid;gap:10px}
+.rules li{margin-bottom:6px}
+.rules ul{margin:0;padding-left:18px}
+.form-row{display:flex;flex-direction:column;gap:6px}
+.form-row label{font-size:13px;font-weight:600;color:var(--muted)}
+input[type=text],select{font:inherit;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;width:100%}
+.formula{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+.formula b{font-family:var(--f-mono);font-weight:600;color:var(--accent)}
+
+/* day bar */
+.daybar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--ink);color:var(--bg);border-radius:10px;padding:12px 16px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center}
+.daybar .day{font-family:var(--f-display);font-weight:700;font-size:20px;white-space:nowrap}
+.daybar .date{font-size:13px;opacity:.8}
+.kpis{display:flex;flex-wrap:wrap;gap:6px 18px;margin-left:auto}
+.kpi{display:flex;flex-direction:column}
+.kpi span{font-size:11px;text-transform:uppercase;letter-spacing:.07em;opacity:.7}
+.kpi b{font-family:var(--f-mono);font-weight:600;font-size:15px;font-variant-numeric:tabular-nums}
+
+/* calendar */
+.cal-scroll{overflow-x:auto;padding-bottom:4px}
+.cal{display:grid;grid-template-columns:repeat(30,minmax(30px,1fr));gap:3px;min-width:640px}
+.cell{border-radius:6px;background:var(--panel2);border:1px solid var(--line);padding:4px 2px 5px;text-align:center;font-size:11px;position:relative;min-height:48px;display:flex;flex-direction:column;align-items:center;gap:1px}
+.cell .dn{font-family:var(--f-mono);font-weight:600;font-size:13px}
+.cell .wd{color:var(--muted);font-size:10px}
+.cell.we .wd{color:var(--event)}
+.cell .ev{width:7px;height:7px;border-radius:50%;background:var(--event);margin-top:2px}
+.cell .ev.q{background:transparent;border:1px dashed var(--muted)}
+.cell.today{border:2px solid var(--accent);background:var(--accent-soft)}
+.cell.done .occ{position:absolute;left:0;right:0;bottom:0;background:var(--accent);opacity:.28;border-radius:0 0 5px 5px}
+.cal-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted)}
+.cal-legend i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--event);margin-right:5px;vertical-align:middle}
+
+.grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px;align-items:start}
+.col{display:flex;flex-direction:column;gap:16px;min-width:0}
+
+.today-card .event{border-radius:8px;padding:12px 14px;background:var(--panel2);display:flex;flex-direction:column;gap:4px}
+.today-card .event.hot{background:var(--event-soft)}
+.today-card .event.hot .ev-name{color:var(--event)}
+.today-card .event.cold{background:var(--accent-soft)}
+.ev-name{font-weight:700;font-size:16px}
+.demand{display:flex;align-items:center;gap:8px;font-size:13px}
+.meter{display:flex;gap:3px}
+.meter i{width:16px;height:8px;border-radius:2px;background:var(--line)}
+.meter i.on{background:var(--event)}
+.status-row{display:flex;flex-wrap:wrap;gap:6px}
+.pill{font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--panel2);border:1px solid var(--line)}
+.pill.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.pill.good{background:var(--good-soft);color:var(--good);border-color:transparent}
+
+/* price rows */
+.prices{display:flex;flex-direction:column;gap:10px}
+.prow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel2)}
+.prow .cat{font-weight:600}
+.prow .meta{font-size:12px;color:var(--muted)}
+.stepper{display:flex;align-items:center;gap:4px}
+.stepper button{width:34px;height:34px;border-radius:7px;border:1px solid var(--line);background:var(--panel);font-size:18px;line-height:1}
+.stepper .val{min-width:96px;text-align:center;font-family:var(--f-mono);font-weight:600;font-size:16px}
+.prow input[type=range]{grid-column:1 / -1;width:100%;accent-color:var(--accent)}
+.vs{font-family:var(--f-mono);font-size:12px;font-weight:600}
+.vs.up{color:var(--bad)} .vs.down{color:var(--good)} .vs.eq{color:var(--muted)}
+.quick{display:flex;flex-wrap:wrap;gap:6px}
+.quick button{font-size:13px;padding:6px 10px;border-radius:7px;border:1px solid var(--line);background:var(--panel)}
+
+/* channels */
+.channels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.ch{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;background:var(--panel2)}
+.ch.closed{opacity:.62;background:transparent;border-style:dashed}
+.ch-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ch-name{font-weight:700}
+.ch-meta{font-size:12px;color:var(--muted)}
+.switch{position:relative;width:46px;height:26px;border-radius:999px;border:0;background:var(--line);flex:none}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--panel);transition:left .15s}
+.switch[aria-checked="true"]{background:var(--accent)}
+.switch[aria-checked="true"]::after{left:23px}
+.ch .mod{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:13px}
+.ch .mod .stepper button{width:28px;height:28px;font-size:15px}
+.ch .mod .stepper .val{min-width:48px;font-size:14px}
+.ch .eff{font-size:12px;color:var(--muted)}
+.warn{font-size:13px;padding:8px 10px;border-radius:7px;background:var(--bad-soft);color:var(--bad)}
+.warn.soft{background:var(--event-soft);color:var(--warn)}
+
+/* report */
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+td{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+td:first-child{font-family:var(--f-body);font-weight:600}
+tr.total td{font-weight:700;border-bottom:0}
+.notes{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.notes li{font-size:14px;padding:8px 10px;border-radius:7px;background:var(--panel2);border-left:3px solid var(--line)}
+.notes li.bad{border-left-color:var(--bad)}
+.notes li.good{border-left-color:var(--good)}
+.notes li.tip{border-left-color:var(--event)}
+.daysum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.daysum div{display:flex;flex-direction:column;padding:8px 10px;background:var(--panel2);border-radius:7px}
+.daysum span{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.daysum b{font-family:var(--f-mono);font-size:15px;font-variant-numeric:tabular-nums}
+.empty{color:var(--muted);font-size:14px;padding:6px 0}
+.close-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+
+/* end */
+.final-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:end}
+.grade{font-family:var(--f-display);font-weight:700;font-size:clamp(22px,4vw,30px);color:var(--accent)}
+.bigstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.bigstats div{padding:12px;border-radius:8px;background:var(--panel2);display:flex;flex-direction:column;gap:2px}
+.bigstats span{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.bigstats b{font-family:var(--f-mono);font-size:19px;font-variant-numeric:tabular-nums}
+.bigstats .hl{background:var(--accent-soft)}
+.chart-wrap{overflow-x:auto}
+.chart-wrap svg{display:block;min-width:600px;width:100%;height:auto}
+.lb-form{display:flex;flex-wrap:wrap;gap:8px}
+.lb-form input{flex:1 1 200px;width:auto}
+.questions{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:14px;z-index:20}
+
+@media (max-width:860px){
+  .hero,.grid{grid-template-columns:1fr}
+  .kpis{margin-left:0}
+  .bigstats,.daysum{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:480px){
+  .channels{grid-template-columns:1fr}
+  .stepper .val{min-width:84px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap" id="app"></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- Model ---------- */
+const CATS=[
+  {id:"std",name:"Стандарт",rooms:36,base:32000,comp:30000,d:26,e:1.8,min:15000,max:90000},
+  {id:"sup",name:"Улучшенный",rooms:16,base:45000,comp:42000,d:11,e:1.5,min:20000,max:120000},
+  {id:"lux",name:"Люкс",rooms:8,base:75000,comp:70000,d:4.5,e:1.2,min:35000,max:200000}
+];
+const ROOMS=60, DAYS=30;
+const CH=[
+  {id:"bk",name:"Booking.com",comm:.17,share:.45,leak:.10,pub:true,note:"Широкая аудитория, иностранцы"},
+  {id:"ost",name:"Островок",comm:.15,share:.25,leak:.10,pub:true,note:"Туристы из СНГ"},
+  {id:"brn",name:"Броневик",comm:.12,share:.15,leak:.06,pub:false,note:"B2B, командировки. Закрытый тариф"},
+  {id:"web",name:"Сайт отеля",comm:.03,share:.15,leak:0,pub:true,note:"Эквайринг 3%, мгновенная синхронизация"}
+];
+const DOW=["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+const DOWF=[1.0,1.05,1.05,1.0,.8,.7,.65];
+const MONTHS=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+const START=new Date(2026,10,2); // пн, 2 ноября 2026
+const EV={};
+function ev(days,o){days.forEach(d=>EV[d]=o)}
+ev([2,3],{n:"Отраслевой форум в «Астана Экспо»",m:1.7,c:1.35,a:true,hint:"Делегаты бронируют заранее, конкуренты подняли цены."});
+ev([6],{n:"Хоккейный матч на «Барыс Арене»",m:1.3,c:1.1,a:true,hint:"Болельщики из других городов, в основном Стандарт."});
+ev([9,10,11],{n:"Международный медицинский конгресс",m:1.9,c:1.45,a:true,hint:"Три дня высокого спроса, много корпоративных заявок."});
+ev([13],{n:"Концерт мировой звезды на «Астана Арене»",m:2.3,c:1.7,a:true,hint:"Город переполнен. Отели вокруг продают по максимуму."});
+ev([15,16],{n:"Тихие дни",m:.55,c:.9,a:false,hint:"Темп бронирований заметно ниже обычного."});
+ev([18,19],{n:"Метель, аэропорт закрыт",m:.6,c:.95,a:false,hint:"Рейсы отменены, часть гостей не доедет."});
+ev([21,22,23],{n:"Нефтегазовая конференция",m:1.8,c:1.4,a:true,hint:"Корпоративные гости, высокая платёжеспособность."});
+ev([25,26],{n:"Новый отель рядом демпингует",m:1.0,c:.8,a:false,hint:"Конкурент открылся и снизил цены на 20%."});
+ev([29],{n:"Корпоративные заезды в конце месяца",m:1.3,c:1.1,a:true,hint:"Командировки под закрытие месяца."});
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const SEEDS={A:20261102,B:777123,C:424242};
+function buildScenario(seedKey){
+  const r=mulberry32(SEEDS[seedKey]||SEEDS.A);
+  const days=[];
+  for(let d=0;d<DAYS;d++){
+    const dt=new Date(START);dt.setDate(START.getDate()+d);
+    const dow=d%7, e=EV[d]||null;
+    const noise={},comp={};
+    CATS.forEach(c=>{noise[c.id]=.88+r()*.24;const cn=.95+r()*.1;
+      comp[c.id]=Math.round(c.comp*(dow>=4?.92:1)*(e?e.c:1)*cn/500)*500;});
+    const rolls=[r(),r(),r(),r(),r()];
+    days.push({d,dt,dow,e,noise,comp,rolls,level:DOWF[dow]*(e?e.m:1)});
+  }
+  return days;
+}
+function defaultDecision(){return{prices:{std:32000,sup:45000,lux:75000},ch:{bk:{open:true,mod:0},ost:{open:true,mod:0},brn:{open:true,mod:0},web:{open:true,mod:0}}}}
+function clone(o){return JSON.parse(JSON.stringify(o))}
+function initState(){return{rating:8.7,visUntil:{bk:-1,ost:-1},pen:{bk:0,ost:0},log:[]}}
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+function chPrice(dec,cat,chId){return Math.round(dec.prices[cat]*(1+dec.ch[chId].mod/100)/100)*100}
+
+function simulateDay(st,dec,day){
+  const S=clone(st), d=day.d;
+  const ratingMult=1+(S.rating-8.7)*.1;
+  const wk=day.dow<4;
+  let shares={bk:.45,ost:.25,brn:wk?.2:.06,web:.15};
+  const tot=Object.values(shares).reduce((a,b)=>a+b,0);
+  for(const k in shares)shares[k]/=tot;
+  const vis={bk:d<=S.visUntil.bk?.55:1,ost:d<=S.visUntil.ost?.55:1,brn:1,web:1};
+  const res={d,cats:{},ch:{},gross:0,comm:0,fines:0,obCost:0,ob:0,lost:0,sold:0,notes:[],penalties:[]};
+  CH.forEach(c=>res.ch[c.id]={sold:0,rev:0,comm:0,open:dec.ch[c.id].open});
+  CATS.forEach(cat=>{
+    const comp=day.comp[cat.id];
+    const baseD=cat.d*DOWF[day.dow]*(day.e?day.e.m:1)*day.noise[cat.id]*ratingMult;
+    const dc={};let closedD=0;
+    CH.forEach(c=>{
+      const p=chPrice(dec,cat.id,c.id);
+      const el=clamp(Math.pow(comp/p,cat.e),.05,3);
+      const v=baseD*shares[c.id]*vis[c.id]*el;
+      if(dec.ch[c.id].open)dc[c.id]=v;else closedD+=v;
+    });
+    const openIds=Object.keys(dc);
+    let T=openIds.reduce((a,k)=>a+dc[k],0);
+    if(T>0&&closedD>0){const add=closedD*.35;openIds.forEach(k=>dc[k]+=add*dc[k]/T);T+=add;}
+    const N=cat.rooms;
+    const soldT=Math.round(Math.min(T,N));
+    const E=Math.max(0,T-N);
+    const L=openIds.reduce((a,k)=>a+CH.find(c=>c.id===k).leak,0);
+    const ob=Math.round(E*L);
+    const lost=Math.max(0,Math.round(E)-ob);
+    // allocate sold by largest remainder
+    const alloc={};let used=0;const rems=[];
+    openIds.forEach(k=>{const x=T>0?soldT*dc[k]/T:0;alloc[k]=Math.floor(x);used+=alloc[k];rems.push([k,x-alloc[k]])});
+    rems.sort((a,b)=>b[1]-a[1]);for(let i=0;i<soldT-used&&i<rems.length;i++)alloc[rems[i][0]]++;
+    let rev=0;
+    openIds.forEach(k=>{const p=chPrice(dec,cat.id,k);const c=CH.find(x=>x.id===k);const r=alloc[k]*p;
+      res.ch[k].sold+=alloc[k];res.ch[k].rev+=r;res.ch[k].comm+=r*c.comm;rev+=r;res.comm+=r*c.comm;});
+    const obCost=ob*Math.round(comp*1.2);
+    res.cats[cat.id]={sold:soldT,rooms:N,demand:T,lost,ob,rev,adr:soldT?rev/soldT:0,price:dec.prices[cat.id],comp};
+    res.gross+=rev;res.sold+=soldT;res.ob+=ob;res.lost+=lost;res.obCost+=obCost;
+  });
+  // parity checks (только открытые каналы)
+  const o=id=>dec.ch[id].open, m=id=>dec.ch[id].mod;
+  const checks=[];
+  if(o("bk")&&o("web")&&m("web")<m("bk"))checks.push({ota:"bk",p:.55,roll:0,why:"цена на сайте отеля ниже, чем на Booking.com"});
+  if(o("bk")&&o("ost")&&m("ost")<m("bk"))checks.push({ota:"bk",p:.55,roll:1,why:"цена на Островке ниже, чем на Booking.com"});
+  if(o("ost")&&o("bk")&&m("bk")<m("ost"))checks.push({ota:"ost",p:.5,roll:2,why:"цена на Booking.com ниже, чем на Островке"});
+  if(o("ost")&&o("web")&&m("web")<m("ost"))checks.push({ota:"ost",p:.5,roll:3,why:"цена на сайте отеля ниже, чем на Островке"});
+  if(o("brn")&&o("bk")&&m("brn")<m("bk")-15)checks.push({ota:"bk",p:.3,roll:4,why:"закрытый тариф Броневика (ниже более чем на 15%) утёк в открытый доступ"});
+  const hit={};
+  checks.forEach(c=>{if(!hit[c.ota]&&day.rolls[c.roll]<c.p){hit[c.ota]=c.why}});
+  Object.keys(hit).forEach(ota=>{
+    S.pen[ota]++;const fine=40000*S.pen[ota];
+    S.visUntil[ota]=d+3;res.fines+=fine;
+    res.penalties.push({ota,fine,why:hit[ota]});
+  });
+  // rating
+  if(res.ob>0)S.rating=clamp(S.rating-.06*res.ob,6,9.6);else S.rating=clamp(S.rating+.01,6,9.6);
+  res.rating=S.rating;
+  res.occ=res.sold/ROOMS;res.adr=res.sold?res.gross/res.sold:0;res.revpar=res.gross/ROOMS;
+  res.net=res.gross-res.comm-res.fines-res.obCost;
+  res.notes=buildNotes(res,dec,day,checks,hit);
+  res.dec=clone(dec);
+  S.log.push(res);
+  return S;
+}
+function chName(id){return CH.find(c=>c.id===id).name}
+function buildNotes(res,dec,day,checks,hit){
+  const n=[];
+  res.penalties.forEach(p=>n.push({t:"bad",x:`Штраф от ${chName(p.ota)}: ${p.why}. ${fmt(p.fine)} и понижение в выдаче на 3 дня.`}));
+  checks.forEach(c=>{if(!hit[c.ota])n.push({t:"tip",x:`Повезло: ${chName(c.ota)} пока не заметил, что ${c.why}. Нарушение паритета может стоить дорого.`})});
+  if(res.ob>0)n.push({t:"bad",x:`Овербукинг: ${res.ob} гост. приехали, а номеров нет. Переселение в другой отель обошлось в ${fmt(res.obCost)}, рейтинг упал до ${res.rating.toFixed(2)}.`});
+  CATS.forEach(cat=>{
+    const c=res.cats[cat.id];
+    const diff=Math.round((c.price/c.comp-1)*100);
+    if(c.lost>=Math.max(2,cat.rooms*.15))n.push({t:"tip",x:`${cat.name}: номера закончились, ещё ${c.lost} гост. получили отказ. Спрос был выше предложения, цену можно было поднять.`});
+    else if(c.sold/cat.rooms<.5&&diff>=8)n.push({t:"tip",x:`${cat.name}: загрузка ${pct(c.sold/cat.rooms)}, ваша цена выше рынка на ${diff}%.`});
+    else if(c.sold===cat.rooms&&c.lost===0&&c.ob===0)n.push({t:"good",x:`${cat.name}: продано всё до последнего номера, без отказов.`});
+  });
+  CH.forEach(c=>{if(!dec.ch[c.id].open&&res.occ<.7)n.push({t:"tip",x:`${c.name} был закрыт при загрузке ${pct(res.occ)}. Часть его гостей ушла к конкурентам.`})});
+  if(!n.length)n.push({t:"good",x:"Ровный день без происшествий."});
+  return n;
+}
+function runAll(seed,decisions){let st=initState();const days=buildScenario(seed);decisions.forEach((dec,i)=>{st=simulateDay(st,dec,days[i])});return st}
+function totals(log){
+  const t={gross:0,comm:0,fines:0,obCost:0,ob:0,lost:0,sold:0,net:0};
+  log.forEach(r=>{for(const k in t)t[k]+=r[k]});
+  const n=log.length||1;
+  t.occ=t.sold/(ROOMS*n);t.adr=t.sold?t.gross/t.sold:0;t.revpar=t.gross/(ROOMS*n);
+  t.rating=log.length?log[log.length-1].rating:8.7;
+  return t;
+}
+
+/* ---------- Format ---------- */
+const nf=new Intl.NumberFormat("ru-RU");
+function fmt(x){return nf.format(Math.round(x))+" ₸"}
+function fmtM(x){const a=Math.abs(x);if(a>=1e6)return (x/1e6).toLocaleString("ru-RU",{maximumFractionDigits:2})+" млн ₸";if(a>=1e4)return (x/1e3).toLocaleString("ru-RU",{maximumFractionDigits:0})+" тыс ₸";return fmt(x)}
+function pct(x){return Math.round(x*100)+"%"}
+function dateLabel(dt){return dt.getDate()+" "+MONTHS[dt.getMonth()]}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+/* ---------- Storage ---------- */
+const KEY="rm-game-v1", LB="rm-leaderboard-v1";
+function load(k,f){try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch(e){return f}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
+/* ---------- App state ---------- */
+let G=load(KEY,null); // {name,seed,decisions:[],dec}
+let SC=null, ST=null;
+function restore(){if(!G)return;SC=buildScenario(G.seed);ST=runAll(G.seed,G.decisions)}
+restore();
+
+const app=document.getElementById("app");
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,2200)}
+
+function render(){
+  if(!G)return renderStart();
+  if(G.decisions.length>=DAYS)return renderEnd();
+  renderGame();
+}
+
+/* ---------- Start screen ---------- */
+function renderStart(){
+  app.innerHTML=`
+  <div class="hero">
+    <div class="panel" style="gap:16px">
+      <span class="kicker">Деловая игра · Операционный менеджмент · 3 курс</span>
+      <h1>Revenue-менеджер</h1>
+      <p class="lead">Вы управляете продажами отеля «Есиль Парк» 4★ в Астане 30 дней. Каждый день вы ставите цены, открываете или закрываете каналы продаж и смотрите, как отвечает спрос. Цель: максимальный чистый доход без штрафов и овербукинга.</p>
+      <div class="formula">
+        <b>Загрузка</b><span>продано номеров ÷ номерной фонд</span>
+        <b>ADR</b><span>выручка от номеров ÷ проданные номера</span>
+        <b>RevPAR</b><span>выручка от номеров ÷ все номера отеля (= ADR × загрузка)</span>
+        <b>Чистый доход</b><span>выручка − комиссии каналов − штрафы − расходы на овербукинг</span>
+      </div>
+      <div class="form-row"><label for="nm">Имя или название команды</label><input type="text" id="nm" maxlength="40" placeholder="Например: Айгерим С. или Команда 2"></div>
+      <div class="form-row"><label for="sd">Сценарий (выдаёт преподаватель)</label>
+        <select id="sd"><option value="A">Сценарий А</option><option value="B">Сценарий Б</option><option value="C">Сценарий В</option></select></div>
+      <div><button class="btn big" id="go">Начать первый день</button></div>
+    </div>
+    <div class="panel rules">
+      <h2>Правила</h2>
+      <ul>
+        <li><b>Номерной фонд:</b> 36 Стандарт, 16 Улучшенных, 8 Люксов. Одна «смена» = продажи на одну ночь.</li>
+        <li><b>Цены.</b> Чем выше цена относительно конкурентов, тем меньше бронирований. Стандарт реагирует на цену сильнее всех, Люкс слабее.</li>
+        <li><b>Каналы.</b> Booking.com 17% комиссии, Островок 15%, Броневик 12%, сайт отеля 3%. Закрытый канал экономит комиссию, но большая часть его гостей уходит к конкурентам.</li>
+        <li><b>Паритет цен.</b> Цена на Booking, Островке и сайте должна быть одинаковой. Если на одном открытом канале дешевле, OTA может заметить: штраф (каждый следующий дороже) и понижение в выдаче на 3 дня.</li>
+        <li><b>Броневик</b> продаёт закрытый корпоративный тариф: он может быть ниже, но если разница больше 15%, тариф может «утечь» в открытый доступ.</li>
+        <li><b>Овербукинг.</b> OTA синхронизируют остатки с задержкой. Когда спрос сильно выше числа номеров, каналы продают лишнее. Гостя придётся переселить за ваш счёт, а рейтинг отеля упадёт.</li>
+        <li><b>События</b> из календаря известны заранее (оранжевая точка). Бывают и неожиданные дни: о них вы узнаете утром.</li>
+      </ul>
+    </div>
+  </div>`;
+  document.getElementById("go").onclick=()=>{
+    const name=document.getElementById("nm").value.trim()||"Без имени";
+    G={name,seed:document.getElementById("sd").value,decisions:[],dec:defaultDecision()};
+    save(KEY,G);restore();render();window.scrollTo(0,0);
+  };
+}
+
+/* ---------- Game screen ---------- */
+function renderGame(){
+  const d=G.decisions.length, day=SC[d], dec=G.dec;
+  const t=totals(ST.log);
+  const last=ST.log[ST.log.length-1];
+  const lvl=day.level, bars=lvl<.7?1:lvl<.95?2:lvl<1.3?3:lvl<1.8?4:5;
+  const lvlName=["","Низкий","Ниже среднего","Средний","Высокий","Ажиотаж"][bars];
+  const evClass=day.e?(day.e.m>=1.2?"hot":day.e.m<1?"cold":""):"";
+  app.innerHTML=`
+  <div class="daybar">
+    <div><div class="day">День ${d+1} / ${DAYS}</div><div class="date">${DOW[day.dow]}, ${dateLabel(day.dt)} · ${esc(G.name)}</div></div>
+    <div class="kpis">
+      <div class="kpi"><span>Чистый доход</span><b>${fmtM(t.net)}</b></div>
+      <div class="kpi"><span>Загрузка</span><b>${ST.log.length?pct(t.occ):"—"}</b></div>
+      <div class="kpi"><span>ADR</span><b>${ST.log.length?fmtM(t.adr):"—"}</b></div>
+      <div class="kpi"><span>RevPAR</span><b>${ST.log.length?fmtM(t.revpar):"—"}</b></div>
+      <div class="kpi"><span>Рейтинг</span><b>${t.rating.toFixed(2)}</b></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="cal-scroll"><div class="cal">${SC.map(x=>{
+      const done=x.d<d, today=x.d===d, r=ST.log[x.d];
+      const showEv=x.e&&(x.e.a||x.d<=d);
+      return `<div class="cell ${x.dow>=5?"we":""} ${today?"today":""} ${done?"done":""}" title="${dateLabel(x.dt)}${showEv?" · "+esc(x.e.n):""}${r?" · загрузка "+pct(r.occ):""}">
+        <span class="wd">${DOW[x.dow]}</span><span class="dn">${x.dt.getDate()}</span>
+        ${showEv?`<span class="ev"></span>`:""}
+        ${done?`<span class="occ" style="height:${Math.round(r.occ*100)}%"></span>`:""}</div>`}).join("")}</div></div>
+    <div class="cal-legend"><span><i></i>событие в городе</span><span>Заливка ячейки = загрузка прошедшего дня</span><span>Ноябрь 2026</span></div>
+  </div>
+
+  <div class="grid">
+    <div class="col">
+      <div class="panel today-card">
+        <h3>Утро · ${DOW[day.dow]}, ${dateLabel(day.dt)}</h3>
+        <div class="event ${evClass}">
+          <span class="ev-name">${day.e?esc(day.e.n):(day.dow>=4?"Выходные: деловых гостей меньше":"Обычный будний день")}</span>
+          <span class="muted" style="font-size:14px">${day.e?esc(day.e.hint):(day.dow>=4?"Командировочных почти нет, конкуренты снижают цены.":"Основной поток: командировки и транзит.")}</span>
+          <div class="demand">Прогноз спроса: <span class="meter">${[1,2,3,4,5].map(i=>`<i class="${i<=bars?"on":""}"></i>`).join("")}</span><b>${lvlName}</b></div>
+        </div>
+        <div class="status-row">
+          ${["bk","ost"].map(id=>d<=ST.visUntil[id]?`<span class="pill bad">${chName(id)}: понижение в выдаче до ${ST.visUntil[id]+1}-го дня</span>`:"").join("")}
+          <span class="pill">Рейтинг гостей ${ST.rating.toFixed(2)}</span>
+          ${ST.pen.bk+ST.pen.ost?`<span class="pill bad">Штрафов OTA: ${ST.pen.bk+ST.pen.ost}</span>`:`<span class="pill good">Штрафов нет</span>`}
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="close-row"><h2>Цены на сегодня (BAR)</h2>
+          <div class="quick"><button data-q="-5">−5% все</button><button data-q="5">+5% все</button><button data-q="market">Как у рынка</button></div></div>
+        <div class="prices">${CATS.map(c=>{
+          const p=dec.prices[c.id], comp=day.comp[c.id], diff=Math.round((p/comp-1)*100);
+          return `<div class="prow">
+            <div><div class="cat">${c.name} <span class="muted" style="font-weight:400">· ${c.rooms} ном.</span></div>
+              <div class="meta">Конкуренты: <span class="num">${fmt(comp)}</span> · <span class="vs ${diff>0?"up":diff<0?"down":"eq"}">${diff>0?"+":""}${diff}% к рынку</span></div></div>
+            <div class="stepper"><button data-p="${c.id}" data-s="-1000" aria-label="Снизить цену ${c.name}">−</button><span class="val" id="pv-${c.id}">${nf.format(p)}</span><button data-p="${c.id}" data-s="1000" aria-label="Повысить цену ${c.name}">+</button></div>
+            <input type="range" id="pr-${c.id}" min="${c.min}" max="${c.max}" step="1000" value="${p}" aria-label="Цена ${c.name}">
+          </div>`}).join("")}</div>
+      </div>
+
+      <div class="panel">
+        <h2>Каналы продаж</h2>
+        <p class="muted" style="font-size:13px">Наценка или скидка канала применяется ко всем категориям.</p>
+        <div class="channels">${CH.map(c=>{const s=dec.ch[c.id];return `<div class="ch ${s.open?"":"closed"}">
+          <div class="ch-top"><div><div class="ch-name">${c.name}</div><div class="ch-meta">Комиссия ${Math.round(c.comm*100)}%</div></div>
+            <button class="switch" role="switch" aria-checked="${s.open}" aria-label="${c.name}: продажи ${s.open?"открыты":"закрыты"}" data-t="${c.id}"></button></div>
+          <div class="ch-meta">${c.note}</div>
+          <div class="mod"><span>${s.mod===0?"Базовая цена":s.mod>0?"Наценка":"Скидка"}</span>
+            <div class="stepper"><button data-m="${c.id}" data-s="-5" aria-label="Скидка ${c.name}">−</button><span class="val">${s.mod>0?"+":""}${s.mod}%</span><button data-m="${c.id}" data-s="5" aria-label="Наценка ${c.name}">+</button></div></div>
+          <div class="eff">${s.open?`Стандарт здесь: <span class="num">${fmt(chPrice(dec,"std",c.id))}</span>`:"Продажи закрыты"}</div>
+        </div>`}).join("")}</div>
+        <div id="parity">${parityWarn(dec)}</div>
+      </div>
+
+      <div class="panel"><div class="close-row">
+        <span class="muted" style="font-size:14px">Настройки сохранятся на следующий день, их можно не менять каждый раз.</span>
+        <button class="btn big" id="close">Закрыть день ${d+1} →</button></div></div>
+    </div>
+
+    <div class="col">${last?reportHTML(last,SC[last.d]):`<div class="panel"><h2>Отчёт за вчера</h2><p class="empty">Здесь появится отчёт после первого дня: сколько номеров продано по каждому каналу, отказы, овербукинг, комиссии и подсказки.</p>
+      <h3 style="margin-top:6px">С чего начать</h3><ul class="notes"><li class="tip">Сравните свои цены с конкурентами в карточках слева.</li><li class="tip">Посмотрите календарь: где события, там можно продавать дороже.</li><li class="tip">Пока все каналы на базовой цене, паритет соблюдён.</li></ul></div>`}
+    ${ST.log.length>1?historyHTML():""}</div>
+  </div>`;
+  bindGame();
+}
+function parityWarn(dec){
+  const o=id=>dec.ch[id].open,m=id=>dec.ch[id].mod,w=[];
+  const pubs=["bk","ost","web"].filter(o);
+  if(pubs.length>1){const mods=pubs.map(m);if(Math.min(...mods)!==Math.max(...mods)){
+    const low=pubs.filter(id=>m(id)===Math.min(...mods)).map(chName).join(", ");
+    w.push(`<div class="warn">Нарушен паритет: на канале ${low} цена ниже, чем на других открытых публичных каналах. Возможен штраф от OTA.</div>`)}}
+  if(o("brn")&&o("bk")&&m("brn")<m("bk")-15)w.push(`<div class="warn soft">Тариф Броневика ниже Booking более чем на 15%: риск утечки закрытого тарифа.</div>`);
+  if(!CH.some(c=>o(c.id)))w.push(`<div class="warn">Все каналы закрыты: сегодня отель ничего не продаст.</div>`);
+  return w.join("");
+}
+function reportHTML(r,day){
+  return `<div class="panel">
+    <h2>Отчёт: ${DOW[day.dow]}, ${dateLabel(day.dt)}</h2>
+    <div class="daysum">
+      <div><span>Загрузка</span><b>${pct(r.occ)}</b></div>
+      <div><span>ADR</span><b>${fmtM(r.adr)}</b></div>
+      <div><span>RevPAR</span><b>${fmtM(r.revpar)}</b></div>
+      <div><span>Чистый доход</span><b>${fmtM(r.net)}</b></div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Категория</th><th>Продано</th><th>Отказы</th><th>Овербук.</th><th>ADR</th></tr></thead>
+      <tbody>${CATS.map(c=>{const x=r.cats[c.id];return `<tr><td>${c.name}</td><td>${x.sold}/${x.rooms}</td><td>${x.lost||"—"}</td><td style="color:${x.ob?"var(--bad)":"inherit"}">${x.ob||"—"}</td><td>${x.sold?nf.format(Math.round(x.adr)):"—"}</td></tr>`}).join("")}
+      <tr class="total"><td>Итого</td><td>${r.sold}/${ROOMS}</td><td>${r.lost||"—"}</td><td>${r.ob||"—"}</td><td>${r.sold?nf.format(Math.round(r.adr)):"—"}</td></tr></tbody></table></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Канал</th><th>Брони</th><th>Выручка</th><th>Комиссия</th></tr></thead>
+      <tbody>${CH.map(c=>{const x=r.ch[c.id];return `<tr><td>${c.name}${x.open?"":" <span class=\"muted\" style=\"font-weight:400\">(закрыт)</span>"}</td><td>${x.sold}</td><td>${nf.format(Math.round(x.rev))}</td><td>${nf.format(Math.round(x.comm))}</td></tr>`}).join("")}
+      <tr class="total"><td>Итого</td><td>${r.sold}</td><td>${nf.format(Math.round(r.gross))}</td><td>${nf.format(Math.round(r.comm))}</td></tr></tbody></table></div>
+    ${r.fines||r.obCost?`<p style="font-size:14px">Штрафы: <b class="num">${fmt(r.fines)}</b> · Переселение гостей: <b class="num">${fmt(r.obCost)}</b></p>`:""}
+    <ul class="notes">${r.notes.map(n=>`<li class="${n.t}">${esc(n.x)}</li>`).join("")}</ul>
+  </div>`;
+}
+function historyHTML(){
+  return `<div class="panel"><h2>Журнал дней</h2><div class="tbl-wrap"><table>
+    <thead><tr><th>День</th><th>Загр.</th><th>ADR</th><th>RevPAR</th><th>Чистый</th></tr></thead>
+    <tbody>${ST.log.slice().reverse().map(r=>`<tr><td>${r.d+1} · ${DOW[SC[r.d].dow]}${SC[r.d].e?" <span style=\"color:var(--event)\">●</span>":""}</td><td>${pct(r.occ)}</td><td>${nf.format(Math.round(r.adr))}</td><td>${nf.format(Math.round(r.revpar))}</td><td style="color:${r.fines||r.ob?"var(--bad)":"inherit"}">${nf.format(Math.round(r.net))}</td></tr>`).join("")}</tbody></table></div></div>`;
+}
+function bindGame(){
+  const dec=G.dec, day=SC[G.decisions.length];
+  const persist=()=>save(KEY,G);
+  app.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{const c=CATS.find(x=>x.id===b.dataset.p);dec.prices[c.id]=clamp(dec.prices[c.id]+ +b.dataset.s,c.min,c.max);persist();rerenderKeepScroll()});
+  CATS.forEach(c=>{const r=document.getElementById("pr-"+c.id);
+    r.oninput=()=>{dec.prices[c.id]=+r.value;document.getElementById("pv-"+c.id).textContent=nf.format(+r.value)};
+    r.onchange=()=>{persist();rerenderKeepScroll()};});
+  app.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{
+    CATS.forEach(c=>{let p=dec.prices[c.id];
+      if(b.dataset.q==="market")p=day.comp[c.id];else p=Math.round(p*(1+b.dataset.q/100)/1000)*1000;
+      dec.prices[c.id]=clamp(p,c.min,c.max)});persist();rerenderKeepScroll()});
+  app.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{const s=dec.ch[b.dataset.t];s.open=!s.open;persist();rerenderKeepScroll()});
+  app.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{const s=dec.ch[b.dataset.m];s.mod=clamp(s.mod+ +b.dataset.s,-20,20);persist();rerenderKeepScroll()});
+  document.getElementById("close").onclick=()=>{
+    G.decisions.push(clone(G.dec));
+    ST=simulateDay(ST,G.dec,day);
+    save(KEY,G);render();
+    const target=G.decisions.length>=DAYS?0:null;
+    if(target===0)window.scrollTo(0,0);
+    else{const rep=app.querySelector(".grid .col:last-child");if(rep&&window.innerWidth<860)rep.scrollIntoView({behavior:"smooth",block:"start"});}
+  };
+}
+function rerenderKeepScroll(){const y=window.scrollY;const f=document.activeElement&&document.activeElement.id;render();window.scrollTo(0,y);if(f){const el=document.getElementById(f);if(el)el.focus()}}
+
+/* ---------- End screen ---------- */
+function renderEnd(){
+  const t=totals(ST.log);
+  const naive=totals(runAll(G.seed,Array.from({length:DAYS},defaultDecision)).log);
+  const delta=naive.net?(t.net/naive.net-1):0;
+  const grade=delta>=.15?"Revenue-звезда":delta>=.05?"Уверенный revenue-менеджер":delta>=-.05?"На уровне рынка":"Нужна практика";
+  const chSum={};CH.forEach(c=>chSum[c.id]={sold:0,rev:0,comm:0});
+  ST.log.forEach(r=>CH.forEach(c=>{chSum[c.id].sold+=r.ch[c.id].sold;chSum[c.id].rev+=r.ch[c.id].rev;chSum[c.id].comm+=r.ch[c.id].comm}));
+  const lb=load(LB,[]).filter(x=>x.seed===G.seed).sort((a,b)=>b.net-a.net);
+  app.innerHTML=`
+  <div class="panel" style="gap:16px">
+    <div class="final-head">
+      <div style="display:flex;flex-direction:column;gap:6px"><span class="kicker">Итоги 30 дней · ${esc(G.name)} · Сценарий ${({A:"А",B:"Б",C:"В"})[G.seed]}</span>
+        <h1>Месяц закрыт</h1><span class="grade">${grade}</span></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" id="copy">Скопировать результат</button><button class="btn" id="again">Новая игра</button></div>
+    </div>
+    <div class="bigstats">
+      <div class="hl"><span>Чистый доход</span><b>${fmtM(t.net)}</b></div>
+      <div><span>Выручка от номеров</span><b>${fmtM(t.gross)}</b></div>
+      <div><span>Загрузка</span><b>${pct(t.occ)}</b></div>
+      <div><span>ADR</span><b>${fmt(t.adr)}</b></div>
+      <div><span>RevPAR</span><b>${fmt(t.revpar)}</b></div>
+      <div><span>Комиссии каналов</span><b>${fmtM(t.comm)}</b></div>
+      <div><span>Штрафы OTA</span><b style="color:${t.fines?"var(--bad)":"inherit"}">${fmtM(t.fines)}</b></div>
+      <div><span>Овербукинг</span><b style="color:${t.ob?"var(--bad)":"inherit"}">${t.ob} гост. · ${fmtM(t.obCost)}</b></div>
+    </div>
+    <p style="font-size:15px;max-width:70ch">Пассивный менеджер, который весь месяц держал базовые цены и все каналы открытыми, заработал бы <b class="num">${fmtM(naive.net)}</b> (загрузка ${pct(naive.occ)}, ADR ${fmt(naive.adr)}, овербукинг ${naive.ob} гост.). Ваш результат: <b class="num" style="color:${delta>=0?"var(--good)":"var(--bad)"}">${delta>=0?"+":""}${Math.round(delta*100)}%</b>. Итоговый рейтинг гостей: <b class="num">${t.rating.toFixed(2)}</b>.</p>
+  </div>
+
+  <div class="grid">
+    <div class="col">
+      <div class="panel"><h2>Загрузка по дням</h2>${chartSVG()}
+        <div class="cal-legend"><span><i></i>событие</span><span style="color:var(--bad)">■ день с овербукингом или штрафом</span></div></div>
+      <div class="panel"><h2>Каналы за месяц</h2><div class="tbl-wrap"><table>
+        <thead><tr><th>Канал</th><th>Брони</th><th>Доля</th><th>Выручка</th><th>Комиссия</th></tr></thead>
+        <tbody>${CH.map(c=>{const x=chSum[c.id];return `<tr><td>${c.name}</td><td>${x.sold}</td><td>${t.sold?pct(x.sold/t.sold):"—"}</td><td>${fmtM(x.rev)}</td><td>${fmtM(x.comm)}</td></tr>`}).join("")}</tbody></table></div></div>
+      <div class="panel"><h2>Вопросы для разбора</h2><ol class="questions">
+        <li>В какой день вы заработали больше всего и почему? Что вы сделали с ценой накануне концерта?</li>
+        <li>Где был овербукинг или отказы? Что это говорит о вашей цене в тот день?</li>
+        <li>Стоило ли закрывать Booking.com ради экономии 17% комиссии? Когда это оправдано, а когда нет?</li>
+        <li>Как вы реагировали на неожиданные дни (тишина, метель, демпинг конкурента)?</li>
+        <li>Сравните ADR и загрузку с соседями по группе: кто выиграл за счёт цены, кто за счёт объёма? Что лучше для RevPAR?</li>
+      </ol></div>
+    </div>
+    <div class="col">
+      <div class="panel"><h2>Рейтинг группы</h2>
+        <p class="muted" style="font-size:13px">Результаты хранятся на этом устройстве. Если группа играет по очереди на одном компьютере или проекторе, здесь соберётся общая таблица. С личного телефона нажмите «Скопировать результат» и отправьте преподавателю.</p>
+        ${G.saved?`<p class="pill good" style="align-self:flex-start">Результат добавлен в рейтинг</p>`:`<div class="lb-form"><input type="text" id="lbn" maxlength="40" value="${esc(G.name)}" aria-label="Имя для рейтинга"><button class="btn" id="lbs">Добавить в рейтинг</button></div>`}
+        ${lb.length?`<div class="tbl-wrap"><table><thead><tr><th>#</th><th>Участник</th><th>Чистый доход</th><th>Загр.</th><th>ADR</th><th>RevPAR</th></tr></thead><tbody>${lb.map((x,i)=>`<tr><td>${i+1}</td><td style="font-family:var(--f-body)">${esc(x.name)}</td><td>${fmtM(x.net)}</td><td>${pct(x.occ)}</td><td>${nf.format(Math.round(x.adr))}</td><td>${nf.format(Math.round(x.revpar))}</td></tr>`).join("")}</tbody></table></div>
+          <div><button class="btn ghost" id="lbclear" style="font-size:13px;padding:8px 12px">Очистить рейтинг</button><span id="lbconfirm"></span></div>`:`<p class="empty">Пока никого. Добавьте свой результат первым.</p>`}
+      </div>
+      <div class="panel"><h2>Журнал решений</h2><div class="tbl-wrap"><table>
+        <thead><tr><th>День</th><th>Std</th><th>Sup</th><th>Lux</th><th>Каналы</th><th>Загр.</th><th>Чистый</th></tr></thead>
+        <tbody>${ST.log.map(r=>`<tr><td>${r.d+1}${SC[r.d].e?" <span style=\"color:var(--event)\">●</span>":""}</td><td>${nf.format(r.dec.prices.std/1000)}k</td><td>${nf.format(r.dec.prices.sup/1000)}k</td><td>${nf.format(r.dec.prices.lux/1000)}k</td><td style="font-family:var(--f-body);font-size:12px">${CH.filter(c=>r.dec.ch[c.id].open).map(c=>c.name.slice(0,3)+(r.dec.ch[c.id].mod?(r.dec.ch[c.id].mod>0?"+":"")+r.dec.ch[c.id].mod:"")).join(" ")||"все закрыты"}</td><td>${pct(r.occ)}</td><td style="color:${r.fines||r.ob?"var(--bad)":"inherit"}">${nf.format(Math.round(r.net/1000))}k</td></tr>`).join("")}</tbody></table></div></div>
+    </div>
+  </div>`;
+  document.getElementById("again").onclick=()=>{G=null;save(KEY,null);SC=null;ST=null;render();window.scrollTo(0,0)};
+  document.getElementById("copy").onclick=()=>{
+    const txt=`Revenue-менеджер · ${G.name} · Сценарий ${({A:"А",B:"Б",C:"В"})[G.seed]}\nЧистый доход: ${fmt(t.net)}\nВыручка: ${fmt(t.gross)} · Комиссии: ${fmt(t.comm)}\nЗагрузка: ${pct(t.occ)} · ADR: ${fmt(t.adr)} · RevPAR: ${fmt(t.revpar)}\nШтрафы: ${fmt(t.fines)} · Овербукинг: ${t.ob} гост.\nРейтинг гостей: ${t.rating.toFixed(2)} · К пассивному менеджеру: ${delta>=0?"+":""}${Math.round(delta*100)}%`;
+    const p=navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(txt):Promise.reject();
+    p.then(()=>toast("Результат скопирован")).catch(()=>{const ta=document.createElement("textarea");ta.value=txt;ta.style.cssText="width:100%;min-height:140px;font:13px var(--f-mono);background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px";document.getElementById("copy").closest(".panel").appendChild(ta);ta.select();toast("Выделите текст и скопируйте")});
+  };
+  const s=document.getElementById("lbs");
+  if(s)s.onclick=()=>{const name=(document.getElementById("lbn").value.trim()||G.name).slice(0,40);
+    const all=load(LB,[]);all.push({name,seed:G.seed,net:t.net,occ:t.occ,adr:t.adr,revpar:t.revpar,ts:Date.now()});save(LB,all);G.saved=true;save(KEY,G);render()};
+  const c=document.getElementById("lbclear");
+  if(c)c.onclick=()=>{const box=document.getElementById("lbconfirm");box.innerHTML=` Удалить все результаты сценария? <button class="btn" id="lbyes" style="font-size:13px;padding:8px 12px;background:var(--bad);color:#fff">Да, очистить</button>`;
+    document.getElementById("lbyes").onclick=()=>{save(LB,load(LB,[]).filter(x=>x.seed!==G.seed));render()}};
+}
+function chartSVG(){
+  const W=720,H=230,l=40,r=10,top=18,b=34,cw=(W-l-r)/DAYS,ph=H-top-b;
+  let s=`<div class="chart-wrap"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Загрузка по дням">`;
+  [0,.5,1].forEach(v=>{const y=top+ph*(1-v);s+=`<line x1="${l}" x2="${W-r}" y1="${y}" y2="${y}" stroke="var(--line)" stroke-width="1"/><text x="${l-6}" y="${y+4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="IBM Plex Mono,monospace">${v*100}%</text>`});
+  ST.log.forEach(rr=>{const x=l+rr.d*cw+2,h=ph*rr.occ,y=top+ph-h;const bad=rr.fines||rr.ob;
+    s+=`<rect x="${x}" y="${y}" width="${cw-4}" height="${Math.max(h,1)}" rx="2" fill="${bad?"var(--bad)":"var(--accent)"}" opacity="${bad?.85:.75}"><title>День ${rr.d+1}: загрузка ${pct(rr.occ)}, ADR ${fmt(rr.adr)}</title></rect>`;
+    if(SC[rr.d].e)s+=`<circle cx="${x+(cw-4)/2}" cy="${top-8}" r="3.5" fill="var(--event)"/>`;
+    if(rr.d%2===0)s+=`<text x="${x+(cw-4)/2}" y="${H-b+16}" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="IBM Plex Mono,monospace">${SC[rr.d].dt.getDate()}</text>`;});
+  s+=`<text x="${l}" y="${H-4}" font-size="11" fill="var(--muted)" font-family="Onest,sans-serif">Ноябрь 2026, число месяца</text></svg></div>`;
+  return s;
+}
+
+render();
+})();
+</script>
+
+</body></html>

@@ -1,0 +1,1838 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Шахматка Urban Hotel</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Unbounded:wght@500;600&display=swap">
+<style>
+/* Layout: PMS-экран — входящие слева, шахматка и карточка брони справа; на телефоне всё в одну колонку */
+:root{
+  --bg:#EDF1F3; --surface:#FFFFFF; --sunk:#F4F7F9; --ink:#14202A; --muted:#5A6773; --line:#D3DBE1;
+  --accent:#0E6A5B; --accent-ink:#FFFFFF; --accent-soft:#DCEFEA;
+  --good:#1D7A49; --good-soft:#E1F2E8; --bad:#BF3328; --bad-soft:#F8E3E0; --warn:#A8620B; --warn-soft:#FBEEDB;
+  --c-booking:#2856BF; --c-ostrovok:#D0621F; --c-bronevik:#7346BC; --c-trip:#13808F; --c-corp:#3E6A38; --c-direct:#94711B; --c-group:#B23A6B; --c-service:#5F6B76; --c-event:#C2185B;
+  --weekend:#E3E9ED; --bar-ink:#FFFFFF; --shadow:0 10px 30px rgba(20,32,42,.12);
+  --f-display:'Unbounded','IBM Plex Sans',system-ui,sans-serif;
+  --f-body:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --cell:56px; --roomcol:132px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E151B; --surface:#16202A; --sunk:#111A22; --ink:#E5ECF1; --muted:#93A1AD; --line:#283642;
+  --accent:#3DB79C; --accent-ink:#06231D; --accent-soft:#183A33;
+  --good:#4CC384; --good-soft:#163527; --bad:#F06F62; --bad-soft:#3E1D1A; --warn:#E6A44A; --warn-soft:#3A2A14;
+  --c-booking:#3F6FDB; --c-ostrovok:#D9743A; --c-bronevik:#8B62D4; --c-trip:#2399AA; --c-corp:#4E8146; --c-direct:#AD8A2E; --c-group:#D25A8A; --c-service:#8794A0; --c-event:#F06292;
+  --weekend:#1B2731; --shadow:0 10px 30px rgba(0,0,0,.45); color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0E151B; --surface:#16202A; --sunk:#111A22; --ink:#E5ECF1; --muted:#93A1AD; --line:#283642;
+  --accent:#3DB79C; --accent-ink:#06231D; --accent-soft:#183A33;
+  --good:#4CC384; --good-soft:#163527; --bad:#F06F62; --bad-soft:#3E1D1A; --warn:#E6A44A; --warn-soft:#3A2A14;
+  --c-booking:#3F6FDB; --c-ostrovok:#D9743A; --c-bronevik:#8B62D4; --c-trip:#2399AA; --c-corp:#4E8146; --c-direct:#AD8A2E; --c-group:#D25A8A; --c-service:#8794A0; --c-event:#F06292;
+  --weekend:#1B2731; --shadow:0 10px 30px rgba(0,0,0,.45); color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.45}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* Top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px;
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
+.brand{display:flex;flex-direction:column;min-width:0}
+.logo{height:46px;aspect-ratio:530/359;flex:none;display:grid;place-items:center}
+.logo img{width:100%;height:100%;object-fit:contain}
+.dh.last{color:var(--muted);opacity:.75}
+.brand b{font-family:var(--f-display);font-weight:600;font-size:16px;letter-spacing:-.01em}
+.brand span{color:var(--muted);font-size:12px}
+.stats{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;margin-left:auto}
+.stat{display:flex;flex-direction:column;line-height:1.15}
+.stat small{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.stat b{font-family:var(--f-mono);font-weight:500;font-size:15px;font-variant-numeric:tabular-nums}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.btn{border:1px solid var(--line);background:var(--surface);padding:7px 12px;border-radius:6px;font-weight:500;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--muted)}
+
+/* App grid */
+.app{display:grid;grid-template-columns:300px minmax(0,1fr);gap:16px;align-items:start;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 40px}
+@media (max-width:960px){.app{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;min-width:0}
+.ph{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.ph h2{margin:0;font-family:var(--f-display);font-weight:500;font-size:13px;letter-spacing:.02em}
+.ph .meta{color:var(--muted);font-size:12px}
+
+/* Inbox */
+.inbox{position:sticky;top:76px;max-height:calc(100vh - 100px);display:flex;flex-direction:column}
+@media (max-width:960px){.inbox{position:static;max-height:360px}}
+.inlist{overflow:auto;padding:8px;display:flex;flex-direction:column;gap:6px}
+.req{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 10px;align-items:center;text-align:left;width:100%;
+  border:1px solid var(--line);background:var(--sunk);border-radius:8px;padding:9px 10px}
+.req:hover{border-color:var(--muted)}
+.req.active{border-color:var(--accent);background:var(--accent-soft)}
+.req .no{font-family:var(--f-mono);font-size:12px;color:var(--muted);grid-row:span 2}
+.req .who{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.req .sub{grid-column:2/4;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;font-size:12px;color:var(--muted);min-width:0}
+.req .sub .num{white-space:nowrap}
+.req.unseen .who::after{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--warn);margin-left:6px;vertical-align:middle}
+.st{font-size:11px;font-weight:600;padding:2px 7px;border-radius:99px;white-space:nowrap}
+.st.new{background:var(--warn-soft);color:var(--warn)}
+.st.work{background:var(--accent-soft);color:var(--accent)}
+.st.done{background:var(--sunk);color:var(--muted);border:1px solid var(--line)}
+.st.ok{background:var(--good-soft);color:var(--good)}
+.st.err{background:var(--bad-soft);color:var(--bad)}
+.ch{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;white-space:nowrap}
+.ch i{width:9px;height:9px;border-radius:2px;display:inline-block;background:var(--cc)}
+.empty{padding:18px 14px;color:var(--muted);font-size:13px}
+.next{padding:10px 14px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}
+
+/* Board */
+.main{display:flex;flex-direction:column;gap:16px;min-width:0}
+.boardwrap{overflow-x:auto;padding:0 0 4px}
+.board{min-width:calc(var(--roomcol) + var(--cell) * 15);user-select:none}
+.row{display:grid;grid-template-columns:var(--roomcol) repeat(30,calc(var(--cell) / 2));height:40px;border-bottom:1px solid var(--line)}
+.row.head{height:46px;position:sticky;top:0}
+.row.catsep{border-top:2px solid var(--line)}
+.rl{grid-row:1;grid-column:1;position:sticky;left:0;z-index:3;background:var(--surface);display:flex;flex-direction:column;justify-content:center;padding:0 10px;border-right:1px solid var(--line)}
+.rl b{font-family:var(--f-mono);font-weight:600;font-size:13.5px}
+.rl span{font-size:11px;color:var(--muted);white-space:nowrap}
+.dh{grid-row:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid var(--line);font-size:11px;color:var(--muted)}
+.dh b{font-family:var(--f-mono);font-size:14px;color:var(--ink);font-weight:500}
+.dh.we,.c.we{background:var(--weekend)}
+.dh.today b{color:var(--accent)}
+.dh.today{box-shadow:inset 0 -3px 0 var(--accent)}
+.c{grid-row:1;border-right:1px solid var(--line);cursor:pointer}
+.c:hover{background:var(--accent-soft)}
+.c.anchor{background:var(--accent);opacity:.55}
+.c.prev{background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.bar{grid-row:1;z-index:2;margin:5px 2px;border-radius:5px;background:var(--cc);color:var(--bar-ink);font-size:11.5px;font-weight:600;
+  display:flex;align-items:center;gap:6px;padding:0 7px;overflow:hidden;white-space:nowrap;border:0;text-align:left;min-width:0}
+.bar span{overflow:hidden;text-overflow:ellipsis}
+.bar em{font-style:normal;font-family:var(--f-mono);font-weight:500;opacity:.85;font-size:10.5px}
+.bar.tent{background:repeating-linear-gradient(135deg,var(--cc) 0 8px,color-mix(in srgb,var(--cc) 70%,transparent) 8px 16px);pointer-events:none;box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--cc)}
+.bar.pending{opacity:.75;background:repeating-linear-gradient(135deg,var(--cc) 0 8px,color-mix(in srgb,var(--cc) 70%,transparent) 8px 16px)}
+.bar.err{box-shadow:0 0 0 2px var(--bad)}
+.bar.sel{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;padding:10px 14px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+.hintline{font-size:12.5px;color:var(--muted)}
+.hintline b{color:var(--ink)}
+
+/* Work card */
+.work{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:0}
+@media (max-width:760px){.work{grid-template-columns:minmax(0,1fr)}}
+.letter{padding:16px;border-right:1px solid var(--line);min-width:0}
+@media (max-width:760px){.letter{border-right:0;border-bottom:1px solid var(--line)}}
+.lhead{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px}
+.lfrom{font-size:12px;color:var(--muted)}
+.ltitle{font-family:var(--f-display);font-weight:500;font-size:15px;margin:0 0 10px}
+.lbody{white-space:pre-wrap;background:var(--sunk);border:1px solid var(--line);border-left:4px solid var(--cc);border-radius:6px;padding:12px 14px;font-size:13.5px;line-height:1.55;overflow-wrap:anywhere}
+.calc{padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.place{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.place.set{border-style:solid;border-color:var(--accent);background:var(--accent-soft)}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:420px){.fields{grid-template-columns:1fr}}
+.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.f label{font-size:12px;font-weight:600}
+.f small{font-size:11px;color:var(--muted)}
+.f input{border:1px solid var(--line);background:var(--sunk);border-radius:6px;padding:8px 10px;font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:14px;width:100%}
+.f input:focus{border-color:var(--accent);outline:none;background:var(--surface)}
+.f.ok input{border-color:var(--good);background:var(--good-soft)}
+.f.bad input{border-color:var(--bad);background:var(--bad-soft)}
+.f .right{font-family:var(--f-mono);font-size:11.5px;color:var(--good)}
+.feedback{border-radius:8px;padding:12px;font-size:13px;background:var(--sunk);border:1px solid var(--line)}
+.feedback h3{margin:0 0 6px;font-size:13px}
+.fl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;font-size:12.5px}
+.fl span:nth-child(even){font-family:var(--f-mono);text-align:right;white-space:nowrap}
+.fl .tot{font-weight:600;border-top:1px solid var(--line);padding-top:4px;margin-top:2px}
+.mark{font-weight:700}
+.mark.ok{color:var(--good)} .mark.bad{color:var(--bad)}
+.howto{padding:18px 16px;display:grid;gap:10px;font-size:13.5px;max-width:70ch}
+.howto ol{margin:0;padding-left:20px;display:grid;gap:6px}
+
+/* Modals */
+.ov{position:fixed;inset:0;z-index:50;background:rgba(10,18,24,.55);display:flex;align-items:flex-start;justify-content:center;overflow:auto;
+  padding-top:calc(24px + env(safe-area-inset-top,0px));padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.modal{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);width:100%;max-width:760px;min-width:0;border:1px solid var(--line);margin-inline:auto}
+.modal.narrow{max-width:520px}
+.mh{padding:18px 20px 10px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.mh h2{margin:0;font-family:var(--f-display);font-weight:600;font-size:19px;text-wrap:balance}
+.mb{padding:4px 20px 20px;display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+.mb>*{min-width:0}
+.mb p{margin:0;max-width:65ch}
+.lbl{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
+.opt{display:grid;gap:6px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg label{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:9px 11px;cursor:pointer;flex:1 1 200px}
+.seg label:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.seg small{display:block;color:var(--muted);font-size:12px}
+.tin{border:1px solid var(--line);background:var(--sunk);border-radius:6px;padding:9px 11px;width:100%}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:480px){.twocol{grid-template-columns:1fr}}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+@media (max-width:600px){
+  .mb{padding:4px 14px 16px}
+  .mh{padding:14px 14px 8px}
+  .mh h2{font-size:17px}
+  table{font-size:12.5px}
+  th,td{padding:6px 6px}
+  .rates-alias{display:none}
+}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+td.n,th.n{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rules{margin:0;padding-left:18px;display:grid;gap:4px;font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.kpi{background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.kpi small{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.kpi b{font-family:var(--f-mono);font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+.big{font-family:var(--f-display);font-size:42px;font-weight:600;line-height:1}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:60;background:var(--ink);color:var(--bg);
+  padding:10px 16px;border-radius:8px;font-size:13px;box-shadow:var(--shadow);max-width:min(90vw,520px)}
+details summary{cursor:pointer;font-weight:600}
+@media (prefers-reduced-motion:no-preference){.req.fresh{animation:drop .5s ease-out}@keyframes drop{from{transform:translateY(-8px);background:var(--warn-soft)}to{transform:none}}}
+
+/* Mobile: вкладки вместо длинной прокрутки */
+.tabbar{display:none}
+.boardreq{display:none}
+.m-only{display:none}
+@media (max-width:760px){
+  :root{--cell:46px;--roomcol:64px}
+  .top{gap:6px 12px;padding-block:8px}
+  .logo{height:34px}
+  .brand b{font-size:14px}
+  .brand span{display:none}
+  .stats{gap:4px 14px}
+  .stat.opt{display:none}
+  .stat b{font-size:14px}
+  .top .actions{display:none}
+  .app{gap:12px;padding-block:12px calc(88px + env(safe-area-inset-bottom,0px))}
+  .app[data-view="inbox"] .main{display:none}
+  .app[data-view="board"] .inbox,.app[data-view="board"] #workpanel{display:none}
+  .app[data-view="work"] .inbox,.app[data-view="work"] #boardpanel{display:none}
+  .inbox{max-height:none}
+  .rl{padding:0 8px}
+  .rl .cn{display:none}
+  .row{height:46px}
+  .bar{font-size:11px;padding:0 5px;gap:4px}
+  .ph{flex-wrap:wrap}
+  .legend{font-size:11.5px}
+  .boardreq{display:block;border-bottom:1px solid var(--line);padding:8px 14px}
+  .boardreq summary{font-size:13px}
+  .boardreq .lbody{margin-top:8px;font-size:13px;max-height:38vh;overflow:auto}
+  .m-only{display:inline-flex}
+  .letter{padding:14px}
+  .calc{padding:14px}
+  .fields{grid-template-columns:1fr 1fr;gap:10px 8px}
+  .f small{display:none}
+  .f input{font-size:16px}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .tabbar{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);
+    padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px));padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}
+  .tab{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;border-radius:8px;font-size:11.5px;font-weight:600;color:var(--muted);position:relative}
+  .tab svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .tab.on{color:var(--accent);background:var(--accent-soft)}
+  .tab .badge{position:absolute;top:2px;left:calc(50% + 6px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--warn);color:var(--surface);font-size:10.5px;line-height:18px;font-family:var(--f-mono)}
+}
+.next .btn{padding:5px 10px;font-size:12px}
+.chgtag{font-size:10.5px;font-weight:700;letter-spacing:.04em;padding:1px 7px;border-radius:99px;white-space:nowrap}
+.chgtag.cancel{background:var(--bad-soft);color:var(--bad)}
+.chgtag.ext{background:var(--warn-soft);color:var(--warn)}
+.bkact{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between}
+.btn.danger{color:var(--bad)}
+.btn.danger:hover{background:var(--bad-soft)}
+.feedback.stale{border-color:var(--warn);background:var(--warn-soft);color:var(--ink)}
+.feedback.stale b{color:var(--warn)}
+.place.cx{border-style:solid;border-color:var(--bad);background:var(--bad-soft);color:var(--bad);font-weight:600}
+/* Splash */
+.splash{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:var(--bg);overflow:hidden;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));transition:background-color .6s ease}
+.splash::before{content:"";position:absolute;inset:-2px;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:56px 40px;opacity:.55;mask-image:radial-gradient(ellipse at center,#000 10%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at center,#000 10%,transparent 70%);transition:opacity .4s}
+.sp-bars{position:absolute;inset:0;pointer-events:none;transition:opacity .4s}
+.sp-bars i{position:absolute;height:28px;border-radius:5px;background:var(--cc);opacity:0;transform:scaleX(0);transform-origin:left;animation:spbar .7s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes spbar{to{opacity:.16;transform:scaleX(1)}}
+.sp-inner::before{content:"";position:absolute;inset:-60px -90px;z-index:-1;background:radial-gradient(closest-side,var(--bg) 62%,transparent);transition:opacity .3s}
+.splash.out .sp-inner::before{opacity:0}
+.sp-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:22px;text-align:center}
+.sp-logo{width:min(46vw,240px);aspect-ratio:530/359;transform-origin:0 0;animation:splogo .9s cubic-bezier(.2,.8,.2,1) both}
+@keyframes splogo{from{opacity:0;transform:translateY(14px) scale(.92)}to{opacity:1;transform:none}}
+.sp-text{display:flex;flex-direction:column;align-items:center;gap:8px;transition:opacity .35s,transform .35s}
+.sp-eyebrow{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--muted);font-weight:600;animation:spfade .6s .35s both}
+.sp-title{margin:0;font-family:var(--f-display);font-weight:600;font-size:clamp(26px,5.4vw,46px);line-height:1.05;letter-spacing:-.02em;text-wrap:balance;animation:spfade .7s .5s both}
+.sp-title span{color:#DB1B50}
+.sp-sub{color:var(--muted);font-size:14px;animation:spfade .6s .7s both}
+.sp-load{width:min(260px,70vw);display:flex;flex-direction:column;gap:8px;align-items:center;animation:spfade .5s .8s both}
+.sp-track{width:100%;height:3px;border-radius:3px;background:var(--line);overflow:hidden}
+.sp-track b{display:block;height:100%;width:100%;background:#DB1B50;transform:scaleX(0);transform-origin:left;animation:spload 1.5s .9s cubic-bezier(.6,.1,.3,1) forwards}
+.sp-status{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);min-height:1.4em}
+@keyframes spfade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes spload{to{transform:scaleX(1)}}
+.splash.out{background-color:transparent;pointer-events:none}
+.splash.out::before,.splash.out .sp-bars{opacity:0}
+.splash.out .sp-text{opacity:0;transform:translateY(10px)}
+.logo.hide{visibility:hidden}
+@media (prefers-reduced-motion:reduce){.sp-logo,.sp-eyebrow,.sp-title,.sp-sub,.sp-load,.sp-bars i{animation-duration:.01s!important;animation-delay:0s!important}.sp-bars i{opacity:.16;transform:none}}
+.lang{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;flex:none}
+.lang button{border:0;background:transparent;padding:5px 9px;font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--muted)}
+.lang button.on{background:var(--ink);color:var(--bg)}
+.lang button:not(.on):hover{color:var(--ink)}
+.mh .lang{margin-top:2px}
+
+/* Профи-механики */
+.dh i{font-style:normal;font-size:9px;font-weight:700;line-height:1;margin-top:1px;color:var(--warn)}
+.dh.ev{box-shadow:inset 0 3px 0 var(--c-event)}
+.dh.ev i{color:var(--c-event)}
+.c.ev{background:color-mix(in srgb,var(--c-event) 7%,transparent)}
+.bar.pre{background:color-mix(in srgb,var(--cc) 45%,var(--surface));color:var(--ink);border:1px solid color-mix(in srgb,var(--cc) 60%,transparent);font-weight:500}
+.bar.pre.sel{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ink)}
+.bar.ooo{z-index:1;pointer-events:none;background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--bad) 28%,transparent) 0 6px,transparent 6px 12px);border:1.5px dashed var(--bad);color:var(--bad);font-weight:700;margin:2px 1px}
+.tmr{font-family:var(--f-mono);font-size:11px;font-weight:600;color:var(--warn);white-space:nowrap}
+.tmr.low{color:var(--bad)}
+.req.lost{opacity:.6}
+.chgtag.grp{background:color-mix(in srgb,var(--c-group) 18%,transparent);color:var(--c-group)}
+.chgtag.call{background:color-mix(in srgb,var(--c-direct) 20%,transparent);color:var(--c-direct)}
+.chat{display:flex;flex-direction:column;gap:8px;margin-top:10px;max-height:min(56vh,520px);overflow:auto;padding:2px 2px 6px}
+.bub{max-width:88%;padding:9px 12px;border-radius:14px;font-size:13.5px;line-height:1.45;overflow-wrap:anywhere;animation:bubin .25s ease both}
+.bub.g{align-self:flex-start;background:var(--sunk);border:1px solid var(--line);border-bottom-left-radius:4px}
+.bub.sys{align-self:center;background:transparent;color:var(--muted);font-size:12.5px;font-style:italic;padding:2px 8px}
+.bub.a{align-self:flex-end;background:var(--accent-soft);color:var(--ink);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);border-bottom-right-radius:4px}
+.bub.a.wr{background:var(--bad-soft);border-color:color-mix(in srgb,var(--bad) 35%,transparent)}
+@keyframes bubin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.bub{animation:none}}
+@media (max-width:760px){.chat{max-height:42vh}}
+.sayopts{display:grid;gap:8px;margin-top:8px}
+.sayopt{display:grid;gap:4px;text-align:left;font:inherit;font-size:13.5px;line-height:1.4;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;transition:border-color .15s,background .15s}
+.sayopt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft)}
+.sayopt.tried{opacity:.75;cursor:not-allowed;border-color:color-mix(in srgb,var(--bad) 45%,transparent);background:var(--bad-soft)}
+.sayopt.tried span{text-decoration:line-through}
+.sayopt small{color:var(--bad);font-size:12px}
+.gpls{display:flex;flex-wrap:wrap;gap:6px}
+.gpl{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-mono);font-size:12px;border:1px solid var(--line);border-radius:6px;padding:3px 4px 3px 8px;background:var(--sunk)}
+.gpl .x{border:0;background:transparent;color:var(--muted);font-size:15px;line-height:1;padding:0 4px;cursor:pointer}
+.gpl .x:hover{color:var(--bad)}
+table.cal td,table.cal th{white-space:nowrap}
+tr.evrow td{background:color-mix(in srgb,var(--c-event) 8%,transparent)}
+.kpi.lostk b{color:var(--bad)}
+.row.head{height:52px}
+
+/* защита от копирования и слежение за уходами */
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea,select{-webkit-user-select:text;user-select:text}
+@media print{body>*{display:none!important}body::after{content:'Печать тренажёра недоступна';display:block;padding:40px;font:16px sans-serif}}
+.letter,.chat{background-image:var(--wm,none);background-repeat:repeat;background-size:260px 120px}
+.stat.away b{color:var(--bad)}
+.feedback.warnbox{border-color:var(--bad);background:var(--bad-soft)}
+</style>
+
+<header class="top">
+  <div class="logo" id="logo" aria-label="URBAN College"></div><div class="brand"><b data-i="brand">Шахматка · Urban Hotel</b><span id="hotelline" data-i="hotelline">Учебный симулятор колледжа URBAN · смена 15 октября 2026</span></div>
+  <div class="stats" id="stats"></div>
+  <div class="lang" role="group" aria-label="Тіл / Язык"><button type="button" data-lang="kk">ҚАЗ</button><button type="button" data-lang="ru">РУС</button></div>
+  <div class="actions">
+    <button class="btn" id="btn-next" type="button" data-i="next">Следующая заявка</button>
+    <button class="btn" id="btn-rates" type="button" data-i="rates">Тарифы и правила</button>
+    <button class="btn primary" id="btn-close" type="button" data-i="close">Закрыть смену</button>
+  </div>
+</header>
+
+<div class="app" id="app" data-view="inbox">
+  <aside class="panel inbox">
+    <div class="ph"><h2 data-i="inbox">Входящие заявки</h2><span class="meta" id="inmeta"></span></div>
+    <div class="inlist" id="inlist"></div>
+    <div class="next" id="nextline"></div>
+  </aside>
+  <section class="main">
+    <div class="panel" id="boardpanel">
+      <div class="ph"><h2 data-i="boardTitle">Шахматка номерного фонда</h2><span class="hintline" id="boardhint"></span></div>
+      <div class="boardreq" id="boardreq"></div>
+      <div class="boardwrap"><div class="board" id="board"></div></div>
+      <div class="legend" id="legend"></div>
+    </div>
+    <div class="panel" id="workpanel"></div>
+  </section>
+</div>
+
+<div class="splash" id="splash" aria-hidden="true">
+  <div class="sp-bars" id="sp-bars"></div>
+  <div class="sp-inner">
+    <img class="sp-logo" id="sp-logo" alt="URBAN College">
+    <div class="sp-text">
+      <span class="sp-eyebrow" data-i="spEyebrow">Учебный тренажёр</span>
+      <h1 class="sp-title">Front Office <span>·</span> Шахматка</h1>
+      <span class="sp-sub" data-i="spSub">Симулятор смены администратора Urban Hotel</span>
+      <div class="sp-load"><div class="sp-track"><b></b></div><span class="sp-status num" id="sp-status"></span></div>
+    </div>
+  </div>
+</div>
+<nav class="tabbar" id="tabbar">
+  <button class="tab" type="button" data-view="inbox"><svg viewBox="0 0 24 24"><path d="M3 13l2.5-7h13L21 13v6H3z"/><path d="M3 13h5l1.5 2.5h5L16 13h5"/></svg><span data-i="tabInbox">Заявки</span><span class="badge" id="tb-badge" hidden></span></button>
+  <button class="tab" type="button" data-view="board"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 4v16"/><path d="M11 13h7" stroke-width="3"/></svg><span data-i="tabBoard">Шахматка</span></button>
+  <button class="tab" type="button" data-view="work"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg><span data-i="tabWork">Бронь</span></button>
+  <button class="tab" type="button" data-view="more"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg><span data-i="tabMore">Ещё</span></button>
+</nav>
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+
+<script>
+(()=>{/*IIFE*/
+/* Эмблема колледжа: вставьте сюда data:image/png;base64,... — шапка покажет её вместо текстового знака */
+const LOGO_SRC='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOwAAACgCAYAAAAPSYADAAAh20lEQVR42u2deZisdXXnP+9bVd19FxZRQAcQEldU4mi40WhEwX1fxkdMjEl0zChG3M0kYjSRSZ5RDEzUMCOiwSVqGDRqMJkYBaKiIBEXFJfrVYgi2xUvcJfuri1/nHPmPfXrt5auqu5+695znud9qrvqXX/v7/s7+znZ9qOeRdC6UAZ0geOA1wCb9f+Gfm40tYC/BH4A5EB7wL65fj4ROFX3zdwxtTHHx86T6f00gJuAs4Db3BgesFQPHK07YA8CXuEmfZXoIuD7eq+jgGsb8LtrfE87gXMVsAc8BWDXn24HdgGHKICzDb4ffw/tkgVm2LFt3WpTvq+OLmp7D3SuGoDdWJoD5nWCVw2wq6WaA+q0AZspYPOYMgHYjQZsVtF7646xf3uIvjtID87W4J4CsEEbCooq39vmhMtO+146eu7gsgHYDaN2RUHrRePuEB22o79/A/gn1TPnEt23m5zLLMC3A7cCxwKPAu5eIpa3HQe+AViMaROADZoM3Dnwd8BHV3nsIcDvA88EjnAgt4XA9OEmcB5wDrBbF4TlAGxQ0PjU0DnUcnqs58y5/t0EjgRermC9xwDxF+BS4Ez9BDHSdWK4A7BBk9GScr0sEafNurukoD4VOAM4IRGpTVQ2PfgnwNnAXyvILahkieoa6gKwQTMjFttnzX3mCuIm8GDgTcBz+wA1d+LvucDbgZ/pd6kIHNbiAGzQlKimIFxSYB0OvB44DYns6iQicsfNvcuAPwX+1YnZFppIouN2A7BBQeNR5sRfE1vrwO8oWI/X/YyTkoi/P0Zil89z4q+PR7bz2jVChw3ABk04dzKnx/4a8BbgKQlQfURXDXHRfFDF3x0K1AUFZNfNyU5y7LCEhABsUNAQHXYZcc2cAbxM9U7vmvHceCfwMcRN8yP3W1O3YRTBEwHYoDEpV5CdrCLtvROR11ML+Dbis/2aisrb9Lc5x1lNHO664w5BAi3+UTl5ADaGIGhMwHaAxytYl1W0LQtRrAHHKBfeOsa1bgIeCtxI5MMGYIPGFocB9jlds5+fNAPu6o4bFXAdp7fOxZAHYIMmp1GNQV23/2oCIHIVjVsx1AHYoOlw2g5FQMSonHlUDhsUgA2aIs2zdknmds4tqh8HBWCDJtRhbwCuU5HVgJuNwB2zIVy343TXfyfS6wKwQRORicAXABciLh6fw+qNUKmhKdVjOyXft/X7Tfr5c8JCHIANmlhkXUYsxdMEkyUQNIE7k+sFYGPeBU3AZbsJZ8ycSNwtEX/LOKzNw7qCdJnC6nwCEmjxReDmGPIAbND09Nl+PtZuyf8ZRaBFE4liWlIuehxwCvAMJJJqCTjRieEROBEUNEUaBKrMibY+1/U44LHAk5A6T0e6365ndLfRAQVYG8xOItr0WynX6+Vv5PWDRgNnd4Au2tZ5ZqViTNw9Cngk8Gzg0fSWjem44wKoAzhsl94cxKqIW0HVFYUtfrjtvp+jsBS3HTc9Cvh1pADb4xNO2qG3vIzXd7tUo+h6iMQJ5SWGjaDZAK4HWtOB9B5Ids6zgCcoaHEg96VlUg6L6rqRWucAm/UBzEYp+GkxL7uPAG+1qEavq6Xl3tFhwCOApyEd7o5LAN5xKliq9qQtOm4mUut6ADtPUeS5loCjts73kzvRyO7DAsCDqgdY36bjEOAkxHD0OOC+JSDNHSCh3OUD0vLy35Ai5V9CAieiTIwCtsphXxmjVSMIWv/30lFd9eHAc4AnA/cawEnzEuB6ETgHvgWcDnxHQdpPVTqgAftExEpnxoFU0V9PaivH7+rL+2QffSlo4wHbQqoivrMPSLNEnUlBuhfpzePf69XAF9zc9BJXqEQ6KC8EXlDBe7sM+ISKXp0Aa+UAC3A3/bSC4TkrazkZ7QOuRcqZXoy4dM5MgGggrev3aZHyACxFm4W1aMo7LpetAXvi9VSezMpbT8TWJSQO+GfKNa/Uz2sUuCDNsFLqJFvUIy4BbMbaNeWdxKARekv1KS0NY1beXyBZPB8DvpIcs1U5Z71E1clKOHNQAtigoHFpiZWpcyAtJF+JNL7ajlRL/Bxi+f2JAnZvyXG5A7AHcXBYB9iqDkY3xKHK0yZ6s3PyROfcBPyKbi9CSpZeCXwKuE8f3di4duriCwoOGzTBYpop97yFos+r6bVl3DJDfLVP0A23nw9rbNPrDsKB94Cv/B96YtA4ZID6EPAwxNPw94jvtOa4ZBofbIBMu9DbPNymYvSD6Q3MaAZYg8MGTb7Yt5GaTtcBHwZ+CYlyeirwGOWonvOWhSN6Hfa+SCeBReDrSJTT54FLHOcNDhsUNAa16I39zZCOdO9FAv0fikQt/Quwm8Lyb5y3zLduARILSFbPG4D3I0asyIkNwAZNSZ/1wDVX4Y+Ad6u+ug14BRIMs4/eCottesvNmOjc1EXBt6KMmk4x34KmSAaqmptfXeB7up0H3F/F5Wer/ru5RGzOEo7cTs4fgA0KmhKX9cAyoPlk9mt0+9/Ag5DSMM9A6jZtTkRukvMc8BSADZo2cMvIc04TmVvAN3R7twPvU5Dm0Jv02IYTk6PiRMyxoDUCbloYIQ2CqDudtYVEQ30Nafj8AODpwHORFL4IVQzABk2ZavTGgDcTQFoGjmX0LCW6L+64b+p2DtJ/9pYhHDwAGxQ0AkCNYzaUE+7us++C7r9P918CHogkvj8YSQjYiURO/TNwBZIXvVeBGxSADZqQfBDDsm4PVVH2gcBBSE3hzwOfRtIlt6g++3rgj4BDS877OsT3+kYKi3MYnQKwQVPQU80YNA+8CymEsDnZ76VIFYk3AF8FzgD+h/7WSkTirnLbVyHVFl9AkW/bISKdInAiaGxqOLCdg8QAb6aI//XbSUhu7AuAP6Bw1VhPHdN/fcHx5wGv0f0WQn8NwAZNRyx+ClLbqeVE2HRrI3HG71fO6St0pskAufvtlUgm0G7CUhyADRqbLB64riKvzSUv2nogWl2uBr15zhm92T0etF3gaKRsaqhvAdigCQHbBn5ZxV0SDpgCseM4cubA+nPgH4DPIMntGSu74ZWd/4ClWLWCxgUsKuYe7ABon4uIe2YZSbe7izvWAPkT4L8AV+n/JwMfocjMsescTxSTDw4bNBU6lpUlXLrAy5EUu+ch0Uq73G/GZf9GwXoQEoZ4KXBBIi4D3BWxHLeDywZgg8YjA+hh9BYLz5Rzflr11S1I8vlnE5EYpARqTlFNItdjU/F3gSKuODhsDEHQBCLxXMlvd+inlXapUR4BZYalfAjnrPe5TuiwQUFT4LoZElJolfvpA0hLBlhyf7f6LA5hcArABk0RpB6UC4iv9Q6KIP+tbn/jqoeofmounyZiwBp0jQBsDEHQlNWrewJfdt+3kZjhDr2dJf4IKRvjeydtdefqOMBGI6wAbNAUdNgyUbUBHDnCOe5Cr7tnFC4egI0hCJpAFO6sAmRZyT7efdPto6+G/hqADVonDjxsn2yEYwKwAdigKeqtaWvIaVHH6cBBAdigKQHWtrU4N4gPNuZpADZoQu6XI+05rkVcN74IeG1MjuurK1q+7C+Qmk5RSDwAGzQmmS91B/DDdbheLQAbgA2aDpctK2fqQe3F27RrnU+9s/9rjlMvMzx08YDTQYKCJgGtLwXTpDfVrqXf19z+Xbel/1uh8aaK2b+G1H86gigkHoANmlgs9ql1vv+rAXdev99LETNcc2BNm2DZvkcD70QyfV5CUYTtgKcQiYPGpUbyfxM4HOkN+wgkuf1QJKb4WuCLwKcUuA0Kd80CUq+4g6TjnQ68WkELcDO9FRoDsEFBY4rDZgxaQhLW/ydwv5J9T0Hihq8GzkIqKG7Vc+xVAD8HKYF6glsArKqi6brRWyfmXdCY1HafL0G60dXpNRRlidj8UMQVtAV4n373OCQR4LHufBlhGQ7ABk1dJG4Cj0K6z9UpfKf9bCPWY+dc5ZiPBF5Er3XZG6g6RD5sADZoYrLAhlzF2Hl6rcEGOJ/Ubt3Zu0j00vuTffOSY32B8SDCShw0/rzpIGVOH06vzxX3v+9o58HbTYCZJ1zVjr0ceBlwHYV1OThsUNAqyYDzAKRyRKcElF9GeulsBp6IVFgkAW3uzuf//ybwduATSMnUeQqfbwA2KGgMkRjgmBIg56rTvp6iB+xhwAcRl08aIeX//x7wXt3u1O8XKCorhg4bQxA0AWAPKeGQi8B7FKwLCsjbgLcBT6bXgGTH/BixMl8A3Kq/zSlQF2O4A7BB0xWN7e8MuFEB6g1TGfAjBeORFBbhHLgICZS4Qb/zTbKCSowHQUHTnD/7dLNQw5YDb7ME7J9XsB6qXDVXnbXB2uXaBocNOiA5a97nt90UCQFGi324plX13+W+a5YsDBFLHIANmpIu6/++O9LgeVHF24bqs5uBu7l9bf9n6vebkvN09LubkESA2wm3TgA2aOrgvSvSZX1UoD9at350G9I4axcRqhiADVoTapeIzxYfnFKnDwgtLPHOEIcDsEHTF4k91VZxjnzAuc3o1IihDsAGTU7mflkLF4xvkNWMoQ7ABk1OcxTxwtMmO+cWIlsnABs0MWfNgK8jzZtTY1CX/sahfkXV0pIzXcSyfJ3j4GEljrkXNKa4Wgc+rttak6XmtQKwQUGTgTYbwlGHcWkzOmUlnNonsUfliQBs0IRcz5cnTStDDANYjd4q/6nhyuo4BVADsEFT0mOnaR32flrjrKxiAQjABgUNAFcbuA9SWK2FhB/26/E6iEsvAT9BjEt79Ps5ehPWA6wB2KAJxeE28HzgrVM4321Ixs5ngI8A1zhuGxX/S/SQqt/j/jbm2QyM9SjzwrjgMr0tO1azdZGKFCcg5U4/B7xOf2tQpNwFUe0WCNkqJ88sUbui473ahaThOOEkwRO+184RwDuAg4EzKQqyVXXc1n1FrSpg624V359EonpFF6BxjEhtegMext18GVTj2m8GXuy4d+ixFReJvSi0PxWT3ozUOqoadcZYvE28r9Pr2lnt5t03XmV4K3Acka3Ts9rvq6gofDgSR3on+0eUi0kzh+piVLWFsoU0rhpFDbHf9iAd0q3B1ajHdhyH3gTcxf1m3LaN1H96oYrGDeW2BzxgbyvRGasA2EOQhkn7C2Dtue7hOFqtQve3V8d6FJuBAe5c4ENINk1rFePgJaaDkfKnf0h57eKnIhUs9hFEnaKsZNUscYcjLQdv3E/EYQPBPSt4X5kC4vZVHFdTjnfzBLaQTK95LlKT+P86bmugPkHH7FoiRJGcov9mlThRR8XGY53oNEugzUo4ii2I/7mi93wnUjyNEedDljybteTIh+irNbeZ/rsFad5smT9tNw82qx4L4Y8lR6JMqmYutwnzK31AMCuA9VUTbPI9sKLP83NWV7TbEsstydwMR8O2Dr3d15sUHQK+kkh7Ng+OCcAWA7NH9ZdRV9b1pJMoOqPNqihkImdLxbuqcQsb11uYLDPGu2iGLWaeE/vj9vRZ+BoVnZ8bAtjdq9Rd1uu+AH4V6ZA2ayJxGWBBqgPOV+x5uo7DTmMh6YxwPc9hDbxdpOKivyf73BcctgDGTSoWjzLY663HbgWeMIPj2knAaj1Rn1Jh8X3HKkGRO93VQggXKKKf+m3+uJoeYwv0E/os3P8eHLYYkCVge4Xv8VTEVzerQeA1FYdPRjqOp71UN5q7Wi+bb4/xXBYd1UQsxosUneaGbS3d9uocPA1pS9l1HNesyD8iCCjC/75d0cWkC2zTlfdTOklmKZ7UJIUcCbOrs7JTeRVoN+JWWY2U1QTuDdxfj1ly763eR+z2f9uidRDS1e6FbhHwjbS+BFxPtOvoAex3k0Gskv5XB14L/D+dJOmL2yjfXDZATMsdF2oiXcqfXjHu6kX2HYi/ezWLaQf4beAtazSu9vfHlBM3ArDF5PkhEpZWNce0TYyTdHKYfzZ9wdkG3VuW3INtPotlQSd1FcX6rnv/exLOmI24WJlbZ5Lgf+8F6Dgp5ArgkzMoWa05YK/XraqKfRf4C+BeqidtSgw8G3HPbccxsz5AaAKvAp7kROMq0vdYaZldDYeedKs5ZmFgvQPJj91NFFroAeycguCqigLWdNkjkM7em3RFr1fgvvoVCmsoWE8C/oTqpgiaBHPFCFx1EGgn2Tr0FmFrIC6m3wb+ldn3w0/9hZnodskEL2097rMNPBZ4N0XrhoUNEonL9FdzU9RVvHwA8EGKyvVVG1dbRLYDV5ZwzNVw2EnS67yLJwMuRazF/0BhpIvqic7oZIr85Ui0yxFU04ViesyLEUf6qynSuta790oqPnqxuAkcD1yExEI3qWYzJ7v3K4CdblFcDd2uW5PCwjtMSvMpdB0khvkm4JtITafPI64ee695gLUXsDYo1yEm9OdQvdSvFLR/gDQBfpUuMvZy1/vF5m6sarqQnAK8F4nQalHdzmu2wFw2QGoYpL/nKkH8E0VVCBg9PNE+l1UEbroxnSeq/PcFbFf1wr0OsFUmA+2pSHLA6boqm/7TSjifj1XtjjmpSY7vJrrqMoU1+A+RIP+qLno4Y9ku4MvJs65G396l2zTeaT15Z0F9AAuF0/uLToSrcmSRgfZ44GIkn/JdKiVAYUVuuZV/FMDmIxiZvLHJxu0UxKL5eDfpq1zpz+7vSuAHOp6+RMyoFROzKdk9BumoUR6mZILa4H9Tlf5ZGCibZAtIYMXlwBlIcet9urUoIm882LIBkyNN//ITsq0gXdRzPw74O+CfFaw+oL3KZGPwtxMCoyxlbpwtOOqoL277Uc/KHABaKhJfNKWVc724RcdJCzuRROjLVFT+2ZBJm5WIwP0Kks0j1t8TgefSG6w+TY6zHtz1eiSZfhdRyWHmdFhvSPgXxNR/3xkQ7UxKyN1KfzfEkvxiJAvpK8C3gG8AP0ZqWN2uHHjQJJ3Tc91Dx2Ib0pZim+qoqQFmVopd2zNfpGCNKKIZ1GHtRTYQM/tH1YAyS6uuRcx03UJzjG7P0312IyVxbkJ8pfso8kAtiGQTUhjsYOAopHJfajxqu2NqMzRGJq7vQyy8EJx1ZgGL0/M+hFhf78LspbWVdUGz59qq273GFLuzGQRp+hw1xBXzLV2gmgGD2aFUjGvpS9wBXEhhDZ3l56vTG6tq4OuXo2l/+xpF6Xlmkew5OsBf0+vyCppRwFpjoww4GykSvT/lIfp6QmXVEOr0VkbYXzoOeAnBDHJWZypohgGL0/+2A+fRWygraHbfc4YEx/wF5WmKQTMKWA/adyL1dCLbf7bJhxJexcqIsKAZBqxx1Driw3w7Ua1u1sXhHHFnvZMiuyYW4P0EsD75ug5cgGR0hL9uNsms/GchpYByfbexCO9HIrG96Brir3wl1SwhEzRcFK4BXwD+FysbI0dn8/0IsJYfOad6zzuITIpZ5Ky3I7HWi/SWD12rKg5p/5yc1dU6LqthPMo1VzPnx6m9nJds4zxLNuAZBl0rh8FlVswPaQaLs5GslMdQjRItQYPB2tZ39Gbga/S27OxOCZh2HismbrWGy1SnursHX3Ato8h/7RfEUXcMxFxtTaeLdxKAtUvGw6outt09D+rAUGM0t1eN3hBef39lZM86R+H7z907G3it+pAXkrlB3YMUe/4yEgE1C3HGB7IoXEfaN757FZNvXNBmFI20jkZarNxb7+FG4N+QdpGthJtYQIq14riXO3YZiQW/HPip/r5J590yhefiIOBBSGrlz/osRgbOg5BmZD9EkkTSSC8P3i3A/VjZqLrjgH49Etpad9KoLTx312c5Xve9QSXV6+iNd7BF7Ah9fgvamac3k2kfsGNULtnRG/8e8HIkdNGLV0HVA+v3gddMkaOWcXHPiY4G3ogkXcwjcdtdJBQ0Q4I1zlR9uuX06yWdqG9BCq9lemwbaeq9hMS2n4l0AKg7sDeRMjyfQ6qPnOcYjX/mhi4oxyK1y05HqoK0+9htWnpPl+oisYSkcabpgM9EwjwX9LtF4D8BrwN+DzgMic23ccgRA+5ZSJLNolt4novkdC/S23PIfObfAZ5cH/JCugm3nUMKOx+tF/XiRdDGk8UK36wT4AbWzrqfucn9EODjSKLFXylnN05yDJI3/FIk3fE3lGvOKxAeg2QObVLx/RIFZkcB9nzgFUip2N/Rie7rR9UVMJsS24u/T5+YP09vofdOH304Q7KyzgY+oIDzEkIDSf6vO9H2/sAnlDO/Hzhfuf4ikkjyaF3QPoykaH7XqZYm3v+WShT15H72ArvqI7wUo6Zbgd6BpJ29lqIAV9DG66y5vtgXIe1XFtZQFJ7Xd3+0TtIa8DDg6mTfncDXgfchSf7bKUrrPEjBvRN4NkUHCqNbVIy8QEH9UeAR7hw4ndjrsWk7EPt/Sf9eTuw0ZXq5nfcaJFFikHGpCxyu43Ck3uOVyX63Iime5ytYf5DcqxmbrqR/DveqddDMgfaPkWoLDSImtQqANb3wtSqmNeit9zvt69kicQbS8/ZUBevmxNLZ0O926Xy5lSIP+2z9/TkK1oXk2HndrlFALyiz6A4wgJGIxR7Mq0neyJ1UafdS1/v1iSB2nTervvpsBZ3de1rOdQ9Sb7ntFg2/qGxxur1dz8ZkbMDaBV4GfDaxQAatP1htMv4pUmy9QRHcvxY2hly51D1VV/sAUihgK73F1buJgWWeorrkicpx/1INUluVA/pjzYK6Vfc5F2nZuc1xSZKJn5UAdlwGhTOu+kIJXWd4aqve+l+Bj6iOvtXtM8fKrgYNVrp40halPvHEFp0sH3El7SYPbz68XWoo+KST5cNPu35A9WVp3gT8OSvdF2sBWJuAD1Gu93H9flFBl5XcZ9cBF6RjHcA/0uumSe0n1sYy0+vUgF/vs2BRMlfLFjf6jE3ZMXfqwrFP78W7reb182GqQ3/YPcuyPncrkTaG+ZjN4NZ02/8vgVQfczXHTZbbkFaB79LVts3qnNNBkxmYFoE3qI7oF80Oa5/PfF+91rC+TN0STnI/BcMPWRnIkZUAr4u4iPYibp/03FkJ2PvdRzbiotQEfhNx0TT02ofp598g0X8grqKu6tZdJ9l0HdjKfLMNev23IFGFt+hiMKcL4E9VnehOEvzQdXL5buAlevKXJqJE0PSp7cB6mhpl5pPJvZYLpp17s/69b4xzNHS+eLG9w+B2Ics66beswxib+PskxLJtNoEFNQp9EskXB/HvZk5MT8VwO+5UxFjbQiLQPu1Ab8e8jMICb6rmJSpujx2t5MuweFHmNMSl8Ca90YiIWhsxuKar8H9DGl3nDsTddboPKAIVjnCcsjvAKOYn8HXKrY5E3DhzlJeWtWM6qhsejLirWEOR3xaPOZ3T5zkdu+7m/ZyC9Hq976ORYI+yQJV5BeMD9VwNlVB+nozpw3Vscnf+ZT1nO5/wgVqJkSFDHODPR/Jo01C0oMlAYgvlF4CTFawNtzgu09urda0qZtj7/Iae/xQKH2dWwmHKqvp/Xf//1T7ANr00c8edqP9flexDiXSRUV7KdrW0qPPb9PM9ujWdLvsdvcaD6e0y4d1LdyKBFscifuXUpdR2C4Hp7Xc4Q1x7XKsZrGx/4Q0Lc4hv7RSkwHY90V2CVk8tp+f9lRpsrnULYj7kPa0FYOuIf/LbiN93s06u+T73kMbaflalhNPdMbXkON+vZ071u58iHSrWy0aSu4UyDfy3OX21csXTKGKEfbC/Ae4OBe6dJe9svuR69dQelE/hYVLL3LJazHYg/rV3uBcW3Hb1UoyB42bgd5GufS2nx9VY2Q+nn1tjmoC1sMI/A34JeJve1156s1R814SjkFrPqCj4VuBRSFjhshPr/bE22V+PWIfPpKinnBqSvAW27B5SlS6t75X32Td38z1PvqspAN8KnIDEJ9hCU3fXmnPfP6QEf93kejkr23Jm+YQvrV+bhUW9yWW1YD4T+Kp7gEiEHz623tp+oUosf+uMH3vcZG7R3wW3llw/V8PJe1XM+z/AXSmydswFkqnB5UtInK01YDtfn+ltOuHnSo69G+Ku+nMk0ukDDmA4q+yi7r/PjUmaPWSL2x6Ktiu+gmaHIrm/7URhO68/n7dqz+l9nYf4wv9MF9Rld8yy6vrn6BjsTqROS2rYS69bp4WLYa5PYWIN4g62ylysesfvIZE4R7hVN1xA5Ualmoqcb0GaG9tYNUvGeCOo5ibjK5AIpjciRdsvVv12GQmifxwShngJ4p7AHfv7am39E50flyHpgObnfbouAu9BkhnKjDl15dLmF/ZRXjUF0uWOi74aOEkXjZzeUrbnINlFFqz/Wt13IVEF55CIpfPd/6/UReDNahD8jD7LAtI14qm6AJyvv9edJNTQc5yHuK8W6E3/6wAXrpcFd15f6NvUUPLfkUDuWgC3FKi/QOovnaXcwIw5VYoma7rJ20RCFP9eddJHIckHc/rer1FR9kI3H0zf7eoxH1cd8DcQv35X9dXPOMBB0SbFuOYdSFLBVjVKLTiu1NX/t+q+e5HMnoORQHwfyGHhkgfr50699mFIZFVOb7nYTUj2WtvpmssK2osVkE/TZ+moEfY9aoM4TC3Ke9wY7lCmdnddoCwsEQfor2bbj3rWWrzMbICV0Hx2p+iLeoaT5duJfnCg6Ki2cN2O+NvOVWOOxay2qV7op01g3wnBuH9DJ2XdGVrsex8tV3eqk0kLm1QMNiPNbnesDw2043zyd61ETfNzaZOO4xJFAkL6THmyOPqsIJ+t4z0gc06M9gEShyIpgov6bhedCO1DHC0+uUlvlNqKe1srwPYDLyXGkJMR/9QzdDX0E3l/5Lo+Cskm082qy71Prb84Y0l7BPVjI6hBb7UHn5bWLhGfM1a2PEkDJYYd23V/p+WK0uPTVqplqlxech+w0m/sY4ezxEDUYaUrq055BYnUAFa2j41NO7l+FzY2qMFW5Ut126Yi0RORYGoSrjvLVfjTjBF79u8j8acfVZEIJ161qLYrLOVkXr/LWRm4PmjRLjvWrOOdBOhl9pOsD4D7RXxlfZ4jvY92yXeew/vj8mTOMsI49LuvLuVtUNccsHnJ4HYTK6iJOlfpdoxy26eqnrG5ZCCqDuBuyYs2kN6CBD5cpEaYW52Y5K2VHarfZ9ZHvLVKnr/fpBxUfbMsyYQhY+HnU14CwmFB/qkInWYcpZb3bMg5Bo3DoHtJufyKxWctReJsyIOlzY9TPQik4fDTkHjOE1nplK8CgFNO4Z/FaBFxaVys245EtOyWTHoGcJSqUJZYMWH0wPrVTOay78u+y4eAYNh5GfA83UREHfReslWoiJ0BXHYF110PHXacCZAnq+shwH2QNKZHIOb7Xy4BcCriZH0+xwFlvxWz1seCul0tm1cgboJrWOkcD3900OoAUkHAkljizMDgE5YPQwKnH6nb/dWyePgqAciQlXtUgN+o23eUk16NlAC5IxG1FtRCGUAN2u8AS2Kp866fdMJvQrI+jkHC345HHPVHIREnWxET+xZ6y1aOAuw2YpLfrZ87Ve/8roLyx4i/8FYFo793X3eoPgOGpKCKU9VS3/oVz2r1EZ1NF9qHBF9fl+w3ryC1bRPilD5CATxXItJaiNhu4CYF6W0OtHsHcGgzLpl7oZUYUIKCJqL/AN4Ji5krMWwiAAAAAElFTkSuQmCC';
+const DAYS=14; // ночей в шахматке
+const COLS=DAYS+1; // дат в шахматке (последняя — только для выезда)
+const BASE=new Date(2026,9,15); // чт, 15 октября 2026
+const TOTAL=40;
+
+/* ---------- Язык / Тіл ---------- */
+const LANGKEY='shahmatka-lang';
+let LANG=(()=>{try{const v=localStorage.getItem(LANGKEY);if(v==='kk'||v==='ru')return v}catch(e){}
+  return /^kk/i.test(navigator.language||'')?'kk':'ru'})();
+const L=(ru,kk)=>LANG==='kk'?kk:ru;
+const STATIC={
+  brand:['Шахматка · Urban Hotel','Шахматка · Urban Hotel'],
+  hotelline:['Учебный симулятор колледжа URBAN · смена 15 октября 2026','URBAN колледжінің оқу симуляторы · 2026 жылғы 15 қазандағы ауысым'],
+  next:['Следующая заявка','Келесі өтінім'],
+  rates:['Тарифы и правила','Тарифтер мен ережелер'],
+  close:['Закрыть смену','Ауысымды жабу'],
+  inbox:['Входящие заявки','Кіріс өтінімдер'],
+  boardTitle:['Шахматка номерного фонда','Нөмір қорының шахматкасы'],
+  spEyebrow:['Учебный тренажёр','Оқу тренажёры'],
+  spSub:['Симулятор смены администратора Urban Hotel','Urban Hotel әкімшісінің ауысым симуляторы'],
+  tabInbox:['Заявки','Өтінімдер'],tabBoard:['Шахматка','Шахматка'],tabWork:['Бронь','Бронь'],tabMore:['Ещё','Тағы']
+};
+function applyStatic(){
+  document.documentElement.lang=LANG;
+  document.querySelectorAll('[data-i]').forEach(el=>{const v=STATIC[el.dataset.i];if(v)el.textContent=L(v[0],v[1])});
+  document.querySelectorAll('[data-lang]').forEach(b=>{b.classList.toggle('on',b.dataset.lang===LANG);b.setAttribute('aria-pressed',b.dataset.lang===LANG)});
+  $('tabbar').setAttribute('aria-label',L('Разделы','Бөлімдер'));
+}
+
+/* ---------- Данные отеля ---------- */
+const CATS={
+  STD:{code:'STD',rate:32000,ru:'Стандарт',kk:'Стандарт',sru:'Стандарт',skk:'Стандарт',en:'Standard Double Room',ota:'Стандартный двухместный номер',otaKk:'Стандартты екі орындық нөмір',ph:'стандартный номер',phKk:'стандартты нөмір'},
+  SUP:{code:'SUP',rate:42000,ru:'Улучшенный (Superior)',kk:'Жақсартылған (Superior)',sru:'Улучшенный',skk:'Жақсартылған',en:'Superior Double Room',ota:'Улучшенный двухместный номер',otaKk:'Жақсартылған екі орындық нөмір',ph:'улучшенный номер',phKk:'жақсартылған нөмір'},
+  DLX:{code:'DLX',rate:55000,ru:'Делюкс',kk:'Делюкс',sru:'Делюкс',skk:'Делюкс',en:'Deluxe Room',ota:'Номер Делюкс',otaKk:'Делюкс нөмірі',ph:'номер делюкс',phKk:'делюкс нөмірі'},
+  FAM:{code:'FAM',rate:65000,ru:'Семейный',kk:'Отбасылық',sru:'Семейный',skk:'Отбасылық',en:'Family Room',ota:'Семейный номер',otaKk:'Отбасылық нөмір',ph:'семейный номер',phKk:'отбасылық нөмір'},
+  STE:{code:'STE',rate:98000,ru:'Люкс (Suite)',kk:'Люкс (Suite)',sru:'Люкс',skk:'Люкс',en:'Suite',ota:'Люкс',otaKk:'Люкс',ph:'люкс',phKk:'люкс нөмірі'}
+};
+const catName=k=>L(CATS[k].ru,CATS[k].kk);
+const ORDER=['STD','SUP','DLX','FAM','STE'];
+const oneUp=(from,to)=>ORDER.indexOf(to)===ORDER.indexOf(from)+1;
+const CAP={STD:2,SUP:2,DLX:3,FAM:4,STE:2};
+const ROOMS=[
+  ['101','STD'],['102','STD'],['103','STD'],['104','STD'],['105','STD'],
+  ['201','SUP'],['202','SUP'],['203','SUP'],['204','SUP'],
+  ['301','DLX'],['302','DLX'],['303','FAM'],['304','FAM'],
+  ['401','STE']
+].map(([no,cat])=>({no,cat}));
+const roomCat=no=>ROOMS.find(r=>r.no===no).cat;
+const OTA={booking:{pct:15},ostrovok:{pct:18},bronevik:{pct:22},trip:{pct:15}};
+const CHANNELS={
+  booking:{ru:'Booking.com',kk:'Booking.com',short:'BKG',col:'--c-booking'},
+  ostrovok:{ru:'Островок',kk:'Островок',short:'OST',col:'--c-ostrovok'},
+  bronevik:{ru:'Броневик',kk:'Броневик',short:'BRN',col:'--c-bronevik'},
+  trip:{ru:'Trip.com',kk:'Trip.com',short:'TRP',col:'--c-trip'},
+  corp:{ru:'Корпоративный',kk:'Корпоративтік',short:'CORP',col:'--c-corp'},
+  site:{ru:'Сайт отеля',kk:'Қонақүй сайты',short:'WEB',col:'--c-direct'},
+  phone:{ru:'Телефон',kk:'Телефон',short:'TEL',col:'--c-direct'},
+  walkin:{ru:'Walk-in',kk:'Walk-in',short:'W/I',col:'--c-direct'},
+  group:{ru:'Группа',kk:'Топ',short:'GRP',col:'--c-group'},
+  service:{ru:'Служба отеля',kk:'Қонақүй қызметі',short:'SRV',col:'--c-service'}
+};
+const chName=k=>L(CHANNELS[k].ru,CHANNELS[k].kk);
+const CORPS={
+  stepl:{n:'СтепьЛогистик',f:'too',disc:15,bf:true,contract:'К-104'},
+  altyn:{n:'АлтынЭнерго',f:'ao',disc:20,bf:false,contract:'К-118'},
+  nomad:{n:'Номад Консалтинг',f:'too',disc:10,bf:true,contract:'К-121'},
+  tauly:{n:'Таулы Банк',f:'ao',disc:18,bf:true,contract:'К-097'},
+  media:{n:'Медиа Төбе',f:'too',disc:12,bf:false,contract:'К-133'}
+};
+const coName=c=>LANG==='kk'?`«${c.n}» ${c.f==='too'?'ЖШС':'АҚ'}`:`${c.f==='too'?'ТОО':'АО'} «${c.n}»`;
+const AGENTS=['ДелоТревел','Командировка.кз','БизнесТур Сервис'];
+const SV={
+  bf:{ru:'Завтрак',kk:'Таңғы ас',pru:'5 000 ₸ за гостя за ночь',pkk:'бір қонаққа бір түнге 5 000 ₸'},
+  trf_in:{ru:'Трансфер из аэропорта',kk:'Әуежайдан трансфер',pru:'12 000 ₸',pkk:'12 000 ₸'},
+  trf_out:{ru:'Трансфер в аэропорт',kk:'Әуежайға трансфер',pru:'12 000 ₸',pkk:'12 000 ₸'},
+  early:{ru:'Ранний заезд (до 14:00)',kk:'Ерте кіру (14:00-ге дейін)',pru:'50% базового тарифа категории',pkk:'санаттың базалық тарифінің 50%'},
+  late:{ru:'Поздний выезд (до 18:00)',kk:'Кеш шығу (18:00-ге дейін)',pru:'50% базового тарифа категории',pkk:'санаттың базалық тарифінің 50%'},
+  bed:{ru:'Дополнительная кровать',kk:'Қосымша төсек',pru:'10 000 ₸ за ночь',pkk:'бір түнге 10 000 ₸'},
+  park:{ru:'Парковка',kk:'Тұрақ (паркинг)',pru:'3 000 ₸ за ночь',pkk:'бір түнге 3 000 ₸'},
+  spa:{ru:'Посещение SPA',kk:'SPA-ға бару',pru:'15 000 ₸ за гостя',pkk:'бір қонаққа 15 000 ₸'},
+  cot:{ru:'Детская кроватка',kk:'Балалар кереуеті',pru:'бесплатно',pkk:'тегін'},
+  pet:{ru:'Проживание с питомцем',kk:'Үй жануарымен тұру',pru:'7 000 ₸ за ночь',pkk:'бір түнге 7 000 ₸'},
+  dinner:{ru:'Романтический ужин в номер',kk:'Нөмірге романтикалық кешкі ас',pru:'25 000 ₸ разово',pkk:'бір реттік 25 000 ₸'}
+};
+const svName=c=>L(SV[c].ru,SV[c].kk);
+const SITE_DISC=7, PROMO_DISC=10, NR_DISC=10, GROUP_DISC=12;
+const promoCode=()=>L('ОСЕНЬ10','КҮЗ10');
+/* динамические тарифы: события и выходные */
+const EVENTS=[{s:2,e:4,ru:'Концерт на «Астана Арене»',kk:'«Астана Арена» концерті'},{s:6,e:9,ru:'Форум Astana Finance Days',kk:'Astana Finance Days форумы'}];
+const evOn=d=>EVENTS.find(v=>d>=v.s&&d<v.e)||null;
+const isWeekendNight=d=>{const g=dd(d).getDay();return g===5||g===6};
+const mult=d=>evOn(d)?1.35:isWeekendNight(d)?1.2:1;
+const multTag=d=>evOn(d)?'+35%':isWeekendNight(d)?'+20%':'';
+const nightRate=(cat,d)=>Math.round(CATS[cat].rate*mult(d));
+/* Trip.com: контрактные цены в долларах */
+const TRIP_USD={STD:65,SUP:85,DLX:110,FAM:130,STE:195};
+const USD_RATE=512.40;
+const usdFmt=n=>'$'+n.toLocaleString('en-US');
+const rateFmt=()=>USD_RATE.toLocaleString('ru-RU',{minimumFractionDigits:2});
+const RESP_LIMIT=300; // 5 минут на ответ гостю
+const FAKE_CATS=[{en:'Presidential Suite',ru:'Президентский люкс',kk:'Президенттік люкс'},{en:'Apartment with Kitchen',ru:'Апартаменты с кухней',kk:'Ас үйі бар пәтер'},{en:'Lake View Room',ru:'Номер с видом на озеро',kk:'Көлге қарайтын нөмір'}];
+
+/* ---------- Утилиты ---------- */
+const DOW_RU=['вс','пн','вт','ср','чт','пт','сб'],DOW_KK=['жс','дс','сс','ср','бс','жм','сн'];
+const DOWL_RU=['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],DOWL_KK=['жексенбі','дүйсенбі','сейсенбі','сәрсенбі','бейсенбі','жұма','сенбі'];
+function dd(i){const d=new Date(BASE);d.setDate(d.getDate()+i);return d}
+function dNum(i){return dd(i).getDate()}
+const dow=i=>L(DOW_RU,DOW_KK)[dd(i).getDay()];
+function fmtLong(i){const d=dd(i);return LANG==='kk'?`${d.getDate()} қазан, ${DOWL_KK[d.getDay()]}`:`${DOW_RU[d.getDay()]}, ${d.getDate()} октября`}
+function fmtShort(i){return dd(i).getDate()+L(' окт',' қаз')}
+function plural(n,a,b,c){const m=n%10,h=n%100;if(m===1&&h!==11)return a;if(m>=2&&m<=4&&(h<10||h>=20))return b;return c}
+const nightsW=n=>LANG==='kk'?n+' түн':n+' '+plural(n,'ночь','ночи','ночей');
+const NUMW_KK=['','бір','екі','үш','төрт','бес','алты'];
+const nightsWordsRu=['одну ночь','две ночи','три ночи','четыре ночи','пять ночей','шесть ночей'];
+const guestsW=n=>LANG==='kk'?n+' ересек':n+' '+plural(n,'взрослый','взрослых','взрослых');
+const money=n=>Math.round(n).toLocaleString('ru-RU')+' ₸';
+const num=n=>Math.round(n).toLocaleString('ru-RU');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function rng(seed){let a=seed>>>0||1;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function shuffle(a,R){for(let i=a.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function wpick(R,w){const k=Object.keys(w);let s=0;k.forEach(x=>s+=w[x]);let r=R()*s;for(const x of k){r-=w[x];if(r<0)return x}return k[k.length-1]}
+function digits(R,n){let s='';for(let i=0;i<n;i++)s+=Math.floor(R()*10);if(s[0]==='0')s='7'+s.slice(1);return s}
+function parseNum(v){if(v==null)return null;const s=String(v).replace(/[^\d-]/g,'');if(s===''||s==='-')return null;return parseInt(s,10)}
+const pad2=n=>String(n).padStart(2,'0');
+
+/* ---------- Генерация ---------- */
+const NAMES=['Айгерим Сейткали','Нурлан Жумабеков','Данияр Абдрахманов','Асель Каримова','Ерлан Туленов','Жанна Мукашева','Арман Есенов','Дана Сарсенбаева','Бауыржан Оспанов','Алия Нургалиева','Тимур Исмаилов','Мадина Ахметова','Руслан Бекмуханов','Камила Шарипова','Сергей Волков','Ольга Миронова','Дмитрий Козлов','Екатерина Белова','Андрей Смирнов','Наталья Орлова','Игорь Ли','Виктория Пак','Ержан Кусаинов','Гаухар Сагинтаева','Санжар Байжанов','Лаура Омарова','Максим Ким','Инна Цой','Азамат Нуртазин','Сабина Алиева','Павел Громов','Юлия Соколова','Арсен Жаксылыков','Динара Утепова','Олжас Мухамеджанов','Карина Ли','Самат Бейсенов','Томирис Ермекова','Кирилл Федоров','Анель Досжанова','Бекзат Сатыбалдиев','Елена Ганиева','Нурсултан Абенов','Айдана Касымова','Виталий Пан','Жибек Толеуова','Рустем Ахметжанов','Гульмира Сулейменова','Алексей Ремизов','Мейрам Касенов','Индира Жумагулова','Тагир Мамедов','Светлана Ким','Ербол Нурпеисов','Асем Байгожина','Роман Чернов'];
+const NAMES_LAT=['John Miller','Anna Schmidt','Li Wei','Mehmet Yılmaz','Kenji Tanaka','Sophie Martin','Rahul Sharma','Kim Minji','Lucas Fernández','Emma Johansson','Zhang Hui','Oliver Brown','Chen Yu','Ahmed Hassan','Marco Rossi','Park Jisoo'];
+const SENDERS=['Сауле Кенжебаева','Гульнара Ибраева','Марина Ковалёва','Айжан Сапарова','Елена Ким'];
+const FLIGHTS=[['KC 912','09:40'],['DV 715','13:05'],['TK 350','05:55'],['SU 1950','22:30'],['FZ 1721','03:20'],['KC 852','17:15']];
+const GROUP_CLIENTS=[{ru:'Свадьба Ахметовых',kk:'Ахметовтардың үйлену тойы',who:'Ахметовы'},{ru:'Выпускной вечер КазНУ',kk:'ҚазҰУ түлектер кеші',who:'КазНУ'},{ru:'Чемпионат по шахматам',kk:'Шахмат чемпионаты',who:'Шахматы'}];
+
+function generate(seed){
+  const R=rng(seed*7919+13);
+  const pick=a=>a[Math.floor(R()*a.length)];
+  const usedN=new Set(),uniq=arr=>{let a=arr.filter(n=>!usedN.has(n));if(!a.length)a=NAMES.concat(NAMES_LAT).filter(n=>!usedN.has(n));const n=a[Math.floor(R()*a.length)];usedN.add(n);return n};
+  const grid={};ROOMS.forEach(r=>grid[r.no]=Array(DAYS).fill(false));
+  const freeRooms=(cat,s,n,excl)=>ROOMS.filter(x=>x.cat===cat&&x.no!==excl&&grid[x.no].slice(s,s+n).every(v=>!v));
+  const mark=(room,s,n)=>{for(let k=s;k<s+n;k++)grid[room][k]=true};
+  const tm=(a,b)=>pad2(a+Math.floor(R()*(b-a)))+':'+pad2(Math.floor(R()*60));
+  /* 1. номер вне эксплуатации: 203, 3 ночи */
+  const OOO={room:'203',s:3+Math.floor(R()*5),n:3};mark(OOO.room,OOO.s,OOO.n);
+  /* 2. группа: 8 номеров на 2 ночи */
+  const MIXES=[{STD:4,SUP:2,DLX:2},{STD:3,SUP:3,FAM:2},{STD:5,SUP:3},{STD:4,SUP:3,DLX:1}],SMALL=[{STD:3,SUP:3},{STD:2,SUP:2,DLX:2},{STD:2,SUP:2}];
+  let group=null;
+  for(let t=0;t<400&&!group;t++){const s=1+Math.floor(R()*(DAYS-3)),mix=pick(t<300?MIXES:SMALL);
+    if(Object.entries(mix).every(([c,k])=>freeRooms(c,s,2).length>=k)){const rooms=[];
+      for(const [c,k] of Object.entries(mix)){const f=shuffle(freeRooms(c,s,2),R).slice(0,k);f.forEach(x=>{mark(x.no,s,2);rooms.push(x.no)})}
+      const cl=pick(GROUP_CLIENTS);group={kind:'grp',ch:'group',s,nights:2,mix,rooms,guests:rooms.length*2,client:cl,guest:cl.who,sender:pick(SENDERS),ref:'G-'+digits(R,4),sv:['bf']}}}
+  /* 3. брони, которые уже стоят в шахматке */
+  const PRE=[];
+  const mkStay=(ch,forceCat,forceS)=>{for(let t=0;t<300;t++){
+      const cat=forceCat||wpick(R,{STD:34,SUP:30,DLX:15,FAM:13,STE:8});
+      const n=Number(wpick(R,{1:20,2:34,3:26,4:14,5:6}));
+      const s=forceS!=null?forceS:Math.floor(R()*(DAYS-n+1));if(s+n>DAYS)continue;
+      const f=freeRooms(cat,s,n);if(f.length){const room=pick(f);mark(room.no,s,n);return{cat,n,s,room:room.no}}}return null};
+  const preChans=['booking','ostrovok','corp','site','phone','bronevik','booking','corp'];
+  /* одна обязательная бронь, которая окажется в 203 во время аварии */
+  {const st=mkStay('booking','SUP',OOO.s+Math.floor(R()*2));if(st)PRE.push(Object.assign(st,{ch:'booking',forced203:true}))}
+  for(let k=0;PRE.length<22&&k<200;k++){const st=mkStay();if(st)PRE.push(Object.assign(st,{ch:pick(preChans)}))}
+  PRE.forEach((p,k)=>{p.id=k;p.guest=uniq(R()<.15?NAMES_LAT:NAMES);p.nights=p.n;
+    if(p.ch==='corp')p.corp=pick(Object.keys(CORPS));if(p.ch==='booking')p.plan=R()<.35?'nr':'flex';if(p.ch==='phone')p.promo=R()<.4});
+  /* 4. обычные заявки */
+  const chans=[].concat(Array(5).fill('booking'),Array(4).fill('ostrovok'),Array(3).fill('bronevik'),Array(4).fill('trip'),Array(6).fill('corp'),Array(2).fill('site'),Array(3).fill('phone'),Array(2).fill('walkin'));
+  shuffle(chans,R);
+  const order=chans.map((c,i)=>i).sort((a,b)=>(chans[b]==='walkin')-(chans[a]==='walkin'));
+  const books=new Array(chans.length);
+  const mkBooking=(ch,stay,opts)=>{
+    const {cat,n,s}=stay;let guests;
+    if(ch==='corp')guests=1;else if(cat==='DLX')guests=R()<.35?3:2;else if(cat==='FAM')guests=R()<.5?3:4;else if(cat==='STE')guests=2;else guests=R()<.35?1:2;
+    const sv=[];const p=x=>R()<x;
+    if(p(ch==='corp'?.7:.5))sv.push('bf');if(ch!=='walkin'&&p(.2))sv.push('trf_in');if(p(.15))sv.push('trf_out');
+    if(ch!=='walkin'&&p(.13))sv.push('early');if(p(.13))sv.push('late');if(cat==='DLX'&&guests===3)sv.push('bed');
+    if(p(.15))sv.push('park');if(ch!=='corp'&&p(.1))sv.push('spa');if(cat==='FAM'&&p(.45))sv.push('cot');
+    if(ch!=='corp'&&ch!=='bronevik'&&p(.06))sv.push('pet');if(cat==='STE'&&ch!=='corp'&&p(.45))sv.push('dinner');
+    const latin=['booking','trip'].includes(ch)&&p(.6);
+    const r={ch,cat,s,nights:n,room:stay.room,guests,sv,guest:uniq(latin?NAMES_LAT:NAMES),flight:pick(FLIGHTS)};
+    if(ch==='corp'){r.corp=pick(Object.keys(CORPS));r.sender=pick(SENDERS);r.ref=String(100+Math.floor(R()*800));r.variant=p(.5)?1:0}
+    if(ch==='phone'){r.call=true;r.promo=p(.5);r.phone='+7 7'+digits(R,2)+' ••• '+digits(R,2)+' '+digits(R,2)}
+    if(ch==='booking'){r.ref=digits(R,10);r.plan=p(.4)?'nr':'flex'}
+    if(ch==='ostrovok')r.ref='OS-'+digits(R,7);
+    if(ch==='bronevik'){r.ref='БР-'+digits(R,6);r.agent=pick(AGENTS)}
+    if(ch==='trip')r.ref=digits(R,16);
+    if(ch==='site')r.ref='W-'+digits(R,5);
+    r.time=tm(8,20);return r};
+  for(const i of order){const ch=chans[i];let stay=null;
+    for(let t=0;t<400&&!stay;t++){
+      const cat=ch==='corp'?wpick(R,{STD:4,SUP:4,DLX:2,STE:1}):wpick(R,{STD:34,SUP:30,DLX:15,FAM:13,STE:8});
+      const n=ch==='walkin'?1+Math.floor(R()*3):Number(wpick(R,{1:18,2:30,3:26,4:16,5:10}));
+      const s=ch==='walkin'?0:Math.floor(R()*(DAYS-n+1));
+      const f=freeRooms(cat,s,n);if(f.length){const room=pick(f);mark(room.no,s,n);stay={cat,n,s,room:room.no}}}
+    if(!stay){outer:for(const cat of ORDER)for(let s=0;s<DAYS;s++){const f=freeRooms(cat,s,1);if(f.length){mark(f[0].no,s,1);stay={cat,n:1,s,room:f[0].no};break outer}}}
+    books[i]=mkBooking(ch,stay)}
+  /* 5. заявки с ошибками: в шахматку не ставятся */
+  const errs=[];const reasons=shuffle(['dates','cap','cat',pick(['dates','cap','cat'])],R);
+  for(const reason of reasons){
+    const ch=reason==='dates'?pick(['booking','ostrovok','bronevik','corp']):pick(['booking','ostrovok','site','corp']);
+    const cat=reason==='cap'?pick(['STD','SUP','STE','FAM']):wpick(R,{STD:4,SUP:4,DLX:2});
+    const n=2+Math.floor(R()*3),s=Math.floor(R()*(DAYS-n));
+    const r=mkBooking(ch,{cat,n,s,room:null});r.kind='err';r.reason=reason;r.room=null;
+    if(reason==='cap'){r.guests=CAP[cat]+1;r.sv=r.sv.filter(x=>x!=='bed'&&x!=='cot')}
+    if(reason==='cat')r.fake=pick(FAKE_CATS);
+    if(reason==='dates'){r.badN=n+1;if(ch==='corp')r.variant=2}
+    errs.push(r)}
+  /* 6. сборка ленты из 40 позиций */
+  const TOTALN=TOTAL;const slots=new Array(TOTALN).fill(null);
+  const reserve=(lo,hi)=>{for(let t=0;t<500;t++){const q=lo+Math.floor(R()*(hi-lo+1));if(!slots[q]){slots[q]='X';return q}}for(let q=lo;q<TOTALN;q++)if(!slots[q]){slots[q]='X';return q}return -1};
+  const posGroup=reserve(6,18),posOOO=reserve(14,26);
+  const posErr=errs.map(()=>reserve(3,TOTALN-3));
+  const posChg=[0,1,2,3,4].map(()=>reserve(10,TOTALN-1)).sort((a,b)=>a-b);
+  const out=new Array(TOTALN);let bi=0;
+  for(let q=0;q<TOTALN;q++){if(slots[q])continue;const r=books[bi++];r.i=q;out[q]=r}
+  if(group){group.i=posGroup;group.time=tm(9,18);out[posGroup]=group}else{slots[posGroup]=null}
+  errs.forEach((r,k)=>{r.i=posErr[k];out[posErr[k]]=r});
+  out[posOOO]={i:posOOO,kind:'ooo',ch:'service',room:OOO.room,s:OOO.s,nights:OOO.n,guest:'OOO '+OOO.room,time:tm(9,18)};
+  /* 7. отмены и продления */
+  const types=shuffle(['cancel_nr','cancel_late','cancel_free','ext','ext'],R),used=new Set();
+  posChg.forEach((q,k)=>{
+    let type=types[k],add=1+(R()<.4?1:0),cand=[];
+    const pool=out.slice(0,q-2).filter(r=>r&&!r.kind&&!used.has(r.i)&&r.room);
+    if(type==='ext'){for(const a of [add,1]){cand=pool.filter(r=>r.s+r.nights+a<=DAYS&&grid[r.room].slice(r.s+r.nights,r.s+r.nights+a).every(v=>!v));if(cand.length){add=a;break}}if(!cand.length)type='cancel_free'}
+    let time=tm(9,20);
+    if(type==='cancel_nr'){cand=pool.filter(r=>r.ch==='booking'&&r.plan==='nr');if(!cand.length)type='cancel_late'}
+    if(type==='cancel_late'){cand=pool.filter(r=>r.ch!=='walkin'&&!(r.ch==='booking'&&r.plan==='nr')&&r.s<=1);if(cand.length){time=tm(14,21)}else type='cancel_free'}
+    if(type==='cancel_free'){cand=pool.filter(r=>r.ch!=='walkin'&&!(r.ch==='booking'&&r.plan==='nr')&&r.s>=2)}
+    if(!cand.length)cand=pool.filter(r=>r.ch!=='walkin');
+    const t=cand[Math.floor(R()*cand.length)]||pool[0];used.add(t.i);
+    const base=type.startsWith('cancel')?'cancel':'ext';
+    if(base==='ext'){mark(t.room,t.s+t.nights,add);t.extBy=q;t.add=add}else t.cxlBy=q;
+    out[q]={i:q,kind:'chg',type:base,t:t.i,ch:t.ch,guest:t.guest,add:base==='ext'?add:0,time};
+  });
+  /* 8. показ «старых» броней: часть стоит не там, где удобно — придётся переселять */
+  const show={};ROOMS.forEach(r=>show[r.no]=Array(DAYS).fill(false));
+  const order2=PRE.map((p,k)=>k).sort((a,b)=>(PRE[b].forced203?1:0)-(PRE[a].forced203?1:0));
+  for(const k of order2){const p=PRE[k];let room=p.room;
+    const free=no=>show[no].slice(p.s,p.s+p.n).every(v=>!v);
+    const opts=ROOMS.filter(x=>x.cat===p.cat&&free(x.no));
+    if(p.forced203&&free('203'))room='203';
+    else if(opts.length&&R()<.6)room=pick(opts).no;
+    else if(free(p.room))room=p.room;
+    else if(opts.length)room=opts[0].no;
+    else{const up=ROOMS.find(x=>oneUp(p.cat,x.cat)&&free(x.no));room=up?up.no:p.room}
+    if(!free(room)){p.drop=true;continue}
+    p.show=room;for(let d=p.s;d<p.s+p.n;d++)show[room][d]=true}
+  out.pre=PRE.filter(p=>!p.drop);out.ooo=OOO;
+  return out;
+}
+
+/* ---------- Правильный расчёт ---------- */
+function discOf(r){
+  if(r.ch==='corp')return{disc:CORPS[r.corp].disc,dl:L('корп. скидка ','корп. жеңілдік ')+coName(CORPS[r.corp])};
+  if(r.ch==='site')return{disc:SITE_DISC,dl:L('тариф «Лучшая цена на сайте»','«Сайттағы ең жақсы баға» тарифі')};
+  if(r.ch==='phone'&&r.promo)return{disc:PROMO_DISC,dl:L('промокод ','промокод ')+promoCode()};
+  if(r.ch==='booking'&&r.plan==='nr')return{disc:NR_DISC,dl:L('невозвратный тариф','қайтарылмайтын тариф')};
+  return{disc:0,dl:''};
+}
+function svcLine(code,r){
+  const rate=CATS[r.cat].rate;const G=L('гост.','қон.'),N=L('ноч.','түн');
+  switch(code){
+    case 'bf':{if(r.ch==='corp'&&CORPS[r.corp].bf)return{amt:0,f:L('включён в корпоративный тариф','корпоративтік тарифке кіреді')};const q=r.guests*r.nights;return{amt:5000*q,f:`5 000 × ${r.guests} ${G} × ${r.nights} ${N}`}}
+    case 'trf_in':return{amt:12000,f:'12 000'};
+    case 'trf_out':return{amt:12000,f:'12 000'};
+    case 'early':return{amt:rate/2,f:`${money(rate)} × 50%`};
+    case 'late':return{amt:rate/2,f:`${money(rate)} × 50%`};
+    case 'bed':return{amt:10000*r.nights,f:`10 000 × ${r.nights} ${N}`};
+    case 'park':return{amt:3000*r.nights,f:`3 000 × ${r.nights} ${N}`};
+    case 'spa':return{amt:15000*r.guests,f:`15 000 × ${r.guests} ${G}`};
+    case 'cot':return{amt:0,f:L('бесплатно','тегін')};
+    case 'pet':return{amt:7000*r.nights,f:`7 000 × ${r.nights} ${N}`};
+    case 'dinner':return{amt:25000,f:L('25 000 разово','25 000 бір рет')};
+  }
+}
+function calc(r){
+  if(r.kind==='grp')return calcGroup(r);
+  const {disc,dl}=discOf(r);let acc,accF,nl=[];
+  if(r.ch==='trip'){const usd=TRIP_USD[r.cat],tot=usd*r.nights;acc=Math.round(tot*USD_RATE);
+    accF=`${usdFmt(usd)} × ${r.nights} ${L('ноч.','түн')} = ${usdFmt(tot)} × ${rateFmt()} ₸`}
+  else{let sum=0;for(let d=r.s;d<r.s+r.nights;d++){const v=nightRate(r.cat,d);sum+=v;nl.push(num(v)+(multTag(d)?` (${multTag(d)})`:''))}
+    acc=Math.round(sum*(100-disc)/100);accF=(r.nights>1?nl.join(' + ')+' = '+money(sum):money(sum)+(multTag(r.s)?` (${multTag(r.s)})`:''))+(disc?` × (1 − ${disc}%)`:'')}
+  const lines=r.sv.map(c=>({code:c,name:svName(c),...svcLine(c,r)}));
+  const svc=lines.reduce((a,b)=>a+b.amt,0),total=acc+svc,pct=OTA[r.ch]?OTA[r.ch].pct:0,comm=Math.round(acc*pct/100);
+  return{disc,dl,acc,accF,lines,svc,total,pct,comm,net:total-comm};
+}
+function calcGroup(g){
+  let sum=0;const parts=[];
+  for(const [c,k] of Object.entries(g.mix)){let one=0;for(let d=g.s;d<g.s+g.nights;d++)one+=nightRate(c,d);sum+=one*k;parts.push(`${k} × ${c} ${num(one)}`)}
+  const acc=Math.round(sum*(100-GROUP_DISC)/100),bf=5000*g.guests*g.nights;
+  return{disc:GROUP_DISC,dl:L('групповая скидка','топтық жеңілдік'),acc,accF:parts.join(' + ')+` = ${money(sum)} × (1 − ${GROUP_DISC}%)`,
+    lines:[{code:'bf',name:svName('bf'),amt:bf,f:`5 000 × ${g.guests} ${L('гост.','қон.')} × ${g.nights} ${L('ноч.','түн')}`}],svc:bf,total:acc+bf,pct:0,comm:0,net:acc+bf};
+}
+function nightRev(r,d,cat){
+  cat=cat||r.cat;
+  if(r.kind==='grp')return Math.round(nightRate(cat,d)*(100-GROUP_DISC)/100);
+  if(r.ch==='trip')return Math.round(TRIP_USD[r.cat]*USD_RATE);
+  return Math.round(nightRate(r.cat,d)*(100-discOf(r).disc)/100);
+}
+function isLate(T,time){const h=+String(time).slice(0,2);return T.s===0||(T.s===1&&h>=14)}
+function penalty(c){const T=REQS[c.t];let pen=0,why='free';
+  if(T.ch==='booking'&&T.plan==='nr'){pen=calc(T).acc;why='nr'}
+  else if(isLate(T,c.time)){pen=T.ch==='trip'?Math.round(TRIP_USD[T.cat]*USD_RATE):nightRev(T,T.s);why='late'}
+  const pct=OTA[T.ch]?OTA[T.ch].pct:0,comm=Math.round(pen*pct/100);
+  return{pen,comm,net:pen-comm,why,pct};
+}
+
+/* ---------- Тексты ---------- */
+const catTxt=r=>r.fake?{en:r.fake.en,ru:r.fake.ru,kk:r.fake.kk,ota:r.fake.ru,otaKk:r.fake.kk,ph:r.fake.ru.toLowerCase(),phKk:r.fake.kk.toLowerCase()}:CATS[r.cat];
+const dispName=r=>r.call&&S&&!(S.items[r.i]&&S.items[r.i].dlg&&S.items[r.i].dlg.fin)?L('Входящий звонок','Кіріс қоңырау'):r.kind==='grp'?L(r.client.ru,r.client.kk):r.kind==='ooo'?L('Номер ','Нөмір ')+r.room+' · '+L('ремонт','жөндеу'):r.guest;
+function svPhrase(c,r){
+  const [fl,ft]=r.flight;
+  if(LANG==='kk')return({bf:'таңғы ас',trf_in:`әуежайдан трансфер (рейс ${fl}, ұшып келу уақыты ${ft})`,trf_out:'шығатын күні әуежайға трансфер',early:'сағат 09:00-де ерте кіру',late:'сағат 18:00-ге дейін кеш шығу',
+    bed:'үшінші қонаққа қосымша төсек',park:'бүкіл тұру кезеңіне тұрақ орны',spa:'барлық қонақтарға SPA',cot:'балалар кереуеті',
+    pet:'үй жануарымен тұру (кішкентай ит)',dinner:'келген күні нөмірге романтикалық кешкі ас'})[c];
+  return({bf:'завтрак',trf_in:`трансфер из аэропорта (рейс ${fl}, прилёт ${ft})`,trf_out:'трансфер в аэропорт в день выезда',early:'ранний заезд в 09:00',late:'поздний выезд до 18:00',
+    bed:'дополнительная кровать для третьего гостя',park:'место на парковке на всё время проживания',spa:'посещение SPA для всех гостей',cot:'детская кроватка',
+    pet:'проживание с питомцем (небольшая собака)',dinner:'романтический ужин в номер в день заезда'})[c];
+}
+function reqText(r){
+  if(r.call&&S)return callText(r);
+  if(r.kind==='grp')return groupText(r);
+  if(r.kind==='ooo')return oooText(r);
+  const c=catTxt(r);const inD=fmtLong(r.s),outD=fmtLong(r.s+r.nights);
+  const nShown=r.badN||r.nights;
+  const gg=guestsW(r.guests);
+  const all=r.sv.map(x=>svPhrase(x,r));
+  const wish=all.length?all.join('; '):'—';
+  const kk=LANG==='kk';
+  switch(r.ch){
+    case 'booking':{const plan=r.plan==='nr'?(kk?'Non-refundable (қайтарылмайтын, −10%) · тамақсыз':'Non-refundable (невозвратный, −10%) · без питания'):(kk?'Standard Rate (икемді) · тамақсыз':'Standard Rate (гибкий) · без питания');
+    return kk?{from:'Booking.com · Extranet · '+r.time,title:'Жаңа брондау',body:
+`Брондау нөмірі: ${r.ref}
+Қонақ: ${r.guest} · ${gg}
+Кіру: ${inD}
+Шығу: ${outD}
+Ұзақтығы: ${nightsW(nShown)}
+Нөмір: ${c.en}
+Тариф: ${plan}
+Төлем: қонақүйде
+Қонақтың тілектері: ${wish}`}:{from:'Booking.com · Extranet · '+r.time,title:'Новое бронирование',body:
+`Номер бронирования: ${r.ref}
+Гость: ${r.guest} · ${gg}
+Заезд: ${inD}
+Выезд: ${outD}
+Длительность: ${nightsW(nShown)}
+Номер: ${c.en}
+Тариф: ${plan}
+Оплата: в отеле
+Пожелания гостя: ${wish}`}}
+    case 'ostrovok':return kk?{from:'Островок · хабарлама · '+r.time,title:'Жаңа брондау '+r.ref,body:
+`Қонақ: ${r.guest}
+Қонақтар саны: ${gg}
+Күндері: ${inD} — ${outD} (${nightsW(nShown)})
+Санат: ${c.otaKk}
+Тамақ: тамақсыз
+Төлем: Островок арқылы алдын ала төлем
+Қонақтың пікірі: ${wish}`}:{from:'Островок · уведомление · '+r.time,title:'Новое бронирование '+r.ref,body:
+`Гость: ${r.guest}
+Количество гостей: ${gg}
+Даты: ${inD} — ${outD} (${nightsW(nShown)})
+Категория: ${c.ota}
+Питание: без питания
+Оплата: предоплата через Островок
+Комментарий гостя: ${wish}`};
+    case 'bronevik':return kk?{from:'Броневик · B2B · '+r.time,title:'Брондау '+r.ref,body:
+`Төлеуші агент: «${r.agent}» ЖШС
+Іссапардағы қызметкер: ${r.guest} · ${gg}
+Кіру: ${inD}
+Шығу: ${outD}
+Түндер саны: ${nShown}
+Нөмір санаты: ${c.otaKk}
+Тамақ: кірмейді
+Төлем: агент арқылы қолма-қолсыз есеп айырысу
+Қосымша: ${wish}`}:{from:'Броневик · B2B · '+r.time,title:'Бронирование '+r.ref,body:
+`Агент-плательщик: ТОО «${r.agent}»
+Командированный: ${r.guest} · ${gg}
+Заселение: ${inD}
+Выселение: ${outD}
+Ночей: ${nShown}
+Категория номера: ${c.ota}
+Питание: не включено
+Оплата: безналичный расчёт через агента
+Дополнительно: ${wish}`};
+    case 'trip':{const usd=r.fake?TRIP_USD.SUP:TRIP_USD[r.cat];return{from:'Trip.com · eBooking · '+r.time,title:'New reservation',body:
+`Order No.: ${r.ref}
+Guest: ${r.guest} · ${r.guests} adult${r.guests>1?'s':''}
+Check-in: ${inD}
+Check-out: ${outD}
+Room type: ${c.en} · Room only
+Contract rate: USD ${usd} per night × ${nShown}
+Payment: guest pays at hotel in KZT
+Special requests (${L('перевод','аудармасы')}): ${wish}`}}
+    case 'site':return kk?{from:'Қонақүй сайты · онлайн-өтінім · '+r.time,title:'Өтінім '+r.ref,body:
+`Қонақ: ${r.guest} · ${gg}
+Кіру: ${inD}
+Шығу: ${outD}
+Санат: ${c.kk}
+Тариф: «Сайттағы ең жақсы баға»
+Қосымша қызметтер: ${wish}`}:{from:'Сайт отеля · онлайн-заявка · '+r.time,title:'Заявка '+r.ref,body:
+`Гость: ${r.guest} · ${gg}
+Заезд: ${inD}
+Выезд: ${outD}
+Категория: ${c.ru}
+Тариф: «Лучшая цена на сайте»
+Доп. услуги: ${wish}`};
+    case 'corp':{
+      const co=CORPS[r.corp];const other=r.sv.filter(x=>x!=='bf').map(x=>svPhrase(x,r));const gN=r.guests;
+      if(kk){
+        const dates=r.variant===2?`${dNum(r.s)} қазаннан ${dNum(r.s+r.nights)} қазанға дейін, ${NUMW_KK[nShown]} түнге`:r.variant?`${dNum(r.s)} қазаннан бастап ${NUMW_KK[r.nights]} түнге`:`${dNum(r.s)} қазаннан ${dNum(r.s+r.nights)} қазанға дейін`;
+        return{from:'E-mail · '+r.sender+', офис-менеджер · '+r.time,title:'Қызметкерге брондау · шығыс № '+r.ref,body:
+`Қайырлы күн!
+
+${coName(co)} ${gN>1?'қызметкерлеріміз':'біздің қызметкеріміз'} ${r.guest} үшін «${c.kk}» санатындағы нөмірді ${dates} брондауды сұрайды, ${gN} қонақ. ${r.sv.includes('bf')?'Таңғы аспен.':'Таңғы ас қажет емес.'}${other.length?'\nСондай-ақ ұйымдастыруды сұраймыз: '+other.join(', ')+'.':''}
+
+Төлем — № ${co.contract} шарт бойынша қолма-қолсыз есеп айырысу.
+
+Құрметпен,
+${r.sender}`}}
+      const dates=r.variant===2?`с ${dNum(r.s)} по ${dNum(r.s+r.nights)} октября, на ${nightsWordsRu[nShown-1]}`:r.variant?`на ${nightsWordsRu[r.nights-1]} с ${dNum(r.s)} октября`:`с ${dNum(r.s)} по ${dNum(r.s+r.nights)} октября`;
+      return{from:'E-mail · '+r.sender+', офис-менеджер · '+r.time,title:'Бронирование для сотрудника · исх. № '+r.ref,body:
+`Добрый день!
+
+${coName(co)} просит забронировать номер категории «${c.ru}» для ${gN>1?'наших сотрудников во главе с':'нашего сотрудника'} ${r.guest} ${dates}, ${gN} ${plural(gN,'гость','гостя','гостей')}. ${r.sv.includes('bf')?'Проживание с завтраком.':'Завтрак не нужен.'}${other.length?'\nТакже просим организовать: '+other.join(', ')+'.':''}
+
+Оплата — безналичный расчёт по договору № ${co.contract}.
+
+С уважением,
+${r.sender}`}}
+    case 'phone':{
+      if(kk){
+        const who=r.guests===1?'Өзіме':NUMW_KK[r.guests][0].toUpperCase()+NUMW_KK[r.guests].slice(1)+' адамға';
+        const extra=all.length?' Сондай-ақ бізге керек: '+all.join(', ')+'.':'';
+        return{from:'Кіріс қоңырау · '+r.time,title:'Телефон арқылы брондау',body:
+`Қоңырау шалушы: ${r.guest}, ${r.phone}
+
+«Сәлеметсіз бе! ${who} ${c.phKk} брондағым келеді. ${dNum(r.s)} қазанда кіремін, ${NUMW_KK[r.nights]} түнге.${extra}${r.promo?' Менде КҮЗ10 промокоды бар.':''}»`}}
+      const who=r.guests===1?'для себя':'на '+['','одного','двоих','троих','четверых','пятерых'][r.guests];
+      const extra=all.length?' Ещё нам понадобится '+all.join(', ')+'.':'';
+      return{from:'Входящий звонок · '+r.time,title:'Бронирование по телефону',body:
+`Звонит: ${r.guest}, ${r.phone}
+
+«Здравствуйте! Хочу забронировать ${c.ph} ${who}. Заезд ${dNum(r.s)} октября, ${nightsWordsRu[r.nights-1]}.${extra}${r.promo?' И у меня есть промокод ОСЕНЬ10.':''}»`}}
+    case 'walkin':{
+      if(kk){
+        const extra=all.length?' Тағы: '+all.join(', ')+'.':'';
+        return{from:'Тіркеу орнындағы қонақ · бүгін, '+fmtLong(0),title:'Walk-in · алдын ала брондаусыз',body:
+`${r.guest}, ${gg}
+
+«Қайырлы күн! Бос ${c.phKk} бар ма? ${r.guests===1?'Маған':'Бізге'} ${NUMW_KK[r.nights]} түнге керек, қазір ${r.guests===1?'кіргім':'кіргіміз'} келеді.${extra}»`}}
+      const extra=all.length?' И ещё: '+all.join(', ')+'.':'';
+      return{from:'Гость у стойки · сегодня, '+fmtLong(0),title:'Walk-in · без предварительной брони',body:
+`${r.guest}, ${gg}
+
+«Добрый день! Есть свободный ${c.ph}? ${r.guests===1?'Мне':'Нам'} нужно на ${nightsWordsRu[r.nights-1]}, заселиться прямо сейчас.${extra}»`}}
+  }
+}
+function groupText(g){
+  const kk=LANG==='kk',cl=kk?g.client.kk:g.client.ru;
+  const need=Object.entries(g.mix).map(([c,k])=>kk?`${CATS[c].kk} — ${k}`:`${CATS[c].ru} — ${k}`).join(', ');
+  const total=Object.values(g.mix).reduce((a,b)=>a+b,0);
+  return kk?{from:'E-mail · '+g.sender+', event-агенттік · '+g.time,title:'Топтық брондау · '+cl,body:
+`Қайырлы күн!
+
+«${cl}» іс-шарасына нөмірлер брондауды сұраймыз: кіру ${fmtLong(g.s)}, шығу ${fmtLong(g.s+g.nights)} (${nightsW(g.nights)}).
+Керек: ${need} — барлығы ${total} нөмір, әр нөмірде 2 қонақ.
+Барлық қонақтарға таңғы ас.
+
+Келісілгендей, тұруға ${GROUP_DISC}% топтық жеңілдік. Төлем — кіргенге дейін бір ортақ шотпен қолма-қолсыз есеп айырысу.
+
+Құрметпен,
+${g.sender}`}:{from:'E-mail · '+g.sender+', event-агентство · '+g.time,title:'Групповое бронирование · '+cl,body:
+`Добрый день!
+
+Просим забронировать номера для мероприятия «${cl}»: заезд ${fmtLong(g.s)}, выезд ${fmtLong(g.s+g.nights)} (${nightsW(g.nights)}).
+Нужно: ${need} — всего ${total} номеров, по 2 гостя в номере.
+Завтрак для всех гостей.
+
+Как договаривались, групповая скидка ${GROUP_DISC}% на проживание. Оплата — безналичный расчёт до заезда, один общий счёт.
+
+С уважением,
+${g.sender}`};
+}
+function oooText(o){
+  return LANG==='kk'?{from:'Инженерлік қызмет · '+o.time,title:`${o.room} нөмір пайдаланудан шығарылды`,body:
+`${o.room} нөмірде құбыр жарылды, жөндеу жүріп жатыр.
+Нөмір ${dNum(o.s)} қазаннан ${dNum(o.s+o.nights)} қазанға дейінгі түндерге жабық (${nightsW(o.nights)}).
+
+Осы күндері ${o.room} нөмірде тұрған қонақтарды сол санаттағы нөмірге немесе бір санат жоғары нөмірге (тегін апгрейд) көшіріңіз. Төмен санатқа көшіруге болмайды.`}
+  :{from:'Инженерная служба · '+o.time,title:`Номер ${o.room} выведен из эксплуатации`,body:
+`В номере ${o.room} прорвало трубу, идёт ремонт.
+Номер закрыт на ночи с ${dNum(o.s)} по ${dNum(o.s+o.nights)} октября (${nightsW(o.nights)}).
+
+Переселите гостей, которые стоят в ${o.room} на эти даты, в номер той же категории или на одну категорию выше (бесплатный апгрейд). В номер ниже категорией переселять нельзя.`};
+}
+
+/* ---------- Тексты изменений ---------- */
+const isOTA=ch=>['booking','ostrovok','bronevik','trip'].includes(ch);
+function changeTextBase(c){
+  const T=REQS[c.t],kk=LANG==='kk',inD=fmtLong(T.s),outD=fmtLong(T.s+T.nights),newOut=T.s+T.nights+c.add;
+  const ref=T.ref?T.ref:'—';
+  if(c.type==='cancel'){
+    if(isOTA(T.ch))return kk?{from:chName(T.ch)+' · хабарлама · '+c.time,title:'Брондаудан бас тарту',body:
+`Қонақ брондаудан бас тартты.
+Брондау нөмірі: ${ref}
+Қонақ: ${T.guest}
+Күндері: ${inD} — ${outD}`}:{from:chName(T.ch)+' · уведомление · '+c.time,title:'Отмена бронирования',body:
+`Гость отменил бронирование.
+Номер бронирования: ${ref}
+Гость: ${T.guest}
+Даты: ${inD} — ${outD}`};
+    if(T.ch==='corp'){const co=CORPS[T.corp];return kk?{from:'E-mail · '+T.sender+', офис-менеджер · '+c.time,title:'Брондауды жою',body:
+`Қайырлы күн!
+
+Іссапардың тоқтатылуына байланысты ${coName(co)} қызметкеріміз ${T.guest} үшін ${dNum(T.s)} қазаннан ${dNum(T.s+T.nights)} қазанға дейінгі брондауды (шығыс № ${ref}) жоюды сұрайды.
+
+Құрметпен,
+${T.sender}`}:{from:'E-mail · '+T.sender+', офис-менеджер · '+c.time,title:'Аннуляция бронирования',body:
+`Добрый день!
+
+В связи с отменой командировки ${coName(co)} просит аннулировать бронирование для сотрудника ${T.guest} с ${dNum(T.s)} по ${dNum(T.s+T.nights)} октября (наше письмо исх. № ${ref}).
+
+С уважением,
+${T.sender}`}}
+    if(T.ch==='site')return kk?{from:'Қонақүй сайты · '+c.time,title:'Өтінімнен бас тарту '+ref,body:
+`Қонақ ${ref} өтінімінен бас тартты.
+Қонақ: ${T.guest}
+Күндері: ${inD} — ${outD}`}:{from:'Сайт отеля · '+c.time,title:'Отмена заявки '+ref,body:
+`Гость отменил онлайн-заявку ${ref}.
+Гость: ${T.guest}
+Даты: ${inD} — ${outD}`};
+    return kk?{from:'Кіріс қоңырау · '+c.time,title:'Телефон арқылы бас тарту',body:
+`Қоңырау шалушы: ${T.guest}
+
+«Сәлеметсіз бе! Мен ${dNum(T.s)} қазаннан нөмір брондаған едім. Жоспар өзгерді — брондауды болдырмауыңызды сұраймын.»`}:{from:'Входящий звонок · '+c.time,title:'Отмена по телефону',body:
+`Звонит: ${T.guest}
+
+«Здравствуйте! Я бронировал номер с ${dNum(T.s)} октября. Планы изменились — отмените, пожалуйста, бронь.»`};
+  }
+  const nw=kk?NUMW_KK[c.add]+' түнге':['','одну ночь','две ночи'][c.add];
+  if(isOTA(T.ch))return kk?{from:chName(T.ch)+' · хабарлама · '+c.time,title:'Брондауды өзгерту',body:
+`Қонақ күндерді өзгертті.
+Брондау нөмірі: ${ref}
+Қонақ: ${T.guest}
+Кіру: ${inD} (өзгеріссіз)
+Жаңа шығу күні: ${fmtLong(newOut)}
+Түндер: ${T.nights} → ${T.nights+c.add}`}:{from:chName(T.ch)+' · уведомление · '+c.time,title:'Изменение бронирования',body:
+`Гость изменил даты проживания.
+Номер бронирования: ${ref}
+Гость: ${T.guest}
+Заезд: ${inD} (без изменений)
+Новая дата выезда: ${fmtLong(newOut)}
+Ночей: ${T.nights} → ${T.nights+c.add}`};
+  if(T.ch==='corp'){const co=CORPS[T.corp];return kk?{from:'E-mail · '+T.sender+', офис-менеджер · '+c.time,title:'Тұруды ұзарту',body:
+`Қайырлы күн!
+
+Қызметкеріміз ${T.guest} іссапары ұзартылды. ${coName(co)} тұруды сол шарттармен ${dNum(newOut)} қазанға дейін ұзартуды сұрайды.
+
+Құрметпен,
+${T.sender}`}:{from:'E-mail · '+T.sender+', офис-менеджер · '+c.time,title:'Продление проживания',body:
+`Добрый день!
+
+Командировка нашего сотрудника ${T.guest} продлена. ${coName(co)} просит продлить проживание до ${dNum(newOut)} октября на тех же условиях.
+
+С уважением,
+${T.sender}`}}
+  return kk?{from:'Тіркеу орнындағы қонақ · '+c.time,title:'Тұруды ұзарту',body:
+`${T.guest} тіркеу орнына келді:
+
+«Тұруды тағы ${nw} ұзартуға бола ма? ${dNum(newOut)} қазанда шығамын.»`}:{from:'Гость у стойки · '+c.time,title:'Продление проживания',body:
+`${T.guest} подошёл к стойке:
+
+«Можно продлить проживание ещё на ${nw}? Хочу выехать ${dNum(newOut)} октября.»`};
+}
+
+function changeText(c){
+  const t=changeTextBase(c),T=REQS[c.t];
+  if(c.type==='cancel'){
+    t.body+='\n\n'+L('Время отмены: 15 октября, ','Бас тарту уақыты: 15 қазан, ')+c.time;
+    if(T.ch==='booking')t.body+='\n'+L('Тариф брони: ','Брондау тарифі: ')+(T.plan==='nr'?'Non-refundable':L('Standard Rate (гибкий)','Standard Rate (икемді)'));
+  }
+  return t;
+}
+const itemText=i=>{const r=REQS[i];return r.kind==='chg'?changeText(r):reqText(r)};
+function eff(i){const r=REQS[i];if(r&&r.extBy!=null&&S&&S.arrived>r.extBy)return Object.assign({},r,{nights:r.nights+r.add});return r}
+const cxlDue=i=>{const r=REQS[i];return r.cxlBy!=null&&S&&S.arrived>r.cxlBy};
+const timedKind=r=>!r.kind||r.kind==='err'||r.kind==='grp';
+const groupSize=g=>Object.values(g.mix).reduce((a,b)=>a+b,0);
+const plc=x=>x?(x.places&&x.places.length?x.places:(x.place?[x.place]:[])):[];
+const OOOI=()=>REQS.findIndex(r=>r&&r.kind==='ooo');
+const oooOn=()=>{const k=OOOI();return k>=0&&S&&S.arrived>k};
+const OOO=()=>REQS.ooo;
+const overlaps=(a,s,e)=>a.s<e&&a.e>s;
+
+/* ---------- Состояние ---------- */
+const LS='shahmatka-urban-v5',ATT='shahmatka-urban-att';
+let S=null, REQS=[];
+function freshState(o){return{away:{n:0,sec:0},name:o.name||'',mode:o.mode||'train',seed:o.seed,interval:o.interval,arrived:3,elapsed:0,nextIn:o.interval||0,items:{},arrT:{0:0,1:0,2:0},preRoom:null,audit:null,finished:false,started:true,startedAt:Date.now()}}
+function newSeed(name){let a=0;try{const u=new Uint32Array(1);crypto.getRandomValues(u);a=u[0]}catch(e){a=Math.floor(Math.random()*4294967296)}
+  let h=2166136261;for(const ch of name+'|'+Date.now())h=Math.imul(h^ch.charCodeAt(0),16777619);return ((a^h)>>>0)%900000000+100000000}
+function checkCode(){const {p}=points();let h=2166136261;const str=[S.name,S.seed,S.mode,p,doneCount(),S.startedAt,S.att,(S.away||{}).n,S.tamper?1:0].join('|');for(const ch of str)h=Math.imul(h^ch.charCodeAt(0),16777619);
+  const t=(h>>>0).toString(36).toUpperCase().padStart(7,'0');return t.slice(0,4)+'-'+t.slice(4)}
+function it(i){return S.items[i]||(S.items[i]={seen:false,place:null,places:[],inputs:{},done:false,res:null})}
+const SALT='uH7#q2!Urb@n-26';
+function sig(j){let h1=2166136261,h2=5381;const t=SALT+j+SALT;for(let k=0;k<t.length;k++){const c=t.charCodeAt(k);h1=Math.imul(h1^c,16777619);h2=(Math.imul(h2,33)^c)|0}return (h1>>>0).toString(36)+'.'+(h2>>>0).toString(36)}
+function save(){if(!S)return;let j;try{j=JSON.stringify(Object.assign({},S,{ui:{active,view,selPre}}))}catch(e){return}
+  const pk=JSON.stringify({d:j,h:sig(j)});try{localStorage.setItem(LS,pk)}catch(e){}try{sessionStorage.setItem(LS,pk)}catch(e){}}
+function loadSaved(){for(const st of ['localStorage','sessionStorage']){try{const o=JSON.parse(window[st].getItem(LS)||'null');if(!o)continue;
+    if(o.d&&o.h){const s=JSON.parse(o.d);if(sig(o.d)!==o.h)s.tamper=true;if(s&&s.seed)return s}else if(o.seed){o.tamper=true;return o}}catch(e){}}return null}
+function loadReqs(){REQS=generate(S.seed);if(!S.preRoom)S.preRoom=REQS.pre.map(p=>p.show)}
+let active=null, anchor=null, preview=null, fresh=null, selPre=null, preMove=false;
+
+/* ---------- Отрисовка ---------- */
+const $=id=>document.getElementById(id);
+function chBadge(ch){const c=CHANNELS[ch];return `<span class="ch" style="--cc:var(${c.col})"><i></i>${esc(chName(ch))}</span>`}
+function doneCount(){let n=0;for(let i=0;i<TOTAL;i++)if(S.items[i]&&S.items[i].done)n++;return n}
+const AUDIT_MAX=21;
+function points(){let p=0,m=0;for(let i=0;i<TOTAL;i++){const x=S.items[i];if(x&&x.done){p+=x.res.score;m+=7}
+    if(x&&REQS[i].call&&(x.done||(x.dlg&&x.dlg.fin))){p+=scriptScore(x);m+=SCRIPT_MAX}}
+  if(S.audit){p+=S.audit.res.score;m+=AUDIT_MAX}return{p,m}}
+const MAXP=()=>TOTAL*7+AUDIT_MAX+SCRIPT_MAX*REQS.filter(r=>r&&r.call).length;
+function clock(sec){return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0')}
+const modeName=m=>m==='train'?L('обучение','оқу'):L('экзамен','емтихан');
+const limitOf=i=>REQS[i]&&REQS[i].kind==='grp'?RESP_LIMIT*2:RESP_LIMIT;
+const leftOf=i=>Math.max(0,limitOf(i)-(S.elapsed-(S.arrT[i]??S.elapsed)));
+
+function renderStats(){
+  if(!S){$('stats').innerHTML='';$('btn-next').disabled=true;return}
+  const {p,m}=points();
+  let h=`<div class="stat opt"><small>${L('Администратор','Әкімші')}</small><b style="font-family:var(--f-body);font-weight:600">${esc(S.name||'—')}</b></div>
+  ${S.away&&S.away.n?`<div class="stat away"><small>${L('Уходы','Кетулер')}</small><b>👁 ${S.away.n}</b></div>`:''}${S.tamper?`<div class="stat away"><small>${L('Данные','Деректер')}</small><b>⚠</b></div>`:''}
+  <div class="stat"><small>${L('Время смены','Ауысым уақыты')}</small><b>${clock(S.elapsed)}</b></div>
+  <div class="stat opt"><small>${L('Поступило','Түсті')}</small><b>${S.arrived}/${TOTAL}</b></div>
+  <div class="stat"><small>${L('Оформлено','Рәсімделді')}</small><b>${doneCount()}/${S.arrived}</b></div>`;
+  if(S.mode==='train')h+=`<div class="stat opt"><small>${L('Точность','Дәлдік')}</small><b>${m?Math.round(p/m*100)+'%':'—'}</b></div>`;
+  else h+=`<div class="stat opt"><small>${L('Режим','Режим')}</small><b style="font-family:var(--f-body)">${modeName('exam')}</b></div>`;
+  $('stats').innerHTML=h;
+  $('btn-next').disabled=S.arrived>=TOTAL||S.finished;
+}
+function isStale(i){const x=S.items[i],r=REQS[i];if(!x||!x.done||x.editing||x.cancelled||x.lost||x.clar||r.kind)return false;
+  const pend=r.extBy!=null&&S.arrived>r.extBy&&!(S.items[r.extBy]&&S.items[r.extBy].done);return !!(x.stale||(pend&&x.res&&x.res.score<7))}
+function statusChip(i){
+  const x=S.items[i];
+  if(!x||!x.seen)return `<span class="st new">${L('новая','жаңа')}</span>`;
+  if(x.lost)return `<span class="st err">${L('гость ушёл','қонақ кетті')}</span>`;
+  if(x.cancelled)return `<span class="st done">${L('аннулирована','жойылды')}</span>`;
+  if(x.clar&&S.mode!=='train')return `<span class="st done">${L('уточнение','нақтылау')}</span>`;
+  if(x.done&&(isStale(i)||x.editing))return `<span class="st new">${L('изменить','өзгерту')}</span>`;
+  if(!x.done)return `<span class="st work">${L('в работе','жұмыста')}</span>`;
+  if(S.mode==='train')return x.res.score===7?`<span class="st ok">${L('верно','дұрыс')}</span>`:`<span class="st err">${x.res.score}/7</span>`;
+  return `<span class="st done">${L('оформлена','рәсімделді')}</span>`;
+}
+function tmrHtml(i){const r=REQS[i],x=S.items[i];if(!timedKind(r)||(x&&(x.done||x.ans)))return '';const l=leftOf(i);return `<span class="tmr${l<=60?' low':''}" data-tmr="${i}">⏱ ${clock(l)}</span>`}
+function kindTag(r){
+  if(r.call)return `<span class="chgtag call">${L('звонок','қоңырау')}</span>`;
+  if(r.kind==='chg')return `<span class="chgtag ${r.type}">${r.type==='cancel'?L('отмена','бас тарту'):L('изменение','өзгерту')}</span>`;
+  if(r.kind==='grp')return `<span class="chgtag grp">${L('группа · ','топ · ')+groupSize(r)+L(' номеров',' нөмір')}</span>`;
+  if(r.kind==='ooo')return `<span class="chgtag cancel">${L('авария','апат')}</span>`;
+  return '';
+}
+function renderInbox(){
+  if(!S){$('inlist').innerHTML=`<div class="empty">${L('Смена ещё не начата.','Ауысым әлі басталған жоқ.')}</div>`;$('inmeta').textContent='';$('nextline').innerHTML='';return}
+  const open=[];for(let i=0;i<S.arrived;i++)if(!it(i).done)open.push(i);
+  $('inmeta').textContent=L('ждут оформления: ','рәсімдеуді күтуде: ')+open.length;
+  let h='';
+  for(let i=S.arrived-1;i>=0;i--){
+    const r=REQS[i],x=S.items[i];
+    h+=`<button type="button" class="req${active===i?' active':''}${!x||!x.seen?' unseen':''}${fresh===i?' fresh':''}${x&&x.lost?' lost':''}" data-req="${i}">
+      <span class="no">№${String(i+1).padStart(2,'0')}</span>
+      <span class="who">${esc(dispName(r))}</span>${statusChip(i)}
+      <span class="sub">${chBadge(r.ch)}${kindTag(r)}<span class="num">${r.ch==='walkin'&&!r.kind?L('у стойки','тіркеу орнында'):L('получена ','түсті ')+r.time}</span>${tmrHtml(i)}</span>
+    </button>`;
+  }
+  $('inlist').innerHTML=h||`<div class="empty">${L('Пока заявок нет.','Әзірге өтінім жоқ.')}</div>`;
+  let nl='';
+  if(S.finished)nl=L('Смена закрыта','Ауысым жабылды');
+  else if(S.arrived>=TOTAL)nl=L('Все 40 заявок поступили','40 өтінімнің бәрі түсті');
+  else if(S.interval>0)nl=`${L('Следующая заявка через','Келесі өтінімге дейін')} <b class="num">${clock(S.nextIn)}</b>`;
+  else nl=L('Поток вручную: нажмите «Получить сейчас»','Қолмен: «Қазір алу» батырмасын басыңыз');
+  $('nextline').innerHTML=`<span>${nl}</span>`+(!S.finished&&S.arrived<TOTAL?`<button class="btn" type="button" data-act="next">${L('Получить сейчас','Қазір алу')}</button>`:'');
+  const bd=$('tb-badge');if(bd){bd.hidden=!open.length;bd.textContent=open.length}
+}
+/* кто занимает номер в ночь d: индекс заявки, 'p'+k для старой брони, 'ooo' для закрытого номера */
+function occupant(room,d){
+  if(!S)return null;
+  const pre=REQS.pre||[];
+  for(let k=0;k<pre.length;k++){const p=pre[k];if(S.preRoom&&S.preRoom[k]===room&&d>=p.s&&d<p.s+p.n)return 'p'+k}
+  if(oooOn()){const o=OOO();if(room===o.room&&d>=o.s&&d<o.s+o.n)return 'ooo'}
+  for(let i=0;i<TOTAL;i++){const x=S.items[i];if(!x||x.cancelled||x.lost)continue;for(const pl of plc(x))if(pl.room===room&&d>=pl.s&&d<pl.e)return i}
+  return null;
+}
+function renderBoard(){
+  let h=`<div class="row head"><div class="rl"><b style="font-family:var(--f-body);font-size:11px;color:var(--muted);font-weight:600">${L('НОМЕР','НӨМІР')}</b></div>`;
+  for(let d=0;d<COLS;d++){const dt=dd(d),we=dt.getDay()===5||dt.getDay()===6,ev=d<DAYS&&evOn(d);
+    h+=`<div class="dh${we?' we':''}${ev?' ev':''}${d===0?' today':''}${d===DAYS?' last':''}" style="grid-column:${2+2*d} / span 2"${ev?` title="${esc(L(ev.ru,ev.kk))}"`:''}><b>${dt.getDate()}</b>${dow(d)}${d<DAYS&&multTag(d)?`<i>${multTag(d)}</i>`:''}</div>`}
+  h+='</div>';
+  let prevCat=null;const pre=REQS.pre||[];
+  for(const rm of ROOMS){
+    h+=`<div class="row${prevCat&&prevCat!==rm.cat?' catsep':''}" data-room="${rm.no}"><div class="rl"><b>${rm.no}</b><span>${CATS[rm.cat].code}<span class="cn"> · ${esc(L(CATS[rm.cat].sru,CATS[rm.cat].skk))}</span></span></div>`;
+    prevCat=rm.cat;
+    for(let d=0;d<COLS;d++){
+      const dt=dd(d),we=dt.getDay()===5||dt.getDay()===6;
+      let cls='c'+(we?' we':'')+(d<DAYS&&evOn(d)?' ev':'');
+      if(anchor&&anchor.room===rm.no&&anchor.d===d)cls+=' anchor';
+      else if(preview&&preview.room===rm.no&&d>=preview.s&&d<=preview.e)cls+=' prev';
+      h+=`<div class="${cls}" style="grid-column:${2+2*d} / span 2" data-room="${rm.no}" data-d="${d}"></div>`;
+    }
+    if(S&&oooOn()&&OOO().room===rm.no){const o=OOO();h+=`<div class="bar ooo" style="grid-column:${3+2*o.s} / ${3+2*(o.s+o.n)}"><span>OOO · ${L('ремонт','жөндеу')}</span></div>`}
+    if(S)pre.forEach((p,k)=>{if(S.preRoom[k]!==rm.no)return;
+      h+=`<button type="button" class="bar pre${selPre===k?' sel':''}" style="grid-column:${3+2*p.s} / ${3+2*(p.s+p.n)};--cc:var(${CHANNELS[p.ch].col})" data-pre="${k}" title="${esc(p.guest)}"><span>${esc(p.guest.split(' ').slice(-1)[0])}</span></button>`});
+    if(S)for(let i=0;i<TOTAL;i++){
+      const x=S.items[i];if(!x||x.cancelled||x.lost)continue;
+      const r=REQS[i];
+      for(const pl of plc(x)){if(pl.room!==rm.no)continue;
+        let cls='bar';
+        if(!x.done)cls+=(i===active?' tent':' pending');
+        if(x.done&&S.mode==='train'&&x.res&&(x.res.cat===false||x.res.dates===false))cls+=' err';
+        if(i===active&&x.done)cls+=' sel';
+        const lab=r.kind==='grp'?`${L('ГР','ТОП')} · ${esc(r.guest)}`:`${esc(r.guest.split(' ').slice(-1)[0])} · ${CHANNELS[r.ch].short}`;
+        h+=`<button type="button" class="${cls}" style="grid-column:${3+2*pl.s} / ${3+2*pl.e};--cc:var(${CHANNELS[r.ch].col})" data-bar="${i}" title="№${i+1} ${esc(dispName(r))}"><em>${String(i+1).padStart(2,'0')}</em><span>${lab}</span></button>`}
+    }
+    h+='</div>';
+  }
+  $('board').innerHTML=h;
+  let hint='';
+  if(!S)hint='';
+  else if(selPre!==null)hint=preMove?L('Кликните любую ячейку в строке <b>нового номера</b> — бронь переедет целиком','<b>Жаңа нөмірдің</b> жолындағы кез келген ұяшықты басыңыз — брондау толығымен көшеді'):L('Бронь, которая уже стояла в шахматке','Шахматкада бұрыннан тұрған брондау');
+  else if(active===null)hint=L('Выберите заявку во входящих','Кіріс өтінімдерден өтінімді таңдаңыз');
+  else if(REQS[active].kind==='chg'||REQS[active].kind==='ooo')hint=L('Найдите нужные брони в шахматке и внесите изменения','Керек брондауларды шахматкадан тауып, өзгерістерді енгізіңіз');
+  else if(it(active).done&&!it(active).editing)hint=L('Бронь оформлена','Брондау рәсімделді');
+  else if(anchor)hint=L(`<b>Номер ${anchor.room}, заезд ${fmtShort(anchor.d)}</b> — теперь кликните <b>дату выезда</b>`,`<b>${anchor.room} нөмір, кіру ${fmtShort(anchor.d)}</b> — енді <b>шығу күнін</b> басыңыз`);
+  else if(REQS[active].kind==='grp')hint=L(`Ставьте номера группы по одному: заезд → выезд. Поставлено ${plc(it(active)).length} из ${groupSize(REQS[active])}`,`Топ нөмірлерін бір-бірден қойыңыз: кіру → шығу. Қойылды: ${groupSize(REQS[active])}-ден ${plc(it(active)).length}`);
+  else hint=L('Кликните <b>дату заезда</b> в строке нужного номера','Керек нөмірдің жолында <b>кіру күнін</b> басыңыз');
+  $('boardhint').innerHTML=hint;
+  const br=$('boardreq');
+  if(S&&active!==null){const r=REQS[active],t=itemText(active),x=it(active);
+    br.innerHTML=`<details${(x.done&&!x.editing)?'':' open'}><summary>№${String(active+1).padStart(2,'0')} · ${esc(dispName(r))} — ${L('текст заявки','өтінім мәтіні')}</summary><div class="lbody" style="--cc:var(${CHANNELS[r.ch].col})">${esc(t.body)}</div></details>`;
+  }else br.innerHTML='';
+}
+function renderLegend(){
+  const seen=new Set();let h='';
+  for(const k of Object.keys(CHANNELS)){const c=CHANNELS[k];if(seen.has(c.col))continue;seen.add(c.col);
+    h+=`<span class="ch" style="--cc:var(${c.col})"><i></i>${k==='site'?L('Прямые (сайт, телефон, walk-in)','Тікелей (сайт, телефон, walk-in)'):esc(chName(k))}</span>`}
+  h+=`<span>${L('Бледные полосы — брони, которые уже стояли до смены; их можно переселять. Штриховка — бронь ещё не подтверждена. Над датами: +20% — пятница и суббота, +35% — дни событий в Астане.','Бозғыл жолақтар — ауысымға дейін тұрған брондаулар; оларды көшіруге болады. Штрихталған — брондау әлі расталмаған. Күндердің үстінде: +20% — жұма мен сенбі, +35% — Астанадағы іс-шаралар күндері.')}</span>`;
+  $('legend').innerHTML=h;
+}
+const FIELDS=()=>[
+  ['acc',L('Проживание','Тұру'),L('сумма цен по ночам с учётом скидки','жеңілдікті ескере отырып түндер бойынша бағалар сомасы')],
+  ['svc',L('Доп. услуги','Қосымша қызметтер'),L('сумма всех доп. услуг','барлық қосымша қызметтердің сомасы')],
+  ['total',L('Итого по брони','Брондау бойынша барлығы'),L('проживание + доп. услуги','тұру + қосымша қызметтер')],
+  ['comm',L('Комиссия OTA','OTA комиссиясы'),L('0, если канал не OTA','арна OTA болмаса — 0')],
+  ['net',L('Доход отеля (нетто)','Қонақүй табысы (нетто)'),L('итого − комиссия','барлығы − комиссия')]
+];
+const PFIELDS=()=>[
+  ['pen',L('Штраф за отмену','Бас тарту айыппұлы'),L('0, если отмена бесплатная','бас тарту тегін болса — 0')],
+  ['pcomm',L('Комиссия OTA со штрафа','Айыппұлдан OTA комиссиясы'),L('0, если канал не OTA','арна OTA болмаса — 0')],
+  ['pnet',L('Доход отеля от отмены','Бас тартудан қонақүй табысы'),L('штраф − комиссия','айыппұл − комиссия')]
+];
+function calcLines(r,c){
+  const where=r.kind==='grp'?`${L('Группа','Топ')}: ${Object.entries(r.mix).map(([k,v])=>v+' × '+CATS[k].code).join(', ')}`:`${L('Размещение','Орналастыру')}: ${esc(catName(r.cat))}`;
+  return `<span>${where}, ${L('заезд','кіру')} ${fmtShort(r.s)}, ${L('выезд','шығу')} ${fmtShort(r.s+r.nights)}</span><span>${nightsW(r.nights)}</span>
+      <span>${L('Проживание','Тұру')}: ${esc(c.accF)}${c.dl?' — '+esc(c.dl):''}</span><span>${money(c.acc)}</span>
+      ${c.lines.map(l=>`<span>${esc(l.name)}: ${esc(l.f)}</span><span>${money(l.amt)}</span>`).join('')}
+      <span class="tot">${L('Итого','Барлығы')}</span><span class="tot">${money(c.total)}</span>
+      ${c.pct?`<span>${L('Комиссия','Комиссия')} ${esc(chName(r.ch))}: ${money(c.acc)} × ${c.pct}%</span><span>− ${money(c.comm)}</span>`:''}
+      <span class="tot">${L('Доход отеля','Қонақүй табысы')}</span><span class="tot">${money(c.net)}</span>`;
+}
+const REASONS=()=>({dates:L('Даты не совпадают с количеством ночей','Күндер түндер санына сәйкес келмейді'),cap:L('Гостей больше, чем вмещает номер','Қонақтар нөмір сыйымдылығынан көп'),cat:L('Такой категории номера нет в отеле','Қонақүйде мұндай санат жоқ')});
+function fieldsHtml(list,x,editable,showFb,correct,resObj){
+  let h='<div class="fields">';
+  for(const [k,label,hint] of list){let cls='f',right='';
+    if(showFb&&resObj){cls+=resObj[k]?' ok':' bad';if(!resObj[k])right=`<span class="right">${L('верно','дұрысы')}: ${money(correct[k])}</span>`}
+    h+=`<div class="${cls}"><label for="in-${k}">${label}</label><input id="in-${k}" data-k="${k}" inputmode="numeric" autocomplete="off" placeholder="₸" value="${x.inputs[k]!=null?esc(x.inputs[k]):''}"${editable?'':' readonly'}><small>${hint}</small>${right}</div>`}
+  return h+'</div>';
+}
+function letterHtml(r,t){return `<div class="letter" style="--cc:var(${CHANNELS[r.ch].col})"><div class="lhead">${chBadge(r.ch)}${kindTag(r)}<span class="lfrom">${esc(t.from)}</span></div><p class="ltitle">${esc(t.title)}</p><div class="lbody">${esc(t.body)}</div></div>`}
+function head(i){const t=timedKind(REQS[i])&&!it(i).done?tmrHtml(i):'';return `<div class="ph"><h2>${L('Заявка','Өтінім')} №${String(i+1).padStart(2,'0')}</h2><span style="display:flex;gap:8px;align-items:center">${t}${statusChip(i)}</span></div>`}
+function renderWork(){
+  const wp=$('workpanel');
+  if(S&&selPre!==null){renderPre(wp);return}
+  if(!S||active===null){
+    wp.innerHTML=L(`<div class="ph"><h2>Карточка брони</h2></div><div class="howto">
+      <p><b>Вы заступили на смену.</b> Отель уже частично заполнен — бледные полосы в шахматке. Заявки поступают во входящие, на ответ гостю — 5 минут.</p>
+      <ol>
+        <li>Прочитайте заявку: канал, тариф, категорию, даты, число гостей, пожелания. Если в ней ошибка — нажмите «Запросить уточнение». На звонки отвечайте по скрипту — так вы узнаете детали брони.</li>
+        <li>Поставьте бронь в шахматку: дата заезда, затем дата выезда. Если места нет — переселите другие брони.</li>
+        <li>Посчитайте проживание по ночам (выходные и события дороже) и заполните пять полей.</li>
+        <li>Обрабатывайте отмены (со штрафами), продления, групповую бронь и аварийное закрытие номера.</li>
+        <li>В конце смены — ночной аудит: загрузка, ADR и RevPAR за ночь 15 октября.</li>
+      </ol></div>`,`<div class="ph"><h2>Брондау карточкасы</h2></div><div class="howto">
+      <p><b>Сіз ауысымға кірістіңіз.</b> Қонақүй жартылай толы — шахматкадағы бозғыл жолақтар. Өтінімдер кіріс бөліміне түседі, қонаққа жауап беруге — 5 минут.</p>
+      <ol>
+        <li>Өтінімді оқыңыз: арна, тариф, санат, күндер, қонақтар саны, тілектер. Онда қате болса — «Нақтылау сұрау» батырмасын басыңыз. Қоңырауларға скрипт бойынша жауап беріңіз — брондау мәліметтерін солай білесіз.</li>
+        <li>Брондауды шахматкаға қойыңыз: кіру күні, содан кейін шығу күні. Орын болмаса — басқа брондауларды көшіріңіз.</li>
+        <li>Тұруды түндер бойынша есептеңіз (демалыс пен іс-шара күндері қымбатырақ) және бес өрісті толтырыңыз.</li>
+        <li>Бас тартуларды (айыппұлмен), ұзартуларды, топтық брондауды және нөмірдің апаттық жабылуын өңдеңіз.</li>
+        <li>Ауысым соңында — түнгі аудит: 15 қазан түніне толымдылық, ADR және RevPAR.</li>
+      </ol></div>`);
+    return;
+  }
+  const R0=REQS[active];
+  if(R0.kind==='chg'){renderChange(wp);return}
+  if(R0.kind==='ooo'){renderOOO(wp);return}
+  if(R0.kind==='grp'){renderGroup(wp);return}
+  {const cx=it(active);if(R0.call&&!cx.lost&&!cx.clar&&!(cx.dlg&&cx.dlg.fin)){renderCall(wp);return}}
+  const r=eff(active),x=it(active),t=reqText(R0),c=calc(r);
+  if(x.lost){wp.innerHTML=`${head(active)}<div class="work">${letterHtml(R0,t)}<div class="calc"><div class="place cx"><span>${L('Гость не дождался ответа и ушёл к конкурентам.','Қонақ жауап күтпей, бәсекелестерге кетті.')}</span></div>${R0.kind==='err'?'':`<div class="feedback">${L('Потерянная выручка','Жоғалған түсім')}: <b>${money(c.total)}</b></div>`}</div></div>`;return}
+  if(x.clar){renderClar(wp,R0,x,t);return}
+  if(x.cancelled){renderCancelled(wp,r,x,t);return}
+  const editable=!x.done||x.editing;
+  const stale=isStale(active);
+  const showFb=x.done&&!x.editing&&!stale&&S.mode==='train';
+  let place;
+  if(x.place){const rm=ROOMS.find(q=>q.no===x.place.room);const n=x.place.e-x.place.s;
+    const btns=editable?`<button class="btn m-only" type="button" data-act="toboard">${L('Изменить','Өзгерту')}</button><button class="btn ghost" type="button" id="unplace">${L('Снять','Алып тастау')}</button>`:'';
+    place=`<div class="place set"><span>${L('Номер','Нөмір')} <b class="num">${rm.no}</b> · ${esc(catName(rm.cat))} · ${L('заезд','кіру')} ${fmtShort(x.place.s)}, ${L('выезд','шығу')} ${fmtShort(x.place.e)} · ${nightsW(n)}${showFb&&!x.res.errBooked?` <span class="mark ${x.res.cat&&x.res.dates?'ok':'bad'}">${x.res.cat&&x.res.dates?'✓':'✗'}</span>`:''}</span><span style="display:flex;gap:6px;flex-wrap:wrap">${btns}</span></div>`;
+    if(x.editing)place+=`<div class="hintline">${L('Режим изменения: при необходимости поставьте бронь в шахматке заново (заезд → выезд), исправьте суммы и нажмите «Сохранить изменения».','Өзгерту режимі: қажет болса брондауды шахматкаға қайта қойыңыз (кіру → шығу), сомаларды түзетіп, «Өзгерістерді сақтау» батырмасын басыңыз.')}</div>`;
+  }else place=`<div class="place"><span>${L('Бронь ещё не внесена в шахматку','Брондау әлі шахматкаға енгізілмеген')}</span><button class="btn primary m-only" type="button" data-act="toboard">${L('Открыть шахматку','Шахматканы ашу')}</button></div>`;
+  const fields=fieldsHtml(FIELDS(),x,editable,showFb&&!x.res.errBooked,c,x.res);
+  let fb='';
+  if(showFb&&x.res.errBooked)fb=`<div class="feedback"><span class="mark bad">${L('Эту заявку нельзя было вносить: ','Бұл өтінімді енгізуге болмайтын еді: ')}${esc(REASONS()[R0.reason])}.</span> ${L('Нужно было нажать «Запросить уточнение».','«Нақтылау сұрау» батырмасын басу керек еді.')}</div>`;
+  else if(showFb){const res=x.res;
+    fb=`<div class="feedback"><h3>${res.score===7?`<span class="mark ok">${L('Всё верно — 7 из 7','Бәрі дұрыс — 7-ден 7')}</span>`:`<span class="mark bad">${L(res.score+' из 7','7-ден '+res.score)}</span> · ${L('правильный расчёт','дұрыс есеп')}:`}</h3>
+    <div class="fl">${calcLines(r,c)}</div></div>`}
+  else if(stale)fb=`<div class="feedback stale"><b>${L('По этой брони пришло изменение.','Бұл брондау бойынша өзгеріс келді.')}</b> ${L('Нажмите «Изменить бронь», внесите новые даты и пересчитайте суммы.','«Брондауды өзгерту» батырмасын басып, жаңа күндерді енгізіп, сомаларды қайта есептеңіз.')}</div>`;
+  else if(x.done)fb=`<div class="feedback">${L('Бронь оформлена. Результат будет в отчёте после закрытия смены.','Брондау рәсімделді. Нәтиже ауысым жабылғаннан кейін есепте көрсетіледі.')}</div>`;
+  wp.innerHTML=`${head(active)}
+  <div class="work">${letterHtml(R0,t)}
+    <div class="calc">
+      ${place}${fields}
+      ${editable?`<button class="btn primary" type="button" id="confirm">${x.editing?L('Сохранить изменения','Өзгерістерді сақтау'):L('Подтвердить бронь','Брондауды растау')}</button>`:''}
+      ${fb}
+      <div class="bkact">${!x.done?`<button class="btn" type="button" data-act="clarify">${L('Запросить уточнение','Нақтылау сұрау')}</button>`:''}${x.done&&!x.editing?`<button class="btn" type="button" data-act="edit">${L('Изменить бронь','Брондауды өзгерту')}</button>`:''}<button class="btn ghost danger" type="button" data-act="cancel">${L('Аннулировать бронь','Брондауды жою')}</button></div>
+    </div>
+  </div>`;
+}
+function renderClar(wp,R0,x,t){
+  let fb='';
+  if(S.mode==='train'){
+    if(R0.kind==='err'&&x.clar===R0.reason)fb=`<div class="feedback"><span class="mark ok">${L('Верно — в заявке ошибка: ','Дұрыс — өтінімде қате бар: ')}${esc(REASONS()[R0.reason])}.</span></div>`;
+    else if(R0.kind==='err')fb=`<div class="feedback"><span class="mark bad">${L('Уточнение нужно, но причина другая: ','Нақтылау керек, бірақ себебі басқа: ')}${esc(REASONS()[R0.reason])}.</span></div>`;
+    else fb=`<div class="feedback"><span class="mark bad">${L('Заявка была корректной — бронь нужно было внести.','Өтінім дұрыс болды — брондауды енгізу керек еді.')}</span></div>`;
+  }
+  wp.innerHTML=`${head(R0.i)}<div class="work">${letterHtml(R0,t)}<div class="calc"><div class="place set"><span>${L('Гостю отправлен запрос на уточнение','Қонаққа нақтылау сұрауы жіберілді')}: <b>${esc(REASONS()[x.clar])}</b></span></div>${fb}
+    ${S.mode==='train'?'':`<div class="bkact"><button class="btn ghost" type="button" data-act="unclar">${L('Отменить запрос','Сұрауды болдырмау')}</button></div>`}</div></div>`;
+}
+function renderCancelled(wp,r,x,t){
+  const ok=cxlDue(r.i),fbk=S.mode==='train'?(ok?`<div class="feedback"><span class="mark ok">${L('Верно: по этой брони пришла отмена','Дұрыс: бұл брондау бойынша бас тарту келді')}</span></div>`:`<div class="feedback"><span class="mark bad">${L('Отмены по этой брони не было — бронь аннулирована зря','Бұл брондау бойынша бас тарту болған жоқ — брондау бекер жойылды')}</span></div>`):'';
+  wp.innerHTML=`${head(r.i)}<div class="work">${letterHtml(REQS[r.i],t)}
+  <div class="calc"><div class="place cx"><span>${L('Бронь аннулирована и снята с шахматки','Брондау жойылып, шахматкадан алынды')}</span></div>${fbk}
+  <div class="bkact"><button class="btn" type="button" data-act="uncancel">${L('Восстановить бронь','Брондауды қалпына келтіру')}</button></div></div></div>`;
+}
+function renderPre(wp){
+  const k=selPre,p=REQS.pre[k],room=S.preRoom[k];
+  const nights=[];for(let d=p.s;d<p.s+p.n;d++)nights.push(`<span>${fmtShort(d)}${multTag(d)?' · '+multTag(d):''}</span><span>${money(nightRev(p,d))}</span>`);
+  const plan=p.ch==='booking'?(p.plan==='nr'?' · Non-refundable':' · Standard Rate'):'';
+  wp.innerHTML=`<div class="ph"><h2>${L('Бронь до начала смены','Ауысымға дейінгі брондау')}</h2><span class="st done">${L('подтверждена','расталған')}</span></div>
+  <div class="work"><div class="letter" style="--cc:var(${CHANNELS[p.ch].col})"><div class="lhead">${chBadge(p.ch)}<span class="lfrom">${esc(plan)}</span></div>
+    <p class="ltitle">${esc(p.guest)}</p>
+    <div class="lbody">${L('Категория','Санат')}: ${esc(catName(p.cat))}
+${L('Заезд','Кіру')}: ${fmtLong(p.s)}
+${L('Выезд','Шығу')}: ${fmtLong(p.s+p.n)}
+${L('Ночей','Түн')}: ${p.n}
+${L('Сейчас в номере','Қазір нөмірде')}: ${room}${room!==p.show?' ('+L('переселён','көшірілген')+')':''}</div></div>
+  <div class="calc"><div class="lbl">${L('Стоимость проживания по ночам','Түндер бойынша тұру құны')}</div><div class="fl">${nights.join('')}</div>
+    <div class="hintline">${L('Гостя можно переселить в свободный номер той же категории или на одну категорию выше (бесплатный апгрейд). Даты не меняются.','Қонақты сол санаттағы немесе бір санат жоғары бос нөмірге көшіруге болады (тегін апгрейд). Күндер өзгермейді.')}</div>
+    <div class="bkact">${preMove?`<button class="btn ghost" type="button" data-act="premovecancel">${L('Отменить переселение','Көшіруді болдырмау')}</button>`:`<button class="btn primary" type="button" data-act="premove">${L('Переселить','Көшіру')}</button>`}<button class="btn ghost" type="button" data-act="preclose">${L('Закрыть','Жабу')}</button></div></div></div>`;
+}
+function renderGroup(wp){
+  const g=REQS[active],x=it(active),t=groupText(g),c=calcGroup(g);
+  const editable=!x.done||x.editing,showFb=x.done&&!x.editing&&S.mode==='train';
+  const pl=plc(x),need=groupSize(g);
+  if(x.lost){wp.innerHTML=`${head(active)}<div class="work">${letterHtml(g,t)}<div class="calc"><div class="place cx"><span>${L('Группа не дождалась ответа и выбрала другой отель.','Топ жауап күтпей, басқа қонақүйді таңдады.')}</span></div><div class="feedback">${L('Потерянная выручка','Жоғалған түсім')}: <b>${money(c.total)}</b></div></div></div>`;return}
+  const list=pl.map((p,k)=>`<span class="gpl">${p.room} · ${roomCat(p.room)} · ${fmtShort(p.s)}–${fmtShort(p.e)}${editable?` <button class="x" type="button" data-act="rmpl" data-k="${k}" aria-label="×">×</button>`:''}</span>`).join('');
+  let fb='';
+  if(showFb){const res=x.res;fb=`<div class="feedback"><h3>${res.score===7?`<span class="mark ok">${L('Всё верно — 7 из 7','Бәрі дұрыс — 7-ден 7')}</span>`:`<span class="mark bad">${L(res.score+' из 7','7-ден '+res.score)}</span> · ${L('правильный расчёт','дұрыс есеп')}:`}</h3>
+    ${res.cat?'':`<p class="mark bad" style="margin:0 0 6px">${L('Состав номеров не совпадает с заявкой','Нөмірлер құрамы өтінімге сәйкес келмейді')}</p>`}${res.dates?'':`<p class="mark bad" style="margin:0 0 6px">${L('Неверные даты у части номеров','Кейбір нөмірлердің күндері қате')}</p>`}
+    <div class="fl">${calcLines(g,c)}</div></div>`}
+  else if(x.done)fb=`<div class="feedback">${L('Групповая бронь оформлена.','Топтық брондау рәсімделді.')}</div>`;
+  wp.innerHTML=`${head(active)}<div class="work">${letterHtml(g,t)}<div class="calc">
+    <div class="place${pl.length?' set':''}"><span>${L('Поставлено номеров','Қойылған нөмірлер')}: <b>${pl.length} / ${need}</b></span>${editable?`<button class="btn m-only" type="button" data-act="toboard">${L('Шахматка','Шахматка')}</button>`:''}</div>
+    ${pl.length?`<div class="gpls">${list}</div>`:''}
+    ${fieldsHtml(FIELDS(),x,editable,showFb,c,x.res)}
+    ${editable?`<button class="btn primary" type="button" id="confirm">${x.editing?L('Сохранить изменения','Өзгерістерді сақтау'):L('Подтвердить групповую бронь','Топтық брондауды растау')}</button>`:''}${fb}
+    <div class="bkact">${!x.done?`<button class="btn" type="button" data-act="clarify">${L('Запросить уточнение','Нақтылау сұрау')}</button>`:''}${x.done&&!x.editing?`<button class="btn" type="button" data-act="edit">${L('Изменить бронь','Брондауды өзгерту')}</button>`:''}</div></div></div>`;
+}
+function oooCheck(){const o=OOO(),bad=[];
+  (REQS.pre||[]).forEach((p,k)=>{if(S.preRoom[k]===o.room&&p.s<o.s+o.n&&p.s+p.n>o.s)bad.push(p.guest)});
+  for(let i=0;i<TOTAL;i++){const x=S.items[i];if(!x||x.cancelled||x.lost)continue;for(const pl of plc(x))if(pl.room===o.room&&overlaps(pl,o.s,o.s+o.n))bad.push(dispName(REQS[i]))}
+  return bad}
+function renderOOO(wp){
+  const o=REQS[active],x=it(active),t=oooText(o);
+  let fb='';
+  if(x.done&&S.mode==='train')fb=x.res.score===7?`<div class="feedback"><span class="mark ok">${L('Верно: номер свободен, гости переселены','Дұрыс: нөмір бос, қонақтар көшірілді')}</span></div>`:`<div class="feedback"><span class="mark bad">${L('В номере на даты ремонта остались: ','Жөндеу күндері нөмірде қалғандар: ')}${esc((x.res.left||[]).join(', '))}</span></div>`;
+  else if(x.done)fb=`<div class="feedback">${L('Отмечено.','Белгіленді.')}</div>`;
+  wp.innerHTML=`${head(active)}<div class="work">${letterHtml(o,t)}<div class="calc">
+    <div class="place"><span>${L('Найдите в строке номера ','Нөмір жолынан ')}${o.room}${L(' брони на эти даты (бледные «старые» брони тоже), откройте каждую и переселите. Старую бронь — кнопкой «Переселить», свою — через «Изменить бронь».',' осы күндерге тұрған брондауларды тауып (бозғыл «ескі» брондауларды да), әрқайсысын ашып, көшіріңіз. Ескі брондауды — «Көшіру», өзіңіздікін — «Брондауды өзгерту» арқылы.')}</span></div>
+    ${x.done&&(S.mode!=='train'||x.res.score===7)?'':`<button class="btn primary" type="button" data-act="ooodone">${x.done?L('Проверить ещё раз','Қайта тексеру'):L('Готово — гости переселены','Дайын — қонақтар көшірілді')}</button>`}${fb}</div></div>`;
+}
+function chgExpect(c){const T=REQS[c.t],e=eff(c.t);
+  if(tgtGone(c))return L(`Бронь №${String(c.t+1).padStart(2,'0')} (${T.guest}) не оформлялась — менять и считать нечего.`,`№${String(c.t+1).padStart(2,'0')} брондау (${T.guest}) рәсімделмеген — өзгертіп, есептейтін ештеңе жоқ.`);
+  if(c.type==='cancel'){const p=penalty(c);
+    const why={nr:L('невозвратный тариф — удерживается 100% стоимости проживания','қайтарылмайтын тариф — тұру құнының 100% ұсталады'),late:L('отмена позже 14:00 за сутки до заезда — штраф за первую ночь','кіруге бір тәулік қалғанда 14:00-ден кейін бас тарту — бірінші түн үшін айыппұл'),free:L('отмена вовремя — бесплатно','уақытында бас тарту — тегін')}[p.why];
+    return L(`Бронь №${String(c.t+1).padStart(2,'0')} (${T.guest}) аннулировать. ${why}. Штраф ${money(p.pen)}, комиссия ${money(p.comm)}, доход отеля ${money(p.net)}.`,`№${String(c.t+1).padStart(2,'0')} брондауды (${T.guest}) жою. ${why}. Айыппұл ${money(p.pen)}, комиссия ${money(p.comm)}, қонақүй табысы ${money(p.net)}.`)}
+  return L(`Бронь №${String(c.t+1).padStart(2,'0')} (${T.guest}): выезд ${fmtShort(e.s+e.nights)}, ${nightsW(e.nights)}, суммы пересчитаны.`,`№${String(c.t+1).padStart(2,'0')} брондау (${T.guest}): шығу ${fmtShort(e.s+e.nights)}, ${nightsW(e.nights)}, сомалар қайта есептелген.`)}
+function chgEval(c,x){const tx=S.items[c.t];if(tgtGone(c))return{score:7,na:true};
+  if(c.type==='cancel'){const p=penalty(c),eq=k=>Math.abs((parseNum(x.inputs[k])??-1)-({pen:p.pen,pcomm:p.comm,pnet:p.net})[k])<=1;
+    const res={cx:!!(tx&&(tx.cancelled||tx.lost)),pen:eq('pen'),pcomm:eq('pcomm'),pnet:eq('pnet')};res.score=(res.cx?4:0)+(res.pen?1:0)+(res.pcomm?1:0)+(res.pnet?1:0);return res}
+  if(!tx||!tx.done||tx.cancelled||tx.editing||!tx.place)return{score:0};
+  tx.res=scoreRes(tx,c.t,false);return{score:tx.res.score===7?7:0}}
+function renderChange(wp){
+  const c=REQS[active],x=it(active),t=changeText(c),isC=c.type==='cancel';
+  let fb='';
+  if(x.done&&S.mode==='train')fb=`<div class="feedback">${x.res.score===7?`<span class="mark ok">${L('Выполнено верно','Дұрыс орындалды')}</span>`:`<span class="mark bad">${L('Есть ошибки','Қателер бар')} · ${x.res.score}/7</span>`}<p style="margin:6px 0 0">${esc(chgExpect(c))}</p></div>`;
+  else if(x.done)fb=`<div class="feedback">${L('Отмечено. Результат будет в отчёте после закрытия смены.','Белгіленді. Нәтиже ауысым жабылғаннан кейін есепте көрсетіледі.')}</div>`;
+  const gone=tgtGone(c);const pf=isC&&!gone?fieldsHtml(PFIELDS(),x,!x.done,x.done&&S.mode==='train',(()=>{const p=penalty(c);return{pen:p.pen,pcomm:p.comm,pnet:p.net}})(),x.res):'';
+  wp.innerHTML=`${head(active)}
+  <div class="work">${letterHtml(c,t)}
+  <div class="calc"><div class="place"><span>${gone?L('Эта бронь не была оформлена (гость ушёл или вы запросили уточнение) — менять нечего. Нажмите «Готово».','Бұл брондау рәсімделмеген (қонақ кетті немесе нақтылау сұралды) — өзгертетін ештеңе жоқ. «Дайын» батырмасын басыңыз.'):isC
+    ?L('Это отмена существующей брони. Найдите её по имени гостя, откройте и нажмите «Аннулировать бронь». Затем посчитайте штраф по условиям тарифа и вернитесь сюда.','Бұл бар брондаудан бас тарту. Оны қонақтың аты бойынша тауып, ашып, «Брондауды жою» батырмасын басыңыз. Содан кейін тариф шарттары бойынша айыппұлды есептеп, осында оралыңыз.')
+    :L('Это изменение существующей брони. Найдите её по имени гостя, нажмите «Изменить бронь», поставьте новые даты, пересчитайте суммы и сохраните. Затем вернитесь сюда.','Бұл бар брондауды өзгерту. Оны қонақтың аты бойынша тауып, «Брондауды өзгерту» батырмасын басыңыз, жаңа күндерді қойып, сомаларды қайта есептеп, сақтаңыз. Содан кейін осында оралыңыз.')}</span></div>
+  ${pf}${x.done?'':`<button class="btn primary" type="button" data-act="chgdone">${L('Готово — изменение внесено','Дайын — өзгеріс енгізілді')}</button>`}${fb}</div></div>`;
+}
+function renderAll(){renderStats();renderInbox();renderBoard();renderWork();renderLegend()}
+
+/* ---------- Телефонный звонок: диалог по скрипту ---------- */
+const SCRIPT_MAX=5;
+const CALL_GUESTS_RU=['','Я буду один','Нас будет двое','Нас будет трое','Нас будет четверо'];
+function callSteps(r){
+  const R=rng(((S?S.seed:1)^Math.imul(r.i+1,2654435761))>>>0);
+  const kk=LANG==='kk',c=CATS[r.cat],n=r.nights,g=r.guests,d1=dNum(r.s),d2=dNum(r.s+n);
+  const me=((S&&S.name)||'').trim().split(/\s+/).slice(-1)[0]||L('Айгерим','Айгерім');
+  const first=r.guest.split(' ')[0];
+  const fit=ORDER.filter(k=>CAP[k]>=g);
+  const catList=fit.map(k=>L(CATS[k].sru,CATS[k].skk)).join(', ');
+  const svs=r.sv.map(x=>svPhrase(x,r));
+  const acc=calc(r).acc;
+  let sum=0;for(let d=r.s;d<r.s+n;d++)sum+=nightRate(r.cat,d);
+  const base=CATS[r.cat].rate*n;
+  const who=kk?(g===1?'Жалғыз өзім боламын':`${NUMW_KK[g][0].toUpperCase()+NUMW_KK[g].slice(1)} адам боламыз`):CALL_GUESTS_RU[g];
+  const priceTxt=v=>kk?`${nightsW(n)} тұру ${money(v)} болады${r.promo?' (промокодты ескергенде)':''}.`:`Проживание за ${nightsW(n)} составит ${money(v)}${r.promo?' с учётом промокода':''}.`;
+  /* неверные цены */
+  const pc=[
+    {v:Math.round(base*(r.promo?.9:1)),why:L('Не учтены наценки по дням: выходные +20%, события +35%.','Күндер бойынша үстеме ескерілмеген: демалыс +20%, іс-шара +35%.')},
+    r.promo?{v:sum,why:L('Не применена скидка 10% по промокоду.','Промокод бойынша 10% жеңілдік қолданылмаған.')}:{v:Math.round(sum*.9),why:L('Скидки без промокода по телефону нет.','Телефонмен промокодсыз жеңілдік жоқ.')},
+    {v:acc+5000*g*n,why:L('В проживание добавлен завтрак, а гость его не заказывал.','Тұруға таңғы ас қосылған, ал қонақ оны тапсырыс бермеген.')},
+    {v:Math.round(acc*1.15),why:L('Комиссию OTA гостю не добавляют — это прямая бронь.','OTA комиссиясы қонаққа қосылмайды — бұл тікелей брондау.')}
+  ].filter((o,k,a)=>o.v!==acc&&a.findIndex(z=>z.v===o.v)===k);
+  shuffle(pc,R);
+  const sumTxt=(cat,dd2)=>kk?`${CATS[cat].skk}, кіру ${d1} қазан, шығу ${dd2} қазан, ${guestsW(g)}${svs.length?', '+svs.join(', '):''}, тұру ${money(acc)}.`
+    :`${CATS[cat].sru}, заезд ${d1} октября, выезд ${dd2} октября, ${guestsW(g)}${svs.length?', '+svs.join(', '):''}, проживание ${money(acc)}.`;
+  const otherCat=fit.find(k=>k!==r.cat)||ORDER.find(k=>k!==r.cat);
+  const steps=[
+    {g:L('🔔 Звонит телефон. Гость ждёт ответа…','🔔 Телефон шылдырап тұр. Қонақ жауап күтіп тұр…'),sys:true,
+      ok:L(`Urban Hotel, служба бронирования, меня зовут ${me}. Добрый день! Чем могу помочь?`,`Urban Hotel, брондау қызметі, менің атым ${me}. Қайырлы күн! Қалай көмектесе аламын?`),
+      bad:[{t:L('Алло, слушаю.','Алло, тыңдап тұрмын.'),why:L('Нет приветствия, названия отеля и имени администратора.','Сәлемдесу, қонақүй атауы және әкімшінің аты жоқ.')},
+           {t:L('Отель. Что хотели?','Қонақүй. Не керек?'),why:L('Грубый тон, администратор не представился.','Дөрекі үн, әкімші өзін таныстырмады.')}]},
+    {g:L('Здравствуйте! Хочу забронировать у вас номер.','Сәлеметсіз бе! Сіздерден нөмір брондағым келеді.'),
+      ok:L('С удовольствием помогу! Подскажите, пожалуйста, на какие даты планируете заезд?','Қуана көмектесемін! Қай күндері келуді жоспарлап отырсыз?'),
+      bad:[{t:L('Хорошо, продиктуйте номер банковской карты.','Жақсы, банк картасының нөмірін айтыңыз.'),why:L('Сначала выясняют, что нужно гостю. Данные карты по телефону не запрашивают.','Алдымен қонаққа не керегін анықтайды. Карта деректерін телефонмен сұрамайды.')},
+           {t:L('Бронируйте лучше на Booking.com, там проще.','Booking.com арқылы брондаңыз, онда оңайырақ.'),why:L('Нельзя отправлять гостя на OTA: отель заплатит комиссию 15%.','Қонақты OTA-ға жіберуге болмайды: қонақүй 15% комиссия төлейді.')}]},
+    {g:kk?`${d1} қазанда келемін, ${NUMW_KK[n]} түнге.`:`Заезд ${d1} октября, на ${nightsWordsRu[n-1]}.`,
+      ok:kk?`Жазып алдым: кіру ${d1} қазан, шығу ${d2} қазан — ${nightsW(n)}. Неше қонақ тұрады?`:`Записываю: заезд ${d1} октября, выезд ${d2} октября — ${nightsW(n)}. Сколько гостей будет проживать?`,
+      bad:[{t:kk?`Жазып алдым: кіру ${d1} қазан, шығу ${d2+1} қазан. Неше қонақ тұрады?`:`Записываю: заезд ${d1} октября, выезд ${d2+1} октября. Сколько гостей будет проживать?`,why:kk?`Шығу күні қате: ${d1} қазаннан ${nightsW(n)} — шығу ${d2} қазан.`:`Выезд посчитан неверно: ${nightsW(n)} с ${d1} октября — это выезд ${d2} октября.`},
+           {t:L('Отлично, тогда сразу бронирую стандарт.','Тамаша, онда бірден стандартты брондаймын.'),why:L('Не уточнили число гостей и не предложили выбор категории.','Қонақтар саны нақтыланбады, санат таңдауы ұсынылмады.')}]},
+    {g:kk?`${who}. Қандай нөмірлеріңіз бар?`:`${who}. Какие номера у вас есть?`,
+      ok:kk?`${g} қонаққа мыналар сай келеді: ${catList}. Қай нұсқа ыңғайлы?`:`На ${g} ${plural(g,'гостя','гостей','гостей')} подойдут: ${catList}. Какой вариант вам ближе?`,
+      bad:[g>2?{t:L('Возьмите стандарт — он самый дешёвый.','Стандартты алыңыз — ол ең арзаны.'),why:kk?`Стандартқа тек 2 қонақ сыяды, ал сіздер ${g}.`:`Стандарт вмещает только 2 гостей, а их ${g}.`}
+             :{t:L('Свободен только люкс, берите его.','Тек люкс бос, соны алыңыз.'),why:L('Неправда и навязывание дорогой категории.','Шындыққа жатпайды және қымбат санатты таңу.')},
+           {t:L('Номера все одинаковые, какой дадим — такой и будет.','Нөмірлердің бәрі бірдей, қайсысын берсек, сол болады.'),why:L('Администратор обязан предложить категории под число гостей.','Әкімші қонақтар санына сай санаттарды ұсынуы тиіс.')}]},
+    {g:kk?`${c.phKk[0].toUpperCase()+c.phKk.slice(1)} болсын.${r.promo?' Менде КҮЗ10 промокоды бар.':''} Бұл қанша тұрады?`:`Давайте ${c.ph}.${r.promo?' У меня есть промокод ОСЕНЬ10.':''} Сколько это будет стоить?`,
+      ok:priceTxt(acc),price:true,
+      bad:pc.slice(0,2).map(o=>({t:priceTxt(o.v),why:o.why}))},
+    {g:L('Хорошо, подходит.','Жарайды, келісемін.'),
+      ok:L('Нужны ли дополнительные услуги: завтрак, трансфер из аэропорта, парковка, ранний заезд?','Қосымша қызметтер керек пе: таңғы ас, әуежайдан трансфер, тұрақ, ерте кіру?'),
+      bad:[{t:L('Тогда всё, оформляю.','Онда болды, рәсімдеймін.'),why:L('Не предложили доп. услуги — отель теряет допродажу.','Қосымша қызметтер ұсынылмады — қонақүй қосымша сатылымнан айырылады.')},
+           {t:L('Завтрак у нас обязательный, добавляю.','Бізде таңғы ас міндетті, қосамын.'),why:L('Навязывание: завтрак — по желанию гостя.','Таңу: таңғы ас — қонақтың қалауы бойынша.')}]},
+    {g:svs.length?(kk?`Иә, керек: ${svs.join(', ')}.`:`Да, нужно: ${svs.join(', ')}.`):L('Нет, спасибо, ничего не нужно.','Жоқ, рақмет, ештеңе керек емес.'),
+      ok:L('Записано. Назовите, пожалуйста, ваши фамилию, имя и контактный телефон.','Жазып алдым. Тегіңізді, атыңызды және байланыс телефоныңызды айтыңызшы.'),
+      bad:[{t:L('Назовите ваш ИИН и номер удостоверения личности.','ЖСН мен жеке куәлік нөміріңізді айтыңыз.'),why:L('Лишние персональные данные по телефону не запрашивают — документы проверяют при заселении.','Артық жеке деректер телефонмен сұралмайды — құжаттар кіргенде тексеріледі.')},
+           {t:L('Хорошо, ждём вас!','Жарайды, сізді күтеміз!'),why:L('Без имени и телефона бронь не оформить.','Аты мен телефонсыз брондау рәсімделмейді.')}]},
+    {g:kk?`${r.guest}, телефоным ${r.phone}.`:`${r.guest}, телефон ${r.phone}.`,
+      ok:kk?`Брондауды қайталайын: ${sumTxt(r.cat,d2)} Бәрі дұрыс па?`:`Повторю бронь: ${sumTxt(r.cat,d2)} Всё верно?`,
+      bad:[{t:kk?`Брондауды қайталайын: ${sumTxt(otherCat,d2)} Бәрі дұрыс па?`:`Повторю бронь: ${sumTxt(otherCat,d2)} Всё верно?`,why:kk?`Растауда санат қате — қонақ «${c.skk}» таңдады.`:`В подтверждении неверная категория — гость выбрал «${c.sru}».`},
+           {t:L('Всё записано, до свидания!','Бәрі жазылды, сау болыңыз!'),why:L('Детали брони не повторили — ошибку не поймать.','Брондау мәліметтері қайталанбады — қатені байқау мүмкін емес.')}]},
+    {g:L('Да, всё верно. Спасибо!','Иә, бәрі дұрыс. Рақмет!'),
+      ok:kk?`Қоңырауыңызға рақмет, ${first}! Растау SMS арқылы келеді. Сізді Urban Hotel-де күтеміз, күніңіз сәтті өтсін!`:`Спасибо за звонок, ${first}! Подтверждение придёт в SMS. Ждём вас в Urban Hotel, хорошего дня!`,
+      bad:[{t:L('Ага, пока.','Иә, сау бол.'),why:L('Нет благодарности и прощания по стандарту.','Стандарт бойынша алғыс пен қоштасу жоқ.')},
+           {t:L('*кладёт трубку*','*тұтқаны қояды*'),why:L('Разговор нельзя обрывать — гость прощается первым.','Әңгімені үзуге болмайды — қонақ бірінші қоштасады.')}]}
+  ];
+  steps.forEach(st=>{st.opts=shuffle([{id:'ok',t:st.ok,ok:true}].concat(st.bad.map((b,k)=>({id:'b'+k,t:b.t,why:b.why}))),R)});
+  steps.bye=L('До свидания!','Сау болыңыз!');
+  return steps;
+}
+const dlgOf=x=>x.dlg||(x.dlg={k:0,pick:[],miss:0,bad:[],wrong:{}});
+const callDone=i=>{const x=S&&S.items[i];return !!(x&&x.dlg&&x.dlg.k>=callSteps(REQS[i]).length)};
+const scriptScore=x=>x&&x.dlg&&x.dlg.fin?Math.max(0,SCRIPT_MAX-x.dlg.miss):0;
+function callText(r){
+  const x=S&&S.items[r.i],st=callSteps(r);
+  const lines=[];const dl=x&&x.dlg;
+  if(dl)for(let k=0;k<dl.k;k++){const o=st[k].opts.find(z=>z.id===dl.pick[k]);if(!st[k].sys)lines.push(L('Гость: ','Қонақ: ')+st[k].g);lines.push(L('Вы: ','Сіз: ')+(o?o.t:''))}
+  if(dl&&dl.fin)lines.push(L('Гость: ','Қонақ: ')+st.bye);
+  return{from:L('Входящий звонок · ','Кіріс қоңырау · ')+r.time+' · '+r.phone,title:L('Бронирование по телефону','Телефон арқылы брондау'),
+    body:lines.length?lines.join('\n'):L('Звонок ещё не принят.','Қоңырау әлі қабылданбаған.')};
+}
+function renderCall(wp){
+  const r=REQS[active],x=it(active),st=callSteps(r),dl=dlgOf(x);
+  let h='';
+  for(let k=0;k<=Math.min(dl.k,st.length-1);k++){
+    h+=`<div class="bub ${st[k].sys?'sys':'g'}">${esc(st[k].g)}</div>`;
+    if(k<dl.k){const o=st[k].opts.find(z=>z.id===dl.pick[k]);h+=`<div class="bub a">${esc(o?o.t:'')}</div>`}
+  }
+  const cur=st[dl.k],tried=dl.wrong[dl.k]||[];
+  const opts=cur.opts.map((o,j)=>{const w=tried.includes(o.id);return `<button type="button" class="sayopt${w?' tried':''}" data-act="say" data-o="${o.id}"${w?' disabled':''}><span>${esc(o.t)}</span>${w&&S.mode==='train'?`<small>${esc(o.why)}</small>`:''}</button>`}).join('');
+  wp.innerHTML=`${head(active)}<div class="work callw"><div class="letter" style="--cc:var(--c-direct)"><div class="lhead">${chBadge('phone')}<span class="chgtag call">${L('звонок','қоңырау')}</span><span class="lfrom">${esc(r.phone)} · ${r.time}</span></div>
+    <div class="chat" id="chat">${h}</div></div>
+    <div class="calc"><div class="lbl">${L('Ваш ответ по скрипту','Скрипт бойынша жауабыңыз')} · ${L('шаг','қадам')} ${dl.k+1}/${st.length}</div>
+    <div class="sayopts">${opts}</div>
+    <p class="hintline">${L('Выберите реплику, которая соответствует стандарту отеля. Всё, что скажет гость, понадобится для брони.','Қонақүй стандартына сай репликаны таңдаңыз. Қонақтың айтқанының бәрі брондауға керек болады.')}${S.mode==='train'?'':L(' Ошибки скрипта будут в отчёте.',' Скрипт қателері есепте болады.')}</p></div></div>`;
+  const ch=$('chat');if(ch)ch.scrollTop=ch.scrollHeight;
+}
+function doSay(id){
+  const r=REQS[active],x=it(active),st=callSteps(r),dl=dlgOf(x),cur=st[dl.k];if(!cur)return;
+  const o=cur.opts.find(z=>z.id===id);if(!o)return;
+  if(!o.ok){dl.miss++;dl.bad.push([dl.k,id]);
+    if(S.mode==='train'){(dl.wrong[dl.k]=dl.wrong[dl.k]||[]).push(id);save();renderWork();return}}
+  dl.pick[dl.k]=id;dl.k++;
+  if(dl.k>=st.length){dl.fin=true;toast(L('Разговор завершён — оформите бронь','Әңгіме аяқталды — брондауды рәсімдеңіз'))}
+  save();renderAll();
+}
+
+/* ---------- Действия ---------- */
+function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;$('toast-root').innerHTML='';$('toast-root').appendChild(t);clearTimeout(toast.t);toast.t=setTimeout(()=>t.remove(),3200)}
+const isMobile=()=>matchMedia('(max-width:760px)').matches;
+let view='inbox';
+function setView(v){if(v==='more'){showMore();return}view=v;$('app').dataset.view=v;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.view===v));
+  if(isMobile())window.scrollTo(0,0);save()}
+function leaveActive(){if(active!==null&&S.items[active]){const px=S.items[active];if(px.editing){px.editing=false;if(plc(px).length&&FIELDS().every(([k])=>parseNum(px.inputs[k])!==null)){px.res=scoreRes(px,active,true);px.stale=false;reevalExt(active)}}}}
+function select(i){leaveActive();selPre=null;preMove=false;
+  active=i;anchor=null;preview=null;const x=it(i);x.seen=true;save();renderAll();
+  if(isMobile())setView('work');else if(window.innerWidth<960)$('workpanel').scrollIntoView({behavior:'smooth',block:'start'})}
+function selectPre(k){leaveActive();active=null;selPre=k;preMove=false;anchor=null;preview=null;renderAll();if(isMobile())setView('work')}
+function inOOO(pl){if(!oooOn())return false;const o=OOO();return overlaps(pl,o.s,o.s+o.n)}
+const inClosed=pl=>inOOO(pl)&&pl.room===OOO().room;
+function reevalExt(i){const r=REQS[i];if(r&&r.extBy!=null){const cx=S.items[r.extBy];if(cx&&cx.done)cx.res=chgEval(REQS[r.extBy],cx)}}
+const tgtGone=c=>{const x=S.items[c.t];return !!(x&&(x.lost||x.clar))};
+function evalRes(x,r,i){const c=calc(r),rm=ROOMS.find(q=>q.no===x.place.room);const eq=(k)=>Math.abs(parseNum(x.inputs[k])-c[k])<=1;
+  const catOk=(rm.cat===r.cat||(oneUp(r.cat,rm.cat)&&inOOO({s:r.s,e:r.s+r.nights})))&&!inClosed(x.place);
+  const res={cat:catOk,dates:x.place.s===r.s&&x.place.e===r.s+r.nights,acc:eq('acc'),svc:eq('svc'),total:eq('total'),comm:eq('comm'),net:eq('net')};
+  res.score=Object.values(res).filter(Boolean).length;
+  if(REQS[i!=null?i:r.i]&&REQS[i!=null?i:r.i].kind==='err'){res.score=0;res.errBooked=true}
+  return res}
+const FK=['cat','dates','acc','svc','total','comm','net'];
+function lockFirst(x,res,key,first){if(!S||S.mode!=='train')return res;
+  if(first&&(!x.r1||x.r1k!==key)){x.r1=Object.assign({},res);x.r1k=key;return res}
+  if(x.r1&&x.r1k===key){FK.forEach(k=>{if(k in res)res[k]=!!(res[k]&&x.r1[k])});res.score=res.errBooked?0:FK.filter(k=>res[k]).length}
+  return res}
+function scoreRes(x,i,first){const R0=REQS[i],g=R0.kind==='grp';const raw=g?evalGroup(x,R0):evalRes(x,eff(i),i);return lockFirst(x,raw,g?'g':String(eff(i).nights),first)}
+function evalGroup(x,g){const c=calcGroup(g),pl=plc(x),eq=(k)=>Math.abs(parseNum(x.inputs[k])-c[k])<=1;
+  const need=Object.assign({},g.mix),extra=[];
+  pl.forEach(p=>{const k=roomCat(p.room);if(need[k]>0)need[k]--;else extra.push(p)});
+  const upOk=oooOn()&&overlaps({s:g.s,e:g.s+g.nights},OOO().s,OOO().s+OOO().n);
+  extra.forEach(p=>{const k=roomCat(p.room),from=Object.keys(need).find(c=>need[c]>0&&upOk&&oneUp(c,k));if(from)need[from]--});
+  const catOk=pl.length===groupSize(g)&&Object.values(need).every(v=>v===0)&&!pl.some(inClosed);
+  const res={cat:catOk,dates:pl.length>0&&pl.every(p=>p.s===g.s&&p.e===g.s+g.nights),acc:eq('acc'),svc:eq('svc'),total:eq('total'),comm:eq('comm'),net:eq('net')};
+  res.score=Object.values(res).filter(Boolean).length;return res}
+const langSwitch=()=>`<div class="lang" role="group"><button type="button" data-lang="kk" class="${LANG==='kk'?'on':''}">ҚАЗ</button><button type="button" data-lang="ru" class="${LANG==='ru'?'on':''}">РУС</button></div>`;
+function showMore(){
+  curModal=showMore;
+  const ov=modal(`<div class="mh"><h2>${L('Меню смены','Ауысым мәзірі')}</h2><button class="btn ghost" type="button" data-close>${L('Закрыть','Жабу')}</button></div>
+  <div class="mb"><div style="display:grid;gap:8px">
+    <button class="btn" type="button" data-act="next"${!S||S.finished||S.arrived>=TOTAL?' disabled':''}>${L('Получить следующую заявку','Келесі өтінімді алу')}</button>
+    <button class="btn" type="button" data-act="rates">${L('Тарифы и правила','Тарифтер мен ережелер')}</button>
+    <button class="btn primary" type="button" data-act="close">${L('Закрыть смену','Ауысымды жабу')}</button>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><span class="lbl">${L('Язык','Тіл')}</span>${langSwitch()}</div>
+  ${S?`<p class="hintline">${esc(S.name)} · ${modeName(S.mode)}${S.mode==='train'?` · ${L('точность','дәлдік')} ${(()=>{const {p,m}=points();return m?Math.round(p/m*100)+'%':'—'})()}`:''}</p>`:''}</div>`,true);
+  ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-close]'))closeModal()});
+}
+function movePre(room){const k=selPre,p=REQS.pre[k];const from=p.cat,to=roomCat(room);
+  if(!(to===from||oneUp(from,to))){toast(L(`Нельзя: ${CATS[to].code} — не та же категория и не на одну выше`,`Болмайды: ${CATS[to].code} — сол санат та, бір санат жоғары да емес`));return}
+  for(let d=p.s;d<p.s+p.n;d++){const o=occupant(room,d);if(o!==null&&o!=='p'+k){toast(L(`Номер ${room} занят в ночь на ${fmtShort(d)}`,`${room} нөмір ${fmtShort(d)} түні бос емес`));return}}
+  S.preRoom[k]=room;preMove=false;save();renderAll();toast(L(`${p.guest} переселён в ${room}`,`${p.guest} ${room} нөмірге көшірілді`))}
+function onCell(room,d){
+  if(!S||S.finished)return;
+  if(selPre!==null){if(preMove)movePre(room);else toast(L('Нажмите «Переселить», чтобы перенести эту бронь','Бұл брондауды көшіру үшін «Көшіру» батырмасын басыңыз'));return}
+  if(active===null){toast(L('Сначала выберите заявку во входящих','Алдымен кіріс өтінімдерден өтінімді таңдаңыз'));return}
+  const x=it(active),R0=REQS[active];
+  if(R0.kind==='chg'||R0.kind==='ooo'){toast(L('Это служебное письмо. Откройте саму бронь и меняйте её','Бұл қызметтік хат. Брондаудың өзін ашып, соны өзгертіңіз'));return}
+  if(R0.call&&!x.lost&&!(x.dlg&&x.dlg.fin)){toast(L('Сначала ответьте на звонок и узнайте у гостя все детали','Алдымен қоңырауға жауап беріп, қонақтан барлық мәліметті біліңіз'));return}
+  if(x.lost||x.clar){toast(L('По этой заявке бронь не вносится','Бұл өтінім бойынша брондау енгізілмейді'));return}
+  if(x.cancelled){toast(L('Бронь аннулирована','Брондау жойылған'));return}
+  if(x.done&&!x.editing){toast(L('Бронь подтверждена. Чтобы изменить её, нажмите «Изменить бронь» в карточке','Брондау расталған. Оны өзгерту үшін карточкадағы «Брондауды өзгерту» батырмасын басыңыз'));return}
+  const isG=R0.kind==='grp';
+  const busy=(k)=>{const o=occupant(room,k);if(o===null)return false;if(o===active&&!isG)return false;return true};
+  const busyMsg=(k)=>{const o=occupant(room,k);return o==='ooo'?L(`Номер ${room} закрыт на ремонт в ночь на ${fmtShort(k)}`,`${room} нөмір ${fmtShort(k)} түні жөндеуге жабық`):L(`Номер ${room} занят в ночь на ${fmtShort(k)}. Выберите другой номер или переселите мешающую бронь`,`${room} нөмір ${fmtShort(k)} түні бос емес. Басқа нөмірді таңдаңыз немесе кедергі брондауды көшіріңіз`)};
+  if(!anchor||anchor.room!==room||d<anchor.d){
+    if(d>=DAYS){toast(L('Это последняя дата шахматки — сюда можно поставить только выезд','Бұл шахматканың соңғы күні — мұнда тек шығуды қоюға болады'));return}
+    if(busy(d)){toast(busyMsg(d));return}
+    if(isG&&plc(x).length>=groupSize(R0)){toast(L('Все номера группы уже поставлены. Уберите лишний крестиком в карточке','Топтың барлық нөмірі қойылды. Артығын карточкадағы крестикпен алып тастаңыз'));return}
+    anchor={room,d};preview=null;renderBoard();return;
+  }
+  if(d===anchor.d){anchor=null;preview=null;renderBoard();return}
+  for(let k=anchor.d;k<d;k++)if(busy(k)){toast(busyMsg(k));anchor=null;preview=null;renderBoard();return}
+  const np={room,s:anchor.d,e:d};anchor=null;preview=null;
+  if(isG){x.places=plc(x).slice();x.places.push(np)}else x.place=np;
+  if(x.editing)toast(L(`Новое размещение: номер ${room}, ${fmtShort(np.s)} → ${fmtShort(np.e)}. Не забудьте сохранить`,`Жаңа орналастыру: ${room} нөмір, ${fmtShort(np.s)} → ${fmtShort(np.e)}. Сақтауды ұмытпаңыз`));
+  else if(isMobile()&&!isG)toast(L(`Номер ${room}: заезд ${fmtShort(np.s)}, выезд ${fmtShort(np.e)}`,`${room} нөмір: кіру ${fmtShort(np.s)}, шығу ${fmtShort(np.e)}`));
+  save();renderAll();if(isMobile()&&!isG)setView('work');
+}
+function confirmBooking(){
+  const x=it(active),R0=REQS[active],isG=R0.kind==='grp';
+  if(!plc(x).length){toast(L('Внесите бронь в шахматку','Брондауды шахматкаға енгізіңіз'));return}
+  for(const [k,label] of FIELDS())if(parseNum(x.inputs[k])===null){toast(L('Заполните поле «'+label+'»','«'+label+'» өрісін толтырыңыз'));$('in-'+k).focus();return}
+  const wasEdit=x.editing;x.res=scoreRes(x,active,true);x.done=true;x.ans=true;x.editing=false;x.stale=false;reevalExt(active);save();renderAll();
+  if(wasEdit)toast(L('Изменения сохранены','Өзгерістер сақталды'));
+  else if(S.mode==='exam')toast(L('Бронь №'+(active+1)+' подтверждена','№'+(active+1)+' брондау расталды'));
+  if(doneCount()===TOTAL)setTimeout(()=>toast(L('Все заявки обработаны — можно закрывать смену','Барлық өтінім өңделді — ауысымды жабуға болады')),900);
+}
+function arrive(){if(!S||S.arrived>=TOTAL||S.finished)return;S.arrived++;S.nextIn=S.interval;fresh=S.arrived-1;S.arrT[S.arrived-1]=S.elapsed;
+  const nr=REQS[S.arrived-1];
+  if(nr.kind==='chg'&&nr.type==='ext'){const tx=S.items[nr.t];if(tx&&tx.done&&!tx.cancelled&&tx.place){tx.res=scoreRes(tx,nr.t,false);tx.stale=true}}
+  let msg=L('Новая заявка №','Жаңа өтінім №')+S.arrived+': '+chName(nr.ch);
+  if(nr.kind==='chg')msg=(nr.type==='cancel'?L('Отмена брони — заявка №','Брондаудан бас тарту — өтінім №'):L('Изменение брони — заявка №','Брондауды өзгерту — өтінім №'))+S.arrived;
+  if(nr.kind==='grp')msg=L('Групповая заявка №','Топтық өтінім №')+S.arrived+' — '+groupSize(nr)+L(' номеров!',' нөмір!');
+  if(nr.call)msg=L('📞 Входящий звонок — заявка №','📞 Кіріс қоңырау — өтінім №')+S.arrived;
+  if(nr.kind==='ooo')msg=L(`Авария! Номер ${nr.room} закрыт — заявка №`,`Апат! ${nr.room} нөмір жабылды — өтінім №`)+S.arrived;
+  toast(msg);save();renderAll();setTimeout(()=>{fresh=null},800)}
+function setLang(l){
+  if(l===LANG)return;
+  let keep=null;
+  if($('startform'))keep={name:$('st-name').value,mode:(document.querySelector('input[name=mode]:checked')||{}).value,int:$('st-int').value};
+  LANG=l;try{localStorage.setItem(LANGKEY,l)}catch(e){}
+  applyStatic();renderAll();
+  if(curModal&&$('modal-root').firstChild){curModal();
+    if(keep&&$('startform')){$('st-name').value=keep.name;if(keep.mode)document.querySelector(`input[name=mode][value=${keep.mode}]`).checked=true;$('st-int').value=keep.int}}
+}
+function showClarify(){
+  curModal=showClarify;const RS=REASONS();
+  const ov=modal(`<div class="mh"><h2>${L('Запросить уточнение у гостя','Қонақтан нақтылау сұрау')}</h2><button class="btn ghost" type="button" data-close>${L('Отмена','Болдырмау')}</button></div>
+  <div class="mb"><p>${L('Выберите, что в заявке не так. Бронь при этом не вносится.','Өтінімде не дұрыс емес екенін таңдаңыз. Бұл кезде брондау енгізілмейді.')}</p>
+  <div style="display:grid;gap:8px">${Object.entries(RS).map(([k,v])=>`<button class="btn" type="button" data-clar="${k}" style="text-align:left">${esc(v)}</button>`).join('')}</div></div>`,true);
+  ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-close]'))closeModal();const b=e.target.closest('[data-clar]');if(b){closeModal();doClarify(b.dataset.clar)}});
+}
+function doClarify(reason){const x=it(active),R0=REQS[active];
+  x.clar=reason;x.done=true;x.ans=true;x.place=null;x.places=[];x.editing=false;
+  x.res={score:R0.kind==='err'?(reason===R0.reason?7:3):0};save();renderAll();toast(L('Запрос гостю отправлен','Қонаққа сұрау жіберілді'))}
+
+document.addEventListener('click',e=>{
+  const lg=e.target.closest('[data-lang]');if(lg){setLang(lg.dataset.lang);return}
+  const q=e.target.closest('[data-req]');if(q){select(+q.dataset.req);return}
+  const pb=e.target.closest('[data-pre]');if(pb){if(selPre!==null&&preMove&&+pb.dataset.pre!==selPre){toast(L('Эта ячейка занята другой бронью','Бұл ұяшықта басқа брондау тұр'));return}selectPre(+pb.dataset.pre);return}
+  const b=e.target.closest('[data-bar]');if(b){if(selPre!==null&&preMove){toast(L('Эта ячейка занята другой бронью','Бұл ұяшықта басқа брондау тұр'));return}select(+b.dataset.bar);return}
+  const c=e.target.closest('.c');if(c){onCell(c.dataset.room,+c.dataset.d);return}
+  if(e.target.id==='unplace'){const x=it(active);x.place=null;save();renderBoard();renderWork();return}
+  if(e.target.id==='confirm'){confirmBooking();return}
+  const t=e.target.closest('[data-view]');if(t&&t.classList.contains('tab')){setView(t.dataset.view);return}
+  const a=e.target.closest('[data-act]');if(!a)return;const act=a.dataset.act;
+  if(act==='next'){closeModal();arrive();if(isMobile())setView('inbox')}
+  else if(act==='rates'){closeModal();showRates()}
+  else if(act==='close'){closeModal();if(!S)return;if(S.finished)showReport();else showCloseConfirm()}
+  else if(act==='toboard')setView('board');
+  else if(act==='edit'){it(active).editing=true;anchor=null;save();renderAll();toast(L('Режим изменения брони','Брондауды өзгерту режимі'))}
+  else if(act==='cancel'){const x=it(active);x.cancelled=true;x.place=null;x.done=true;x.ans=true;x.editing=false;x.res={score:cxlDue(active)?7:0};anchor=null;save();renderAll();toast(L('Бронь аннулирована','Брондау жойылды'))}
+  else if(act==='uncancel'){const x=it(active);x.cancelled=false;x.done=false;x.res=null;save();renderAll()}
+  else if(act==='clarify')showClarify();
+  else if(act==='say')doSay(a.dataset.o);
+  else if(act==='unclar'){const x=it(active);x.clar=null;x.done=false;x.res=null;save();renderAll()}
+  else if(act==='rmpl'){const x=it(active);x.places=plc(x).slice();x.places.splice(+a.dataset.k,1);save();renderAll()}
+  else if(act==='premove'){preMove=true;renderAll();if(isMobile())setView('board')}
+  else if(act==='premovecancel'){preMove=false;renderAll()}
+  else if(act==='preclose'){selPre=null;preMove=false;renderAll()}
+  else if(act==='ooodone'){const x=it(active),left=oooCheck();x.done=true;x.res={score:left.length?0:7,left};save();renderAll()}
+  else if(act==='chgdone'){const c=REQS[active],x=it(active);
+    if(c.type==='cancel'&&!tgtGone(c)&&PFIELDS().some(([k])=>parseNum(x.inputs[k])===null)){toast(L('Заполните штраф, комиссию и доход от отмены','Айыппұлды, комиссияны және бас тартудан түскен табысты толтырыңыз'));return}
+    x.res=chgEval(c,x);x.done=true;save();renderAll();
+    if(S.mode==='exam')toast(L('Отмечено','Белгіленді'));if(doneCount()===TOTAL)setTimeout(()=>toast(L('Все заявки обработаны — можно закрывать смену','Барлық өтінім өңделді — ауысымды жабуға болады')),900)}
+});
+document.addEventListener('mouseover',e=>{
+  if(!anchor)return;const c=e.target.closest('.c');if(!c||c.dataset.room!==anchor.room)return;
+  const d=+c.dataset.d;if(d<=anchor.d)return;const np={room:anchor.room,s:anchor.d,e:d};
+  if(preview&&preview.s===np.s&&preview.e===np.e)return;preview=np;
+  document.querySelectorAll('.c.prev').forEach(el=>el.classList.remove('prev'));
+  document.querySelectorAll(`.c[data-room="${anchor.room}"]`).forEach(el=>{const k=+el.dataset.d;if(k>=np.s&&k<=np.e&&k!==anchor.d)el.classList.add('prev')});
+});
+document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.k;if(k&&active!==null){it(active).inputs[k]=e.target.value;save()}});
+$('btn-next').onclick=arrive;
+$('btn-rates').onclick=()=>showRates();
+$('btn-close').onclick=()=>{if(!S)return;if(S.finished)showReport();else showCloseConfirm()};
+
+/* ---------- Модальные окна ---------- */
+let curModal=null;
+function modal(html,narrow){$('modal-root').innerHTML=`<div class="ov"><div class="modal${narrow?' narrow':''}" role="dialog" aria-modal="true">${html}</div></div>`;return $('modal-root').firstChild}
+function closeModal(){$('modal-root').innerHTML='';curModal=null}
+function showRates(back){
+  curModal=()=>showRates(back);
+  const cal=[];for(let d=0;d<DAYS;d++){const ev=evOn(d);cal.push(`<tr${ev?' class="evrow"':''}><td>${fmtShort(d)}, ${dow(d)}</td><td>${ev?esc(L(ev.ru,ev.kk)):isWeekendNight(d)?L('выходные','демалыс'):'—'}</td><td class="n">${multTag(d)||'0%'}</td>${ORDER.map(c=>`<td class="n">${num(nightRate(c,d))}</td>`).join('')}</tr>`)}
+  const ov=modal(`<div class="mh"><h2>${L('Тарифы и правила расчёта','Тарифтер мен есептеу ережелері')}</h2><button class="btn ghost" type="button" data-close>${L('Закрыть','Жабу')}</button></div>
+  <div class="mb">
+    <div><div class="lbl">${L('Номерной фонд и базовые тарифы (за ночь)','Нөмір қоры және базалық тарифтер (бір түнге)')}</div><div class="tw"><table>
+      <tr><th>${L('Категория','Санат')}</th><th>${L('Номера','Нөмірлер')}</th><th class="rates-alias">${L('Как называют каналы','Арналардағы атауы')}</th><th class="n">${L('Мест','Орын')}</th><th class="n">${L('Тариф','Тариф')}</th></tr>
+      ${ORDER.map(k=>{const c=CATS[k];return `<tr><td><b>${c.code}</b> · ${esc(catName(k))}</td><td class="num">${ROOMS.filter(r=>r.cat===k).map(r=>r.no).join(', ')}</td><td class="rates-alias">${esc(c.en)}; ${esc(L(c.ota,c.otaKk))}</td><td class="n">${k==='DLX'?'2 + 1':CAP[k]}</td><td class="n">${money(c.rate)}</td></tr>`}).join('')}
+    </table></div><p class="hintline">${L('В делюкс третий гость — только на дополнительной кровати; в остальных категориях доп. кровать не ставится. Других категорий в отеле нет.','Делюкста үшінші қонақ — тек қосымша төсекте; басқа санаттарда қосымша төсек қойылмайды. Қонақүйде басқа санаттар жоқ.')}</p></div>
+    <div><div class="lbl">${L('Календарь тарифов (цена за ночь, ₸)','Тарифтер күнтізбесі (бір түннің бағасы, ₸)')}</div><div class="tw"><table class="cal">
+      <tr><th>${L('Ночь','Түн')}</th><th>${L('Повод','Себеп')}</th><th class="n">${L('Наценка','Үстеме')}</th>${ORDER.map(c=>`<th class="n">${c}</th>`).join('')}</tr>${cal.join('')}
+    </table></div><p class="hintline">${L('Цена считается за каждую ночь отдельно: ночь с пятницы на субботу и с субботы на воскресенье +20%, ночи событий +35% (вместо выходной наценки).','Баға әр түнге бөлек есептеледі: жұмадан сенбіге және сенбіден жексенбіге қараған түн +20%, іс-шара түндері +35% (демалыс үстемесінің орнына).')}</p></div>
+    <div><div class="lbl">${L('Каналы продаж','Сату арналары')}</div><div class="tw"><table>
+      <tr><th>${L('Канал','Арна')}</th><th>${L('Цена проживания','Тұру бағасы')}</th><th class="n">${L('Комиссия','Комиссия')}</th></tr>
+      <tr><td>Booking.com</td><td>${L('Standard Rate — тариф по календарю; Non-refundable — тариф по календарю −10%','Standard Rate — күнтізбе бойынша; Non-refundable — күнтізбе бойынша −10%')}</td><td class="n">15%</td></tr>
+      <tr><td>${L('Островок','Островок')}</td><td>${L('тариф по календарю','күнтізбе бойынша тариф')}</td><td class="n">18%</td></tr>
+      <tr><td>${L('Броневик','Броневик')}</td><td>${L('тариф по календарю','күнтізбе бойынша тариф')}</td><td class="n">22%</td></tr>
+      <tr><td>Trip.com</td><td>${L('контракт в долларах, без наценок по датам','доллармен келісімшарт, күндер бойынша үстемесіз')}: ${ORDER.map(c=>c+' $'+TRIP_USD[c]).join(', ')}. ${L('Курс','Бағам')}: 1 USD = ${rateFmt()} ₸</td><td class="n">15%</td></tr>
+      <tr><td>${L('Сайт отеля','Қонақүй сайты')}</td><td>${L('«Лучшая цена на сайте»','«Сайттағы ең жақсы баға»')}: −${SITE_DISC}%</td><td class="n">0%</td></tr>
+      <tr><td>${L('Телефон, e-mail','Телефон, e-mail')}</td><td>${L('тариф по календарю; с промокодом','күнтізбе бойынша тариф;')} ${promoCode()}${L(':',' промокодымен:')} −${PROMO_DISC}%</td><td class="n">0%</td></tr>
+      <tr><td>Walk-in</td><td>${L('тариф по календарю','күнтізбе бойынша тариф')}</td><td class="n">0%</td></tr>
+      <tr><td>${L('Группа (от 5 номеров)','Топ (5 нөмірден бастап)')}</td><td>${L('тариф по календарю','күнтізбе бойынша тариф')} −${GROUP_DISC}%</td><td class="n">0%</td></tr>
+    </table></div></div>
+    <div><div class="lbl">${L('Корпоративные договоры','Корпоративтік шарттар')}</div><div class="tw"><table>
+      <tr><th>${L('Компания','Компания')}</th><th>${L('Договор','Шарт')}</th><th class="n">${L('Скидка','Жеңілдік')}</th><th>${L('Завтрак','Таңғы ас')}</th></tr>
+      ${Object.values(CORPS).map(c=>`<tr><td>${esc(coName(c))}</td><td class="num">${c.contract}</td><td class="n">${c.disc}%</td><td>${c.bf?L('включён в тариф','тарифке кіреді'):L('оплачивается отдельно','бөлек төленеді')}</td></tr>`).join('')}
+    </table></div></div>
+    <div><div class="lbl">${L('Дополнительные услуги','Қосымша қызметтер')}</div><div class="tw"><table>
+      ${Object.keys(SV).map(k=>`<tr><td>${esc(svName(k))}</td><td>${esc(L(SV[k].pru,SV[k].pkk))}</td></tr>`).join('')}
+    </table></div></div>
+    <div><div class="lbl">${L('Правила','Ережелер')}</div><ul class="rules">${L(`
+      <li><b>Проживание</b> = сумма цен всех ночей по календарю, затем скидка (корпоративная, сайт, промокод, невозвратный тариф, групповая). Скидка — только на проживание.</li>
+      <li><b>Trip.com:</b> доллары × ночи, затем × курс; округлить до целого тенге.</li>
+      <li>Комиссия OTA — только от проживания. Доход отеля (нетто) = Итого − комиссия.</li>
+      <li>Завтрак: 5 000 ₸ × гостей × ночей. Ранний заезд и поздний выезд — 50% <b>базового</b> тарифа категории, без скидок и наценок.</li>
+      <li><b>Отмена.</b> Non-refundable: удерживается 100% стоимости проживания. Остальные брони: бесплатно до 14:00 дня накануне заезда; позже (или в день заезда) — штраф за первую ночь (с учётом скидки брони). Комиссия OTA берётся и со штрафа. Бронь аннулируйте кнопкой «Аннулировать бронь», штраф впишите в письме об отмене.</li>
+      <li><b>Продление:</b> «Изменить бронь», новая дата выезда, пересчитать всё, что зависит от ночей.</li>
+      <li><b>Запросить уточнение</b>, если в заявке ошибка: даты не сходятся с числом ночей, гостей больше, чем мест в номере, или такой категории нет. Такую бронь не вносят.</li>
+      <li><b>Звонок:</b> отвечайте по скрипту — приветствие с названием отеля и именем, даты, число гостей, подходящие категории, точная цена, доп. услуги, имя и телефон, повтор брони, прощание. Каждая ошибка скрипта −1 балл (за звонок до 5 баллов), затем оформите бронь как обычно.</li>
+      <li><b>Время на ответ</b> — 5 минут с момента поступления заявки (на групповую — 10 минут). Не успели — гость уходит к конкурентам.</li>
+      <li><b>Переселение:</b> только в номер той же категории или на одну выше (бесплатный апгрейд: STD → SUP → DLX → FAM → STE). Ниже — нельзя. Бледные брони, стоявшие до смены, переселяются кнопкой «Переселить».</li>
+      <li><b>Ночной аудит</b> за ночь 15 октября: загрузка = занятые номера ÷ 14 × 100%; ADR = выручка от проживания за ночь ÷ занятые номера; RevPAR = выручка ÷ 14. Выручка ночи — цена этой ночи каждой брони после скидок.</li>
+      <li>Бронь ставится от даты заезда до даты выезда. Расчётный час 12:00, заезд с 14:00.</li>`,`
+      <li><b>Тұру</b> = күнтізбе бойынша барлық түндер бағасының сомасы, содан кейін жеңілдік (корпоративтік, сайт, промокод, қайтарылмайтын тариф, топтық). Жеңілдік — тек тұруға.</li>
+      <li><b>Trip.com:</b> доллар × түндер, содан кейін × бағам; бүтін теңгеге дейін дөңгелектеу.</li>
+      <li>OTA комиссиясы — тек тұрудан. Қонақүй табысы (нетто) = Барлығы − комиссия.</li>
+      <li>Таңғы ас: 5 000 ₸ × қонақтар × түндер. Ерте кіру мен кеш шығу — санаттың <b>базалық</b> тарифінің 50%, жеңілдіксіз және үстемесіз.</li>
+      <li><b>Бас тарту.</b> Non-refundable: тұру құнының 100% ұсталады. Басқа брондаулар: кіру алдындағы күні 14:00-ге дейін тегін; кейін (немесе кіру күні) — бірінші түн үшін айыппұл (брондау жеңілдігімен). OTA комиссиясы айыппұлдан да алынады. Брондауды «Брондауды жою» батырмасымен жойыңыз, айыппұлды бас тарту хатына жазыңыз.</li>
+      <li><b>Ұзарту:</b> «Брондауды өзгерту», жаңа шығу күні, түндерге байланыстының бәрін қайта есептеу.</li>
+      <li><b>Нақтылау сұрау</b>, егер өтінімде қате болса: күндер түндер санына сәйкес келмейді, қонақтар нөмірдегі орыннан көп немесе мұндай санат жоқ. Мұндай брондау енгізілмейді.</li>
+      <li><b>Қоңырау:</b> скрипт бойынша жауап беріңіз — қонақүй атауы мен атыңызды айтып сәлемдесу, күндер, қонақтар саны, сай санаттар, нақты баға, қосымша қызметтер, аты мен телефоны, брондауды қайталау, қоштасу. Әр скрипт қатесі −1 балл (қоңырауға 5 балға дейін), содан кейін брондауды әдеттегідей рәсімдеңіз.</li>
+      <li><b>Жауап беру уақыты</b> — өтінім түскен сәттен 5 минут (топтық өтінімге — 10 минут). Үлгермесеңіз — қонақ бәсекелестерге кетеді.</li>
+      <li><b>Көшіру:</b> тек сол санаттағы немесе бір санат жоғары нөмірге (тегін апгрейд: STD → SUP → DLX → FAM → STE). Төмен — болмайды. Ауысымға дейін тұрған бозғыл брондаулар «Көшіру» батырмасымен көшіріледі.</li>
+      <li><b>Түнгі аудит</b> 15 қазан түніне: толымдылық = бос емес нөмірлер ÷ 14 × 100%; ADR = түнгі тұрудан түсім ÷ бос емес нөмірлер; RevPAR = түсім ÷ 14. Түн түсімі — әр брондаудың осы түнгі бағасы жеңілдіктен кейін.</li>
+      <li>Брондау кіру күнінен шығу күніне дейін қойылады. Есептік сағат 12:00, кіру 14:00-ден.</li>`)}
+    </ul></div>
+  </div>`);
+  ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-close]')){closeModal();if(back)back()}});
+}
+function showCloseConfirm(){
+  curModal=showCloseConfirm;
+  const open=[];for(let i=0;i<TOTAL;i++)if(!(S.items[i]&&S.items[i].done))open.push(i);
+  const ov=modal(`<div class="mh"><h2>${L('Закрыть смену?','Ауысымды жабасыз ба?')}</h2></div><div class="mb">
+    <p>${open.length?L(`Не обработано заявок: <b>${open.length}</b> из ${TOTAL}. Они будут засчитаны как 0 баллов.`,`Өңделмеген өтінімдер: ${TOTAL}-ден <b>${open.length}</b>. Олар 0 балл болып есептеледі.`):L('Все заявки обработаны.','Барлық өтінім өңделді.')}</p>
+    <p>${L('Дальше — ночной аудит.','Әрі қарай — түнгі аудит.')}</p>
+    <div class="actions"><button class="btn primary" type="button" id="do-close">${L('К ночному аудиту','Түнгі аудитке')}</button><button class="btn" type="button" data-close>${L('Продолжить работу','Жұмысты жалғастыру')}</button></div></div>`,true);
+  ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-close]'))closeModal();if(e.target.id==='do-close'){closeModal();showAudit()}});
+}
+function auditCorrect(){let sold=0,rev=0;
+  (REQS.pre||[]).forEach((p,k)=>{if(p.s<=0&&p.s+p.n>0){sold++;rev+=nightRev(p,0)}});
+  for(let i=0;i<TOTAL;i++){const x=S.items[i];if(!x||!x.done||x.cancelled||x.lost||x.clar)continue;const r=REQS[i];if(r.kind==='chg'||r.kind==='ooo')continue;
+    for(const pl of plc(x))if(pl.s<=0&&pl.e>0){sold++;rev+=r.kind==='grp'?nightRev(r,0,roomCat(pl.room)):nightRev(eff(i),0)}}
+  return{sold,rev,occ:Math.round(sold/ROOMS.length*100),adr:sold?Math.round(rev/sold):0,revpar:Math.round(rev/ROOMS.length)}}
+function showAudit(){
+  curModal=showAudit;
+  const ov=modal(`<div class="mh"><h2>${L('Ночной аудит · 15 октября','Түнгі аудит · 15 қазан')}</h2><button class="btn ghost" type="button" data-close>${L('Назад к смене','Ауысымға оралу')}</button></div>
+  <form class="mb" id="auditform">
+    <p>${L('Посчитайте по шахматке показатели за ночь с 15 на 16 октября. Учитываются все брони, которые стоят в шахматке в эту ночь: и старые, и ваши подтверждённые. Выручка ночи — цена этой ночи каждой брони после скидок (цены старых броней — в их карточках).','Шахматка бойынша 15-тен 16 қазанға қараған түннің көрсеткіштерін есептеңіз. Осы түні шахматкада тұрған барлық брондаулар есептеледі: ескілері де, сіз растағандары да. Түн түсімі — әр брондаудың осы түнгі бағасы жеңілдіктен кейін (ескі брондаулардың бағасы — олардың карточкаларында).')}</p>
+    <div class="fields">
+      <div class="f"><label for="au-occ">${L('Загрузка, %','Толымдылық, %')}</label><input id="au-occ" inputmode="numeric" placeholder="%"><small>${L('занятые ÷ 14 × 100, до целого','бос емес ÷ 14 × 100, бүтінге дейін')}</small></div>
+      <div class="f"><label for="au-adr">ADR, ₸</label><input id="au-adr" inputmode="numeric" placeholder="₸"><small>${L('выручка ÷ занятые','түсім ÷ бос емес')}</small></div>
+      <div class="f"><label for="au-rp">RevPAR, ₸</label><input id="au-rp" inputmode="numeric" placeholder="₸"><small>${L('выручка ÷ 14','түсім ÷ 14')}</small></div>
+    </div>
+    <div class="actions"><button class="btn primary" type="submit">${L('Сдать аудит и закрыть смену','Аудитті тапсырып, ауысымды жабу')}</button></div>
+  </form>`,true);
+  ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-close]'))closeModal()});
+  $('auditform').addEventListener('submit',e=>{e.preventDefault();
+    const v={occ:parseNum($('au-occ').value),adr:parseNum($('au-adr').value),revpar:parseNum($('au-rp').value)};
+    if(Object.values(v).some(n=>n===null)){toast(L('Заполните все три показателя','Үш көрсеткіштің бәрін толтырыңыз'));return}
+    const c=auditCorrect(),near=(a,b)=>Math.abs(a-b)<=Math.max(2,Math.round(b*0.005));
+    const res={occ:Math.abs(v.occ-c.occ)<=1,adr:near(v.adr,c.adr),revpar:near(v.revpar,c.revpar)};res.score=(res.occ?7:0)+(res.adr?7:0)+(res.revpar?7:0);
+    S.audit={inputs:v,res,correct:c};S.finished=true;save();closeModal();renderAll();showReport()});
+}
+function showReport(){
+  curModal=showReport;
+  const {p}=points(),MX=MAXP(),pct=Math.round(p/MX*100);
+  let acc=0,svc=0,comm=0,rn=0,lostRev=0,penRev=0;const by={};
+  for(let i=0;i<TOTAL;i++){const x=S.items[i],R0=REQS[i];if(!x)continue;
+    if(R0.kind==='chg'&&R0.type==='cancel'&&x.done&&x.res.cx){penRev+=penalty(R0).net}
+    if(x.lost&&R0.kind!=='err'){lostRev+=calc(R0.kind==='grp'?R0:eff(i)).total;continue}
+    if(!x.done||x.cancelled||x.clar||R0.kind==='chg'||R0.kind==='ooo'||R0.kind==='err')continue;
+    const r=R0.kind==='grp'?R0:eff(i),c=calc(r);
+    acc+=c.acc;svc+=c.svc;comm+=c.comm;plc(x).forEach(pl=>rn+=pl.e-pl.s);
+    const k=chName(r.ch);by[k]=by[k]||{n:0,acc:0,comm:0};by[k].n++;by[k].acc+=c.acc;by[k].comm+=c.comm}
+  const errs=[];for(let i=0;i<TOTAL;i++){const x=S.items[i];if(!x||!x.done){errs.push({i,miss:true});continue}if(x.res.score<7)errs.push({i,x})}
+  const lab=LANG==='kk'?{cat:'санат',dates:'күндер',acc:'тұру',svc:'қосымша қызметтер',total:'барлығы',comm:'комиссия',net:'нетто'}:{cat:'категория',dates:'даты',acc:'проживание',svc:'доп. услуги',total:'итого',comm:'комиссия',net:'нетто'};
+  let started='';try{started=new Date(S.startedAt||Date.now()).toLocaleString(LANG==='kk'?'kk-KZ':'ru-RU',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'})}catch(e){}
+  const det=(i,what,body)=>`<details style="border-bottom:1px solid var(--line);padding:6px 0"><summary>№${String(i+1).padStart(2,'0')} · ${esc(dispName(REQS[i]))} · ${esc(chName(REQS[i].ch))} — <span class="mark bad">${what}</span></summary>${body?`<div class="fl" style="margin-top:6px">${body}</div>`:''}</details>`;
+  const A=S.audit;
+  const ov=modal(`<div class="mh"><h2>${L('Отчёт о смене','Ауысым есебі')}</h2><button class="btn ghost" type="button" data-close>${L('Закрыть','Жабу')}</button></div>
+  <div class="mb">
+    <p>${esc(S.name||L('Администратор','Әкімші'))} · ${modeName(S.mode)} · ${L('начало','басталуы')} ${started} · ${L('время смены','ауысым уақыты')} <span class="num">${clock(S.elapsed)}</span></p>
+    <div class="feedback${(S.away&&S.away.n)||S.tamper?' warnbox':''}" style="display:grid;gap:4px">
+      <span>${L('Смена на этом устройстве','Осы құрылғыдағы ауысым')}: <b>№${S.att||1}</b></span>
+      <span>${L('Уходил со страницы тренажёра','Тренажёр бетінен кетті')}: <b>${(S.away||{}).n||0} ${L('раз','рет')}</b>, ${L('всего','барлығы')} <b class="num">${clock((S.away||{}).sec||0)}</b>${((S.away||{}).n||0)?L(' — переключался на другие приложения или вкладки',' — басқа қосымшаларға немесе қойындыларға ауысты'):''}</span>
+      ${S.tamper?`<span class="mark bad">${L('⚠ Сохранённые данные смены изменялись вручную — результат недостоверен','⚠ Ауысымның сақталған деректері қолмен өзгертілген — нәтиже сенімсіз')}</span>`:''}
+    </div>
+    <div class="feedback" style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><span>${L('Код проверки для преподавателя','Оқытушыға арналған тексеру коды')}</span><b class="num" style="font-size:16px;letter-spacing:.08em">${checkCode()}</b></div>
+    <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap"><span class="big">${pct}%</span><span>${L(`${p} из ${MX} баллов · обработано ${doneCount()} из ${TOTAL} заявок`,`${MX} балдың ${p} балы · ${TOTAL} өтінімнің ${doneCount()} өңделді`)}</span></div>
+    <div><div class="lbl">${L('Показатели смены (по правильным расчётам)','Ауысым көрсеткіштері (дұрыс есеп бойынша)')}</div><div class="kpis" style="margin-top:6px">
+      <div class="kpi"><small>${L('Проживание','Тұру')}</small><b>${money(acc)}</b></div>
+      <div class="kpi"><small>${L('Доп. услуги','Қосымша қызметтер')}</small><b>${money(svc)}</b></div>
+      <div class="kpi"><small>${L('Комиссии OTA','OTA комиссиялары')}</small><b>${money(comm)}</b></div>
+      <div class="kpi"><small>${L('Штрафы за отмены','Бас тарту айыппұлдары')}</small><b>${money(penRev)}</b></div>
+      <div class="kpi"><small>${L('Доход нетто','Таза табыс')}</small><b>${money(acc+svc-comm+penRev)}</b></div>
+      <div class="kpi lostk"><small>${L('Потерянная выручка','Жоғалған түсім')}</small><b>${money(lostRev)}</b></div>
+    </div></div>
+    ${A?`<div><div class="lbl">${L('Ночной аудит · 15 октября','Түнгі аудит · 15 қазан')} — ${A.res.score} / ${AUDIT_MAX}</div><div class="tw"><table>
+      <tr><th></th><th class="n">${L('Ваш ответ','Сіздің жауабыңыз')}</th><th class="n">${L('Верно','Дұрысы')}</th></tr>
+      <tr><td>${L('Загрузка','Толымдылық')}</td><td class="n"><span class="mark ${A.res.occ?'ok':'bad'}">${A.inputs.occ}%</span></td><td class="n">${A.correct.occ}% (${A.correct.sold}/14)</td></tr>
+      <tr><td>ADR</td><td class="n"><span class="mark ${A.res.adr?'ok':'bad'}">${money(A.inputs.adr)}</span></td><td class="n">${money(A.correct.adr)}</td></tr>
+      <tr><td>RevPAR</td><td class="n"><span class="mark ${A.res.revpar?'ok':'bad'}">${money(A.inputs.revpar)}</span></td><td class="n">${money(A.correct.revpar)}</td></tr>
+    </table></div><p class="hintline">${L('Выручка за ночь','Түн түсімі')}: ${money(A.correct.rev)}</p></div>`:''}
+    ${(()=>{const cl=REQS.map((r,i)=>r&&r.call?i:-1).filter(i=>i>=0);if(!cl.length)return '';
+      return `<div><div class="lbl">${L('Телефонные звонки · скрипт','Телефон қоңыраулары · скрипт')}</div>${cl.map(i=>{const x=S.items[i],st=callSteps(REQS[i]),dl=x&&x.dlg;
+        const sc=scriptScore(x),bad=dl?dl.bad.map(([k,id])=>{const o=st[k].opts.find(z=>z.id===id);return o?`<span style="grid-column:1/-1">✗ «${esc(o.t)}» — ${esc(o.why)}</span>`:''}).join(''):'';
+        const what=!dl||!dl.fin?L('разговор не завершён','әңгіме аяқталмады'):dl.miss?L(`ошибок скрипта: ${dl.miss}`,`скрипт қателері: ${dl.miss}`):L('без ошибок','қатесіз');
+        return `<details style="border-bottom:1px solid var(--line);padding:6px 0"><summary>№${String(i+1).padStart(2,'0')} · ${esc(REQS[i].guest)} — <span class="mark ${dl&&dl.fin&&!dl.miss?'ok':'bad'}">${what} · ${sc}/${SCRIPT_MAX}</span></summary>${bad?`<div class="fl" style="margin-top:6px">${bad}</div>`:''}</details>`}).join('')}</div>`})()}
+    <div><div class="lbl">${L('По каналам','Арналар бойынша')}</div><div class="tw"><table><tr><th>${L('Канал','Арна')}</th><th class="n">${L('Броней','Брондау')}</th><th class="n">${L('Проживание','Тұру')}</th><th class="n">${L('Комиссия','Комиссия')}</th></tr>
+      ${Object.entries(by).map(([k,v])=>`<tr><td>${esc(k)}</td><td class="n">${v.n}</td><td class="n">${money(v.acc)}</td><td class="n">${money(v.comm)}</td></tr>`).join('')}</table></div></div>
+    <div><div class="lbl">${L('Ошибки и пропуски','Қателер мен өткізіп алғандар')} (${errs.length})</div>
+      ${errs.length?errs.map(e=>{const r0=REQS[e.i],x=e.x;
+        if(r0.kind==='chg')return det(e.i,e.miss?L('не обработана','өңделмеген'):L('есть ошибки','қателер бар'),`<span style="grid-column:1/-1">${esc(chgExpect(r0))}</span>`);
+        if(r0.kind==='ooo')return det(e.i,e.miss?L('не обработана','өңделмеген'):L('гости не переселены','қонақтар көшірілмеген'),'');
+        if(x&&x.lost)return det(e.i,L('гость ушёл — не ответили за 5 минут','қонақ кетті — 5 минутта жауап берілмеді'),'');
+        if(r0.kind==='err')return det(e.i,x&&x.clar?L('уточнение с неверной причиной','себебі қате нақтылау'):x?L('внесли заявку с ошибкой','қатесі бар өтінім енгізілді'):L('не обработана','өңделмеген'),`<span style="grid-column:1/-1">${L('Правильно: запросить уточнение — ','Дұрысы: нақтылау сұрау — ')}${esc(REASONS()[r0.reason])}</span>`);
+        if(x&&x.clar)return det(e.i,L('запросили уточнение у корректной заявки','дұрыс өтінімнен нақтылау сұралды'),'');
+        if(x&&x.cancelled)return det(e.i,L('аннулирована без запроса гостя','қонақтың сұрауынсыз жойылды'),'');
+        const r=r0.kind==='grp'?r0:eff(e.i),c=calc(r);
+        const what=e.miss?(cxlDue(e.i)?L('не оформлена (по ней пришла отмена — нужно было аннулировать)','рәсімделмеген (бас тарту келген — жою керек еді)'):L('не оформлена','рәсімделмеген')):Object.keys(lab).filter(k=>x.res[k]===false).map(k=>lab[k]).join(', ');
+        return det(e.i,what,calcLines(r,c)+(x?`<span style="color:var(--muted)">${L('Введено','Енгізілді')}: ${['acc','svc','total','comm','net'].map(k=>esc(x.inputs[k]||'—')).join(' / ')}</span><span></span>`:''))}).join(''):`<p>${L('Ошибок нет. Отличная смена.','Қате жоқ. Тамаша ауысым.')}</p>`}
+    </div>
+    <div class="actions"><button class="btn primary" type="button" id="new-shift">${L('Начать новую смену','Жаңа ауысымды бастау')}</button></div>
+  </div>`);
+  ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('[data-close]'))closeModal();if(e.target.id==='new-shift')showStart()});
+}
+function showStart(){
+  curModal=showStart;
+  const ov=modal(`<div class="mh"><h2>${L('Приём смены','Ауысымды қабылдау')} · Urban Hotel</h2>${langSwitch()}</div>
+  <form class="mb" id="startform">
+    <p>${L('Вы — администратор Urban Hotel. Отель уже заполнен примерно наполовину. За смену поступит 40 заявок: OTA с разными тарифами, доллары с Trip.com, корпоративные клиенты, телефонные звонки по скрипту, групповая бронь, отмены со штрафами, продления, заявки с ошибками и авария в номере. Цены меняются по дням, на ответ гостю — 5 минут. В конце — ночной аудит.','Сіз — Urban Hotel әкімшісісіз. Қонақүй жартылай толы. Ауысым ішінде 40 өтінім түседі: әртүрлі тарифтегі OTA, Trip.com-нан доллар, корпоративтік клиенттер, скрипт бойынша телефон қоңыраулары, топтық брондау, айыппұлмен бас тартулар, ұзартулар, қатесі бар өтінімдер және нөмірдегі апат. Бағалар күн сайын өзгереді, қонаққа жауап беруге — 5 минут. Соңында — түнгі аудит.')}</p>
+    <div class="f"><label for="st-name">${L('Фамилия и имя студента','Студенттің тегі мен аты')}</label><input class="tin" id="st-name" autocomplete="off" placeholder="${L('Например, Сейткали Айгерим','Мысалы, Сейткали Айгерим')}" style="font-family:var(--f-body)"></div>
+    <div class="opt"><span class="lbl">${L('Режим','Режим')}</span><div class="seg">
+      <label><input type="radio" name="mode" value="train" checked><span><b>${L('Обучение','Оқу')}</b><small>${L('Проверка и разбор сразу после каждой брони','Әр брондаудан кейін бірден тексеру және талдау')}</small></span></label>
+      <label><input type="radio" name="mode" value="exam"><span><b>${L('Экзамен','Емтихан')}</b><small>${L('Результат только в отчёте в конце смены','Нәтиже тек ауысым соңындағы есепте')}</small></span></label>
+    </div></div>
+    <div class="f"><label for="st-int">${L('Поток заявок','Өтінімдер ағыны')}</label><select class="tin" id="st-int"><option value="0">${L('Вручную, по кнопке','Қолмен, батырма арқылы')}</option><option value="60">${L('Каждую минуту','Әр минут сайын')}</option><option value="90" selected>${L('Каждые 90 секунд','Әр 90 секунд сайын')}</option><option value="150">${L('Каждые 2,5 минуты','Әр 2,5 минут сайын')}</option></select><small>${L('Сначала во входящих 3 заявки. У каждого студента свой набор заявок.','Басында кіріс бөлімінде 3 өтінім болады. Әр студенттің өз өтінімдер жинағы бар.')}</small></div>
+    <div class="actions"><button class="btn primary" type="submit">${L('Принять смену','Ауысымды қабылдау')}</button><button class="btn" type="button" id="see-rates">${L('Сначала посмотреть тарифы','Алдымен тарифтерді қарау')}</button></div>
+  </form>`,true);
+  ov.addEventListener('click',e=>{
+    if(e.target.id==='see-rates'){const keep={name:$('st-name').value};showRates(()=>{showStart();$('st-name').value=keep.name})}
+  });
+  $('startform').addEventListener('submit',e=>{e.preventDefault();
+    const nm=$('st-name').value.trim();if(!nm){toast(L('Впишите фамилию и имя — они попадут в отчёт','Тегіңіз бен атыңызды жазыңыз — олар есепке түседі'));$('st-name').focus();return}
+    const sd=newSeed(nm);
+    S=freshState({name:nm,mode:document.querySelector('input[name=mode]:checked').value,seed:sd,interval:+$('st-int').value});
+    {let n=0;try{n=+(localStorage.getItem(ATT)||0)}catch(e){}n++;try{localStorage.setItem(ATT,String(n))}catch(e){}S.att=n;S.away={n:0,sec:0}}setMark();
+    loadReqs();active=null;anchor=null;selPre=null;save();closeModal();renderAll();setView('inbox');toast(L('Смена принята. Во входящих 3 заявки.','Ауысым қабылданды. Кіріс бөлімінде 3 өтінім бар.'));
+  });
+}
+
+
+/* ---------- Честная смена: уходы со страницы, копирование, водяной знак ---------- */
+let awayAt=null;
+function goAway(){if(!S||S.finished||awayAt!==null||$('startform'))return;awayAt=Date.now()}
+function comeBack(){if(awayAt===null)return;const sec=Math.round((Date.now()-awayAt)/1000);awayAt=null;if(!S||S.finished||sec<3)return;
+  S.away=S.away||{n:0,sec:0};S.away.n++;S.away.sec+=sec;save();renderStats();
+  toast(L(`Вы уходили со страницы (${clock(sec)}). Это отмечено в отчёте`,`Сіз беттен кеттіңіз (${clock(sec)}). Бұл есепте белгіленді`))}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')goAway();else comeBack()});
+window.addEventListener('blur',goAway);window.addEventListener('focus',comeBack);
+const isField=t=>t&&t.closest&&t.closest('input,textarea,select');
+['copy','cut','contextmenu','selectstart','dragstart'].forEach(ev=>document.addEventListener(ev,e=>{if(!isField(e.target))e.preventDefault()}));
+document.addEventListener('copy',e=>{if(isField(e.target))return;try{e.clipboardData.setData('text/plain','')}catch(_){}});
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['p','s','u'].includes(e.key.toLowerCase())){e.preventDefault()}});
+function setMark(){const n=S&&S.name?S.name:'';if(!n){document.documentElement.style.removeProperty('--wm');return}
+  const t=esc(n+' · URBAN').replace(/'/g,'&#39;');const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='260' height='120'><text x='10' y='70' transform='rotate(-18 130 60)' font-family='sans-serif' font-size='13' fill='rgba(128,128,128,0.13)'>${t}</text></svg>`;
+  document.documentElement.style.setProperty('--wm',`url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`)}
+/* ---------- Таймер ---------- */
+setInterval(()=>{
+  if(!S||S.finished||$('startform')||$('auditform'))return;
+  S.elapsed++;
+  if(S.interval>0&&S.arrived<TOTAL){S.nextIn--;if(S.nextIn<=0)arrive()}
+  let lost=false;
+  for(let i=0;i<S.arrived;i++){const r=REQS[i];if(!timedKind(r))continue;const x=it(i);if(x.done||x.ans)continue;
+    if(leftOf(i)<=0){x.lost=true;x.done=true;x.place=null;x.places=[];x.editing=false;x.res={score:0,lost:true};lost=true;if(active===i)anchor=null;
+      toast(L(`Заявка №${i+1}: гость не дождался ответа и ушёл`,`№${i+1} өтінім: қонақ жауап күтпей кетті`))}}
+  if(lost){save();renderAll();return}
+  if(S.elapsed%5===0)save();
+  renderStats();
+  document.querySelectorAll('[data-tmr]').forEach(el=>{const i=+el.dataset.tmr,l=leftOf(i);el.textContent='⏱ '+clock(l);el.classList.toggle('low',l<=60)});
+  const nb=document.querySelector('#nextline .num');if(nb&&S.interval>0&&S.arrived<TOTAL)nb.textContent=clock(S.nextIn);
+},1000);
+
+/* ---------- Запуск ---------- */
+function boot(data){
+  const hot=!!(data&&data.S&&data.S.seed);
+  if(hot){S=data.S;loadReqs();setMark();active=data.active??null;selPre=data.selPre??null}
+  $('logo').innerHTML=LOGO_SRC?`<img src="${LOGO_SRC}" alt="URBAN College">`:'URBAN';
+  applyStatic();renderAll();
+  if(hot){$('splash').remove();setView(data.view||'inbox');return}
+  const sv=loadSaved();
+  if(sv&&!sv.finished){S=sv;loadReqs();setMark();active=(sv.ui&&sv.ui.active!=null&&sv.ui.active<S.arrived)?sv.ui.active:null;
+    $('splash').remove();renderAll();setView((sv.ui&&sv.ui.view)||'inbox');toast(L('Смена восстановлена — продолжайте с того же места','Ауысым қалпына келтірілді — сол жерден жалғастырыңыз'));return}
+  setView('inbox');
+  splash(()=>{if(!S)showStart()});
+}
+
+function splash(done){
+  const sp=$('splash'),lg=$('sp-logo'),hd=$('logo');
+  lg.src=LOGO_SRC;hd.classList.add('hide');
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const cols=['--c-booking','--c-ostrovok','--c-bronevik','--c-trip','--c-corp','--c-direct'];let bh='';
+  for(let k=0;k<16;k++){const top=(k*6.1+3)%96,left=(k*37)%80,w=8+(k*13)%18;bh+=`<i style="top:${top}%;left:${left}%;width:${w}%;--cc:var(${cols[k%6]});animation-delay:${(k*0.07).toFixed(2)}s"></i>`}
+  $('sp-bars').innerHTML=bh;
+  const msgs=LANG==='kk'?['Нөмір қорын жүктеп жатырмыз…','Сату арналарын қосып жатырмыз…','Шахматканы ашып жатырмыз…']:['Загружаем номерной фонд…','Подключаем каналы продаж…','Открываем шахматку…'];
+  $('sp-status').textContent=msgs[0];
+  let mi=0;const mt=setInterval(()=>{mi++;if(mi<msgs.length)$('sp-status').textContent=msgs[mi]},700);
+  let finished=false;
+  const finish=()=>{if(finished)return;finished=true;clearInterval(mt);hd.classList.remove('hide');sp.remove();done()};
+  setTimeout(()=>{
+    clearInterval(mt);$('sp-status').textContent=L('Смена готова','Ауысым дайын');
+    const a=lg.getBoundingClientRect(),b=hd.getBoundingClientRect();
+    lg.style.animation='none';
+    if(reduce||!a.width||!b.width){finish();return}
+    sp.classList.add('out');
+    lg.style.transition='transform .85s cubic-bezier(.65,0,.25,1)';
+    lg.style.transform=`translate(${b.left-a.left}px,${b.top-a.top}px) scale(${b.width/a.width})`;
+    lg.addEventListener('transitionend',finish,{once:true});
+    setTimeout(finish,950);
+  },reduce?600:2700);
+}
+try{window.claude?.hot?.snapshot?.(()=>({S,active,view}))}catch(e){}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')save()});
+window.addEventListener('pagehide',save);
+if(window.claude?.hot?.ready)window.claude.hot.ready(boot);else boot(window.claude?.hot?.data??{});
+})();/*IIFE*/
+</script>
+
+</body></html>

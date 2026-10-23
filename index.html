@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sauyt Study — тренажёры гостиничного бизнеса</title>
+<meta name="description" content="Бесплатные тренажёры и игры для студентов гостиничного бизнеса и инклюзивных групп: бронирование, шахматка, revenue, хаускипинг. Русский и казахский.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Onest:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#F3F5F8;--surface:#FFFFFF;--ink:#132235;--text:#3D4B5C;--muted:#4E5D6E;--line:#DCE2E8;--line2:#C9D2DB;--soft:#EEF1F4;--accent:#0E6B5E;--accent-soft:#DFF1EC;--incl:#0E5A50;--dark:#132235}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E151D;--surface:#16202B;--ink:#E6ECF2;--text:#C3CDD8;--muted:#9AA8B6;--line:#2A3846;--line2:#3A4A5A;--soft:#1E2A36;--accent:#3FB8A5;--accent-soft:#163A35;--incl:#0F4A42;--dark:#0A1119}}
+:root[data-theme="dark"]{--bg:#0E151D;--surface:#16202B;--ink:#E6ECF2;--text:#C3CDD8;--muted:#9AA8B6;--line:#2A3846;--line2:#3A4A5A;--soft:#1E2A36;--accent:#3FB8A5;--accent-soft:#163A35;--incl:#0F4A42;--dark:#0A1119}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 'Onest',system-ui,sans-serif}
+a{color:var(--accent)}
+h1,h2{font-family:'Unbounded',sans-serif;margin:0;text-wrap:balance}
+.wrap{max-width:1200px;margin:0 auto;padding-inline:16px}
+header{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.hd{display:flex;align-items:center;gap:12px 24px;flex-wrap:wrap;padding-block:12px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.logo i{width:40px;height:40px;border-radius:10px;background:#132235;display:grid;place-items:center}
+.logo b{font-family:'Unbounded',sans-serif;font-size:17px;display:block;line-height:1.1}
+.logo small{font-size:12px;color:var(--muted)}
+nav{display:flex;gap:6px 20px;flex-wrap:wrap;font-weight:500;font-size:15px}
+nav a{color:var(--ink);text-decoration:none}
+.lang{margin-left:auto;display:flex;background:var(--soft);border-radius:999px;padding:3px}
+.lang button{border:0;border-radius:999px;padding:7px 14px;font:600 13px 'Onest',sans-serif;background:transparent;color:var(--muted);min-height:36px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.15)}
+@media(max-width:700px){nav{display:none}}
+.tag{display:inline-block;font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);padding:6px 12px;border-radius:999px}
+.hero{display:flex;flex-wrap:wrap;gap:40px;align-items:center;padding-block:48px 32px}
+.hero-l{flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:20px;align-items:flex-start}
+.hero h1{font-size:clamp(30px,4.6vw,54px);line-height:1.1}
+.hero p{margin:0;font-size:18px;color:var(--text);max-width:34em}
+.btns{display:flex;flex-wrap:wrap;gap:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:14px 22px;border-radius:12px;font-weight:600;text-decoration:none;background:var(--accent);color:#fff}
+.btn.ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line2)}
+.stats{display:flex;flex-wrap:wrap;gap:24px}
+.stats b{font-family:'Unbounded',sans-serif;font-size:26px;display:block}
+.stats span{font-size:14px;color:var(--muted)}
+.board{flex:1 1 400px;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 20px 50px rgba(19,34,53,.10)}
+.board-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px}
+.board-h b{font-family:'Unbounded',sans-serif;font-size:14px}
+.pill{font-size:12px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:4px 10px;border-radius:999px}
+.br{display:grid;grid-template-columns:58px repeat(7,minmax(0,1fr));gap:4px;margin-bottom:4px}
+.br.days{font-size:11.5px;color:var(--muted);text-align:center}
+.br.days .we{color:#B4520F;font-weight:600}
+.br.room{height:38px}
+.rm{grid-column:1;grid-row:1;display:flex;flex-direction:column;justify-content:center;font-size:13px;font-weight:700;line-height:1.1}
+.rm small{font-size:10.5px;font-weight:500;color:var(--muted)}
+.track{grid-column:2/9;grid-row:1;background:var(--soft);border-radius:6px}
+.bar{grid-row:1;color:#fff;border-radius:6px;margin:3px 0;padding:0 7px;font-size:11.5px;font-weight:600;display:flex;align-items:center;overflow:hidden;white-space:nowrap}
+.bk{background:#2550A8}.os{background:#B04E14}.bv{background:#5E3F92}.dr{background:#2F6431}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:12px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:6px}.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+section{padding-block:32px}
+.sh{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:10px;margin-bottom:18px}
+.sh h2{font-size:clamp(24px,3vw,32px);font-weight:600}
+.sh p{margin:6px 0 0;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.chip{font:600 14px 'Onest',sans-serif;padding:10px 16px;min-height:44px;border-radius:999px;cursor:pointer;border:1.5px solid var(--line2);background:var(--surface);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:12px;text-decoration:none;color:var(--ink);transition:transform .15s,box-shadow .15s}
+.card:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(19,34,53,.12)}
+.ct{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.ic{width:48px;height:48px;border-radius:12px;display:grid;place-items:center}
+.ic svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.lg{font-size:12px;font-weight:600;color:var(--muted);background:var(--soft);padding:4px 9px;border-radius:999px;white-space:nowrap}
+.fmt{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.card b{font-family:'Unbounded',sans-serif;font-weight:600;font-size:18px;line-height:1.25}
+.card p{margin:0;font-size:15px;color:var(--text)}
+.cf{margin-top:auto;padding-top:10px;border-top:1px solid var(--soft);display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--muted)}
+.cf strong{color:var(--accent);font-size:14px}
+.soon{border:2px dashed var(--line2);border-radius:16px;padding:18px;display:flex;flex-direction:column;justify-content:center;gap:10px;text-decoration:none;color:var(--ink);min-height:230px}
+.soon b{font-family:'Unbounded',sans-serif;font-weight:600;font-size:18px}
+.soon p{margin:0;color:var(--text);font-size:15px}
+.incl{background:var(--incl);color:#fff;border-radius:24px;padding:clamp(24px,4vw,48px);display:flex;flex-wrap:wrap;gap:32px}
+.incl-l{flex:1 1 360px;min-width:0;display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+.incl h2{font-size:clamp(24px,3vw,34px);font-weight:600}
+.incl p{margin:0;color:#D8EEE9;font-size:17px}
+.incl .tag{background:rgba(255,255,255,.15);color:#fff}
+.incl .btn{background:#fff;color:#0E5A50}
+.feat{flex:1 1 400px;min-width:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(max-width:480px){.feat{grid-template-columns:1fr}}
+.feat div{background:rgba(255,255,255,.1);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:6px}
+.feat svg{width:28px;height:28px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.feat span{font-size:14.5px;color:#D8EEE9}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:8px}
+.step em{font-style:normal;font-family:'Unbounded',sans-serif;font-weight:700;width:40px;height:40px;border-radius:50%;background:#132235;color:#fff;display:grid;place-items:center}
+.step span{color:var(--text)}
+.teach{background:var(--dark);color:#fff;border-radius:24px;padding:clamp(24px,4vw,44px);display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:space-between}
+.teach h2{font-size:clamp(22px,2.8vw,30px);font-weight:600;margin-bottom:8px}
+.teach p{margin:0;color:#C9D4E0;max-width:34em}
+.teach .btn.ghost{background:transparent;color:#fff;border-color:#4A5D73}
+footer{border-top:1px solid var(--line);background:var(--surface);margin-top:24px}
+.ft{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between;padding-block:22px;font-size:14px;color:var(--muted)}
+.draft{background:#FFF1D6;color:#6B4200;text-align:center;font-size:13px;font-weight:600;padding:8px 16px}
+</style>
+</head>
+<body>
+<header><div class="wrap hd">
+  <a class="logo" href="#top"><i><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16M2 21h20M9 7h2M13 7h2M9 11h2M13 11h2M10 21v-4h4v4"/></svg></i><span><b>Sauyt Study</b><small>study.projectsauyt.kz</small></span></a>
+  <nav aria-label="Разделы"><a href="#catalog">Тренажёры</a><a href="#inclusion">Инклюзия</a><a href="#how">Как проходит занятие</a><a href="#teachers">Преподавателям</a></nav>
+  <div class="lang" role="group" aria-label="Язык"><button type="button" aria-pressed="true">RU</button><button type="button" aria-pressed="false">ҚАЗ</button></div>
+</div></header>
+
+<main id="top" class="wrap">
+<div class="hero">
+  <div class="hero-l">
+    <span class="tag">Практика для студентов гостиничного бизнеса</span>
+    <h1>Учимся работать в отеле — на тренажёрах</h1>
+    <p>Симуляторы смены, бронирования, продаж и уборки номера для студентов любого курса и инклюзивных групп. Бесплатно, без регистрации, с телефона или компьютера — на русском и казахском.</p>
+    <div class="btns"><a class="btn" href="#catalog">Выбрать тренажёр</a><a class="btn ghost" href="#how">Как это работает</a></div>
+    <div class="stats"><div><b>10</b><span>тренажёров и игр</span></div><div><b>RU · ҚАЗ</b><span>два языка</span></div><div><b>0 ₸</b><span>без регистрации</span></div></div>
+  </div>
+  <div class="board" role="img" aria-label="Пример шахматки номерного фонда">
+    <div class="board-h"><b>Шахматка · октябрь</b><span class="pill">Загрузка 78%</span></div>
+    <div class="br days"><span></span><span>пн 19</span><span>вт 20</span><span>ср 21</span><span>чт 22</span><span>пт 23</span><span class="we">сб 24</span><span class="we">вс 25</span></div>
+    <div class="br room"><span class="rm">101<small>Стандарт</small></span><span class="track"></span><span class="bar bk" style="grid-column:2/5">Ахметова</span><span class="bar os" style="grid-column:6/9">Ким</span></div>
+    <div class="br room"><span class="rm">102<small>Стандарт</small></span><span class="track"></span><span class="bar bv" style="grid-column:3/7">ТОО Дала</span></div>
+    <div class="br room"><span class="rm">201<small>Улучш.</small></span><span class="track"></span><span class="bar dr" style="grid-column:2/4">Нурлан</span><span class="bar bk" style="grid-column:5/9">Группа</span></div>
+    <div class="br room"><span class="rm">202<small>Улучш.</small></span><span class="track"></span><span class="bar os" style="grid-column:4/9">Сейткали</span></div>
+    <div class="br room"><span class="rm">301<small>Люкс</small></span><span class="track"></span><span class="bar bk" style="grid-column:2/7">Petrov</span></div>
+    <div class="br room"><span class="rm">302<small>Люкс</small></span><span class="track"></span><span class="bar dr" style="grid-column:7/9">Абенова</span></div>
+    <div class="legend"><span><i class="bk"></i>Booking.com</span><span><i class="os"></i>Островок</span><span><i class="bv"></i>Броневик</span><span><i class="dr"></i>Прямая бронь</span></div>
+  </div>
+</div>
+
+<section id="catalog">
+  <div class="sh"><div><h2>Тренажёры и игры</h2><p>Выберите направление — каждый тренажёр открывается в браузере за секунду.</p></div><span style="font-size:14px;color:var(--muted)">Показано: <b id="cnt" style="color:var(--ink)">10</b></span></div>
+  <div class="chips" id="chips" role="group" aria-label="Фильтр по направлению"></div>
+  <div class="grid" id="grid"></div>
+</section>
+
+<section id="inclusion">
+  <div class="incl">
+    <div class="incl-l">
+      <span class="tag">Инклюзивное обучение</span>
+      <h2>Доступно каждому студенту</h2>
+      <p>Игры для групп с особыми образовательными потребностями: профессия горничной шаг за шагом, крупно, понятно и с поддержкой голосом.</p>
+      <div class="btns"><a class="btn" href="clean-room">Чистый номер</a><a class="btn" href="maid-shift">Смена горничной</a></div>
+    </div>
+    <div class="feat">
+      <div><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg><b>Крупные кнопки и картинки</b><span>Удобно нажимать пальцем, минимум текста</span></div>
+      <div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg><b>Голос на русском и казахском</b><span>Каждое задание можно прослушать</span></div>
+      <div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg><b>Звёзды вместо оценок</b><span>Ошибка — это подсказка, а не провал</span></div>
+      <div><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg><b>Режим «Ученик»</b><span>Вся смена с подсказками на каждом шаге</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="sh"><h2>Как проходит занятие</h2></div>
+  <div class="steps">
+    <div class="step"><em>1</em><b>Преподаватель включает табло</b><span>На проекторе — таймер пары и QR-код нужного тренажёра.</span></div>
+    <div class="step"><em>2</em><b>Студенты заходят с телефона</b><span>Наводят камеру на код — и сразу работают. Без аккаунтов и установки.</span></div>
+    <div class="step"><em>3</em><b>Результат и разбор</b><span>Баллы, бейдж или отчёт смены — и разбор ошибок вместе с группой.</span></div>
+  </div>
+</section>
+
+<section id="teachers">
+  <div class="teach">
+    <div><h2>Вы преподаватель или колледж?</h2><p>Используйте тренажёры на своих занятиях бесплатно. Нужна игра под вашу тему или вашу группу — напишите, обсудим.</p></div>
+    <div class="btns"><a class="btn" href="#teachers">Написать в WhatsApp</a><a class="btn ghost" href="catalog.pdf">Скачать каталог PDF</a></div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap ft"><span><b style="color:var(--ink)">Sauyt Study</b> — образовательный проект <a href="https://projectsauyt.kz" target="_blank" rel="noopener">Project Sauyt</a> · Астана</span><span>[WhatsApp / Telegram] · [email]</span></div></footer>
+
+<script>
+const IC={cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',grid:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/>',chart:'<path d="M4 20V11M10 20V5M16 20v-7M2 20h20"/>',hotel:'<path d="M4 21V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16M2 21h20M9 7h2M13 7h2M9 11h2M13 11h2M10 21v-4h4v4"/>',clean:'<path d="M12 3l1.8 4.7 4.7 1.8-4.7 1.8L12 16l-1.8-4.7-4.7-1.8 4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>',timer:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>',bolt:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>'};
+const T={front:['#E3EBFA','#1F4FA8'],rev:['#FCEBDA','#A9500C'],mgmt:['#E7E3F5','#5B3F98'],hk:['#DFF1EC','#0E6B5E'],quick:['#FBE7EF','#A3285A'],teach:['#E9EDF1','#132235']};
+const G=[
+['front','cal','Тренажёр бронирования','Ролевая игра','RU','booking','9tLzJn6VsX3nGq6vjk6nCj','Гость бронирует через OTA, администратор ставит бронь в шахматку и готовит отчёт для горничных.'],
+['front','grid','Симулятор «Шахматка»','Смена администратора','RU · ҚАЗ','chessboard','7FdkwQgmFqQtVC2ivF6PAW','Заявки из каналов продаж, ошибки в заявках, расчёт стоимости и ночной аудит.'],
+['front','grid','Учебная шахматка','Отчётность смены','RU · ҚАЗ','reports','XDXUZxykhTEhpKD67JPuVU','День отеля на 30 номеров: заполнить ФО-1, ХС-2, ФО-3 и КО-4 и получить разбор.'],
+['rev','chart','Revenue-менеджер','Деловая игра · 30 дней','RU','revenue','RJdjGMzvJRyVKhPZxk3Mod','Цены, каналы продаж, паритет и события города — управляем доходом отеля 4★ в Астане.'],
+['mgmt','hotel','URBAN HOTEL Симулятор','Командная симуляция','RU · ҚАЗ','urban-hotel','JGknwNQdYX2T4WjwQ1SMWL','Команда 12 месяцев управляет отелем и отчитывается перед инвестором.'],
+['mgmt','hotel','Смена в отеле «Сауыт»','30 учебных заданий','RU · ҚАЗ','shift','DzGYfeCNxWA4HpjQtsWitX','Ситуации дежурного администратора — от жалобы гостя до эвакуации. Бейдж по итогам.'],
+['quick','bolt','Сауыт Арена','Быстрые игры для телефона','RU · ҚАЗ','arena','DaRcSqiCYqK4CF3TQGKjfa','Лифт-диспетчер, кассир-блиц, аллергены, термины — разминка на 5 минут.'],
+['hk','clean','Чистый номер','Игра с уровнями · инклюзия','RU','clean-room','1MbBNTm2v9y5gZXgf7BZ83','Навыки горничной: тележка, постель, цветные тряпки, приёмка номера.'],
+['hk','clean','Смена горничной','Рабочий день · инклюзия','RU · ҚАЗ','maid-shift','FAYqMULh8gsifiRicdPax7','Весь день горничной по шагам — с голосовыми подсказками.'],
+['teach','timer','Табло с таймером','Для преподавателя','RU','board','Xw3L68QwN8EVVsitBF8fX6','Таймер пары, QR-вход для студентов и бегущая строка с терминами — на проектор.']];
+const C=[['all','Все'],['front','Приём и размещение'],['rev','Продажи и revenue'],['mgmt','Управление отелем'],['hk','Хаускипинг и инклюзия'],['quick','Быстрые игры'],['teach','Для преподавателя']];
+let f='all';
+function draw(){
+  document.getElementById('chips').innerHTML=C.map(([id,l])=>`<button type="button" class="chip" data-f="${id}" aria-pressed="${f===id}">${l}</button>`).join('');
+  const list=G.filter(g=>f==='all'||g[0]===f);
+  document.getElementById('cnt').textContent=list.length;
+  document.getElementById('grid').innerHTML=list.map(g=>`<a class="card" href="${g[5]}"><div class="ct"><span class="ic" style="background:${T[g[0]][0]};color:${T[g[0]][1]}"><svg viewBox="0 0 24 24" aria-hidden="true">${IC[g[1]]}</svg></span><span class="lg">${g[4]}</span></div><div><div class="fmt">${g[3]}</div><b>${g[2]}</b><p>${g[7]}</p></div><div class="cf"><span>/${g[5]}</span><strong>Открыть →</strong></div></a>`).join('')+(f==='all'?`<a class="soon" href="#teachers"><span class="ic" style="background:var(--soft);color:var(--ink)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M12 5v14M5 12h14"/></svg></span><b>Скоро новый тренажёр</b><p>Ресторан, консьерж, работа с жалобами… Предложите тему для вашего курса — сделаем.</p><strong style="color:var(--accent)">Предложить тему →</strong></a>`:'');
+}
+document.getElementById('chips').addEventListener('click',e=>{const b=e.target.closest('[data-f]');if(b){f=b.dataset.f;draw();}});
+document.querySelectorAll('.lang button').forEach(b=>b.addEventListener('click',()=>document.querySelectorAll('.lang button').forEach(x=>x.setAttribute('aria-pressed',x===b))));
+draw();
+</script>
+</body>
+</html>
