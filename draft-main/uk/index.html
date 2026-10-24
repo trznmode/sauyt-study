@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta name="robots" content="noindex,nofollow">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>White-label OTA для управляющих компаний | Project Sauyt</title>
+  <meta name="description" content="B2B white-label: стандарты карточек Booking/Ostrovok для сети объектов УК.">
+  
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#eef3f9; --card:#fff; --text:#0f172a; --muted:#475569; --line:#e2e8f0; --primary:#1a56db; --wa:#25d366; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{min-height:100%;overflow-x:hidden;overflow-y:auto}
+    body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+    a{color:inherit}
+    .wrap{width:min(720px,92%);margin:0 auto;padding:5.5rem 0 3.5rem}
+    header{position:fixed;top:0;left:0;right:0;height:64px;background:rgba(255,255,255,.94);border-bottom:1px solid var(--line);z-index:20;backdrop-filter:blur(10px)}
+    .bar{width:min(720px,92%);margin:0 auto;height:64px;display:flex;align-items:center;justify-content:space-between}
+    .logo{font-weight:700;text-decoration:none}.logo span{color:var(--primary)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:.7rem 1.1rem;border-radius:12px;font-weight:600;font-size:.9rem;text-decoration:none}
+    .btn--wa{background:var(--wa);color:#fff}
+    .btn--primary{background:var(--primary);color:#fff}
+    .label{font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--primary);margin-bottom:.5rem}
+    h1{font-size:clamp(1.6rem,3.5vw,2.3rem);letter-spacing:-.03em;margin-bottom:.75rem;max-width:14ch}
+    .lead{color:var(--muted);font-size:1.05rem;margin-bottom:1.5rem}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1.25rem 1.35rem;margin:0 0 1rem}
+    .card h2{font-size:1.05rem;margin-bottom:.45rem;color:var(--text)}
+    .card p,.card li{color:var(--muted);font-size:.9rem}
+    .card ul{padding-left:1.15rem;margin-top:.4rem}
+    .card li{margin-bottom:.35rem}
+    .actions{margin-top:1.25rem}
+    .back{display:inline-block;margin-top:1.75rem;font-size:.875rem;color:var(--primary);font-weight:600;text-decoration:none}
+  </style>
+</head>
+<body>
+  <header><div class="bar">
+    <a class="logo" href="../index.html">Project <span>Sauyt</span></a>
+    <a class="btn btn--wa" href="#" data-wa data-wa-msg="УК / white-label: хочу обсудить">WhatsApp</a>
+  </div></header>
+  <main class="wrap">
+    <div class="label">B2B · УК</div>
+    <h1>Мы внутри вашей УК</h1>
+    <p class="lead">White-label сопровождение OTA для управляющих компаний: единый стандарт карточек на сети, обучение ваших админов, отчётность без хаоса.</p>
+    <article class="card">
+      <h2>Что получает УК</h2>
+      <ul>
+        <li>Чеклист стандарта карточки (фото, календарь, отзывы, тарифы)</li>
+        <li>Онбординг новых объектов в сети</li>
+        <li>Разбор слабых объектов без публикации чужих цифр</li>
+        <li>Опционально: снаружи — ваш бренд, внутри — наш процесс</li>
+      </ul>
+    </article>
+    <article class="card">
+      <h2>Кому зайти</h2>
+      <p>От 5+ объектов в управлении или сеть апартаментов, где админы меняются и качество карточек плавает.</p>
+    </article>
+    <div class="actions">
+      <a class="btn btn--primary" href="#" data-wa data-wa-msg="УК / white-label: хочу обсудить сотрудничество">Обсудить для УК</a>
+    </div>
+    <a class="back" href="../index.html">← На главную</a>
+  </main>
+  <script>
+    const P='77073281573', B='Здравствуйте! Интересует Project Sauyt. ';
+    document.querySelectorAll('[data-wa]').forEach(el => {
+      el.href = 'https://wa.me/' + P + '?text=' + encodeURIComponent(B + (el.getAttribute('data-wa-msg') || ''));
+      el.target = '_blank'; el.rel = 'noopener noreferrer';
+    });
+  </script>
+</body>
+</html>

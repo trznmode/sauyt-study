@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta name="robots" content="noindex,nofollow">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Запуск объекта на Booking с нуля | Project Sauyt</title>
+  <meta name="description" content="Чеклист запуска объекта на Booking.com до первой брони: сроки, этапы, что нужно от владельца.">
+  
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/landing.css">
+  <style>
+    body{background:#eef3f9} main{padding:calc(var(--header-h)+2.5rem) 0 3rem}
+    h1{font-size:clamp(1.6rem,3.5vw,2.25rem);letter-spacing:-.03em;margin:.5rem 0 1rem;max-width:18ch}
+    .step{display:grid;grid-template-columns:3rem 1fr;gap:.85rem;background:#fff;border:1px solid var(--border);border-radius:14px;padding:1rem 1.1rem;margin-bottom:.65rem}
+    .step i{width:2.4rem;height:2.4rem;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-style:normal;font-weight:800;font-size:.875rem}
+    .step h2{font-size:1rem;margin:0 0 .25rem}
+    .step p{margin:0;font-size:.875rem;color:var(--text-secondary);line-height:1.45}
+  </style>
+</head>
+<body>
+  <header class="header"><div class="container header__inner">
+    <a href="../index.html" class="logo">Project <span>Sauyt</span></a>
+    <a href="#" class="btn btn--wa btn--sm" data-wa data-wa-msg="Нужен запуск объекта на Booking с нуля">WhatsApp</a>
+  </div></header>
+  <main class="container">
+    <span class="section-label">Запуск с нуля</span>
+    <h1>От нуля до первой брони</h1>
+    <p style="color:var(--text-secondary);max-width:38rem;margin-bottom:1.25rem">Если объекта ещё нет на Booking — чеклист. Срок ориентир: <strong>7–14 дней</strong> при быстрых фото и доступах (не публичная оферта).</p>
+    <div class="step"><i>1</i><div><h2>День 1–2 · Юр. и доступы</h2><p>Данные объекта, договор с OTA, доступы, тип номеров.</p></div></div>
+    <div class="step"><i>2</i><div><h2>День 2–4 · Контент</h2><p>Фото (номер, ванная, двор), описание без воды, удобства, адрес.</p></div></div>
+    <div class="step"><i>3</i><div><h2>День 4–7 · Продажи</h2><p>Календарь на 3–6 мес, тарифы будни/выходные, политики отмены, оплата.</p></div></div>
+    <div class="step"><i>4</i><div><h2>День 7–14 · Старт</h2><p>Проверка выдачи, ответы на первые сообщения, при необходимости Genius/промо уже на живой базе.</p></div></div>
+    <a href="#" class="btn btn--wa" data-wa data-wa-msg="Хочу запуск с нуля — чеклист до первой брони">Запустить объект</a>
+    <p style="margin-top:1.5rem;font-size:.875rem"><a href="../index.html">← На главную</a></p>
+  </main>
+  <script>
+    const P='77073281573',B='Здравствуйте! Интересует Project Sauyt. ';
+    document.querySelectorAll('[data-wa]').forEach(el=>{el.href='https://wa.me/'+P+'?text='+encodeURIComponent(B+(el.getAttribute('data-wa-msg')||''));el.target='_blank';el.rel='noopener';});
+  </script>
+</body>
+</html>

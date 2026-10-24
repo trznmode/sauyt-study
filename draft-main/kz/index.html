@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta name="robots" content="noindex,nofollow">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Sauyt | Қонақ үйлерге Booking, Ostrovok, Bronevik оқыту</title>
+  <meta name="description" content="Қазақстан қонақ үйлеріне OTA: Booking.com, Ostrovok, Bronevik баптау, оқыту және қолдау. Тегін карточка талдауы.">
+  
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/landing.css">
+  <style>
+    body{background:#eef3f9}
+    .kz-hero{padding:calc(var(--header-h)+3rem) 0 3rem}
+    .kz-hero h1{font-size:clamp(1.75rem,4vw,2.6rem);letter-spacing:-.03em;max-width:16ch;margin:.6rem 0 1rem}
+    .kz-hero p{color:var(--text-secondary);max-width:36rem;font-size:1.05rem;line-height:1.55;margin-bottom:1.25rem}
+    .kz-grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:2rem 0}
+    .kz-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:1.15rem}
+    .kz-card h2{font-size:1.05rem;margin:0 0 .4rem}
+    .kz-card p{margin:0;font-size:.875rem;color:var(--text-secondary);line-height:1.45}
+    .kz-cta{background:#fff;border:1px solid var(--border);border-radius:16px;padding:1.5rem;text-align:center;margin:2rem 0}
+  </style>
+</head>
+<body>
+  <header class="header"><div class="container header__inner">
+    <a href="../index.html" class="logo">Project <span>Sauyt</span></a>
+    <nav><ul class="nav">
+      <li><a href="../index.html">RU</a></li>
+      <li><a href="#kz-services">Қызметтер</a></li>
+    </ul></nav>
+    <a href="#" class="btn btn--wa btn--sm" data-wa data-wa-msg="Қазақша жауап күтемін. Объектім бойынша сұрақ бар.">WhatsApp</a>
+  </div></header>
+
+  <section class="kz-hero">
+    <div class="container">
+      <span class="section-label">Қазақша толық бет</span>
+      <h1>Оқыту және OTA баптау қонақ үйлерге</h1>
+      <p>Project Sauyt — Booking.com, Ostrovok, Bronevik арқылы онлайн сатылымды өсіру. Біз персоналды оқытамыз, карточканы баптаймыз, қолдау көрсетеміз. Бұл жартылай аударма емес — жеке бет.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:.65rem">
+        <a href="../index.html#audit" class="btn btn--primary">Тегін карточка талдауы (24 сағ)</a>
+        <a href="#" class="btn btn--wa" data-wa data-wa-msg="Қазақша консультация керек">WhatsApp-қа жазу</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="container" id="kz-services" style="padding-bottom:2rem">
+    <h2 style="font-size:1.5rem;margin-bottom:1rem">Қызметтер</h2>
+    <div class="kz-grid">
+      <article class="kz-card"><h2>Жеке оқыту</h2><p>Extranet, тариф, күнтізбе, пікірлер. Әкімші немесе иесі өз бетінше жүргізсін.</p></article>
+      <article class="kz-card"><h2>Кілтпен баптау</h2><p>Фото, сипаттама, баға, күнтізбе — сатылымға дайын карточка.</p></article>
+      <article class="kz-card"><h2>Айлық қолдау</h2><p>Сіз қонақпен айналысасыз — біз OTA мен акцияларды қадағалаймыз.</p></article>
+    </div>
+    <div class="kz-grid">
+      <article class="kz-card"><h2>Неге «сурет пен күнтізбе»?</h2><p>Қонақ 3 секундта шешеді. Қараңғы фото мен жабық күнтізбе = іздеуде жоқсыз.</p></article>
+      <article class="kz-card"><h2>Жеңілдік жалғыз ем емес</h2><p>Әлсіз карточкаға жеңілдік — маржаны өртеу. Алдымен база.</p></article>
+      <article class="kz-card"><h2>Қалалық оқиғалар</h2><p>Концерт, форум, мереке — 7–14 күн бұрын баға мен стопты қараңыз.</p></article>
+    </div>
+    <div class="kz-cta">
+      <h2 style="margin:0 0 .5rem;font-size:1.25rem">Бастау</h2>
+      <p style="color:var(--text-secondary);margin:0 0 1rem">Booking сілтемесін жіберіңіз — 24 сағатта талдау.</p>
+      <a href="#" class="btn btn--wa" data-wa data-wa-msg="Қазақша: тегін карточка талдауын қалаймын">WhatsApp</a>
+    </div>
+    <p style="font-size:.875rem;margin-bottom:3rem"><a href="../index.html">← Орысша басты бет</a></p>
+  </section>
+  <script>
+    const P='77073281573',B='Сәлеметсіз бе! Project Sauyt қызықтырады. ';
+    document.querySelectorAll('[data-wa]').forEach(el=>{el.href='https://wa.me/'+P+'?text='+encodeURIComponent(B+(el.getAttribute('data-wa-msg')||''));el.target='_blank';el.rel='noopener';});
+  </script>
+</body>
+</html>

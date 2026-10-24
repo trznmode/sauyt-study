@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta name="robots" content="noindex,nofollow">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotel Corporate CRM — корпоративные продажи отеля | Project Sauyt</title>
+  <meta name="description" content="Hotel Corporate CRM — кабинет корпоративных продаж для отелей Казахстана: компании, ЛПР, воронка, КП, договоры, продления, задачи и поиск лидов. Тест 14 дней с полным доступом.">
+  <meta name="keywords" content="CRM для отеля, корпоративные продажи отеля, B2B CRM Казахстан, договоры с компаниями, воронка продаж отеля, Hotel Corporate CRM, Project Sauyt">
+  <meta name="author" content="Project Sauyt">
+  
+  <meta name="theme-color" content="#0F172A">
+  <link rel="canonical" href="https://projectsauyt.kz/crm/">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../assets/favicon.svg">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:site_name" content="Project Sauyt">
+  <meta property="og:title" content="Hotel Corporate CRM — корпоративные продажи отеля">
+  <meta property="og:description" content="Система для отдела продаж отеля: база компаний, воронка, КП, договоры и продления. Тест 14 дней.">
+  <meta property="og:url" content="https://projectsauyt.kz/crm/">
+  <meta property="og:image" content="https://projectsauyt.kz/crm/img/dashboard.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Hotel Corporate CRM — корпоративные продажи отеля">
+  <meta name="twitter:description" content="Кабинет B2B-продаж для отеля: компании, ЛПР, воронка, договоры, задачи. Тест 14 дней.">
+  <meta name="twitter:image" content="https://projectsauyt.kz/crm/img/dashboard.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/landing.css">
+  <link rel="stylesheet" href="../assets/nav.css">
+  <link rel="stylesheet" href="../assets/crm.css?v=8">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Project Sauyt", "item": "https://projectsauyt.kz/" },
+          { "@type": "ListItem", "position": 2, "name": "Hotel Corporate CRM", "item": "https://projectsauyt.kz/crm/" }
+        ]
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Hotel Corporate CRM",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "url": "https://crm.projectsauyt.kz/",
+        "provider": { "@type": "Organization", "name": "Project Sauyt", "url": "https://projectsauyt.kz/" },
+        "description": "Кабинет корпоративных продаж для отеля: компании, контакты и ЛПР, воронка, КП, договоры, задачи, поиск лидов и аналитика.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "KZT",
+          "description": "Тест 14 дней с полным доступом. Стоимость пакетов START, PRO и HOTEL GROUP подтверждает менеджер."
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Чем это отличается от Excel и WhatsApp?",
+            "acceptedAnswer": { "@type": "Answer", "text": "У каждой компании есть карточка, ЛПР, стадия, договор и следующий шаг. РОП видит, где нет касания, какое КП без ответа и какие договоры кончаются за 30 дней." }
+          },
+          {
+            "@type": "Question",
+            "name": "Как открыть демо?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Зарегистрируйте отель на crm.projectsauyt.kz/register, выберите тест 14 дней и напишите менеджеру в WhatsApp. Когда доступ откроют, кабинет заработает с полным функционалом." }
+          },
+          {
+            "@type": "Question",
+            "name": "Сколько стоит?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Тест 14 дней — полный доступ бесплатно. Стоимость START, PRO и HOTEL GROUP подтвердит менеджер. В чат и на сайт фиксированные SaaS-цены не выкладываем." }
+          },
+          {
+            "@type": "Question",
+            "name": "Данные одного отеля не увидит другой?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Да. База привязана к отелю. Общая база появляется только у группы объектов на пакете HOTEL GROUP." }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+  <header class="header" id="header">
+    <div class="container header__inner">
+      <a href="../index.html" class="logo">Project <span>Sauyt</span></a>
+      <nav>
+        <ul class="nav">
+          <li><a href="../index.html#services">Услуги</a></li>
+          <li><a href="../index.html#process">Как работаем</a></li>
+          <li><a href="../index.html#cases">Кейсы</a></li>
+          <li class="nav-dropdown">
+            <button type="button" class="nav-dropdown__toggle" aria-expanded="false" aria-haspopup="true">
+              Платформы
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <ul class="nav-dropdown__menu" role="menu">
+              <li><a href="../booking-com/index.html" role="menuitem">Booking.com</a></li>
+              <li><a href="../ostrovok/index.html" role="menuitem">Ostrovok</a></li>
+              <li><a href="../bronevik/index.html" role="menuitem">Bronevik</a></li>
+            </ul>
+          </li>
+          <li><a href="index.html" aria-current="page">CRM</a></li>
+          <li><a href="../blog/index.html">Блог</a></li><li><a href="https://study.projectsauyt.kz">Студентам</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="../index.html#about">О компании</a></li>
+        </ul>
+      </nav>
+      <div class="header__actions">
+        <a href="#" class="btn btn--wa btn--sm" data-wa data-wa-msg="Хочу демо Hotel Corporate CRM, тест 14 дней">WhatsApp</a>
+        <button class="burger" id="burger" aria-label="Меню">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="../index.html">← На главную</a>
+    <a href="../index.html#services">Услуги</a>
+    <a href="../index.html#process">Как работаем</a>
+    <a href="../index.html#cases">Кейсы</a>
+    <div class="mobile-menu__group">
+      <button type="button" class="mobile-menu__toggle" aria-expanded="false">
+        Платформы
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="mobile-menu__sub">
+        <a href="../booking-com/index.html">Booking.com</a>
+        <a href="../ostrovok/index.html">Ostrovok</a>
+        <a href="../bronevik/index.html">Bronevik</a>
+      </div>
+    </div>
+    <a href="index.html">CRM</a>
+    <a href="../blog/index.html">Блог</a>
+    <a href="https://study.projectsauyt.kz">Студентам</a>
+    <a href="#faq">FAQ</a>
+    <a href="../index.html#about">О компании</a>
+    <a href="#" class="btn btn--wa" data-wa data-wa-msg="Хочу демо Hotel Corporate CRM, тест 14 дней">Написать в WhatsApp</a>
+  </div>
+
+  <section class="crm-hero">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Хлебные крошки">
+        <a href="../index.html">Главная</a>
+        <span aria-hidden="true">/</span>
+        <span>Hotel Corporate CRM</span>
+      </nav>
+      <div class="landing-hero__grid">
+        <div>
+          <div class="crm-hero__badge">Hotel Corporate CRM · демо и тест 14 дней</div>
+          <h1>Кабинет <em>корпоративных продаж</em> для отеля</h1>
+          <p class="crm-hero__sub">
+            Компании, ЛПР, воронка, КП, договоры и продления — в одном месте, без Excel и переписок в WhatsApp. Цикл корпоративных продаж отеля от первого касания до продления договора.
+          </p>
+          <div class="landing-hero__btns">
+            <a class="btn btn--primary btn--lg" href="https://crm.projectsauyt.kz/register" target="_blank" rel="noopener">Открыть демо / тест 14 дней</a>
+            <a class="btn btn--ghost btn--lg" href="#" data-wa data-wa-msg="Хочу открыть тест 14 дней Hotel Corporate CRM">WhatsApp менеджеру</a>
+            <a class="btn btn--ghost btn--lg" href="https://crm.projectsauyt.kz/login" target="_blank" rel="noopener">Войти в кабинет</a>
+          </div>
+          <div class="crm-hero__trust">
+            <div class="crm-hero__trust-item"><b>14 дней</b><span>полный доступ как у HOTEL GROUP</span></div>
+            <div class="crm-hero__trust-item"><b>START / PRO / GROUP</b><span>цену подтвердит менеджер</span></div>
+            <div class="crm-hero__trust-item"><b>База отеля</b><span>чужие объекты её не видят</span></div>
+            <div class="crm-hero__trust-item"><b>Казахстан</b><span>корпоративный рынок, не OTA</span></div>
+          </div>
+        </div>
+        <aside>
+          <div class="crm-shot-wrap crm-zoom">
+            <div class="crm-shot-bar"><i></i><i></i><i></i><span>crm.projectsauyt.kz / dashboard</span></div>
+            <img src="img/dashboard.png" srcset="img/dashboard.png 3360w" sizes="(min-width: 1000px) 58vw, 92vw" width="1680" height="1050" alt="Dashboard Hotel Corporate CRM: KPI, договоры на истечении, задачи и воронка">
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="section-head">
+        <span class="section-label">Что это</span>
+        <h2 class="section-title">Система для отдела, который продаёт отель компаниям</h2>
+        <p class="section-desc">OTA приводят гостей с Booking, Ostrovok и Bronevik. Корпоративный канал — это другое: юрлица, квоты, вахты, мероприятия, годовой тариф. Его нельзя вести в чате ресепшена.</p>
+      </div>
+      <div class="cards-4">
+        <article class="card"><h3>Кто продаёт</h3><p>РОП и менеджеры корпоративных продаж. У каждого свой логин, зона компаний и задачи на день.</p></article>
+        <article class="card"><h3>Что продаёт</h3><p>Корпоративный тариф, квоту номеров, вахту, мероприятие, годовой договор — не разовую ночь с улицы.</p></article>
+        <article class="card"><h3>Где живёт сделка</h3><p>В карточке компании: контакты, стадия, КП, договор, история касаний и заявки на номера.</p></article>
+        <article class="card"><h3>Кто видит картину</h3><p>Владелец и РОП видят воронку, «нет касания», КП без ответа и договоры, которые кончаются за 30 дней.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section style="background:var(--bg-soft)" id="problems">
+    <div class="container">
+      <div class="section-head">
+        <span class="section-label">Какие проблемы закрывает</span>
+        <h2 class="section-title">Почему корпоративный канал обычно «не считается»</h2>
+        <p class="section-desc">Не потому что компаний нет. Потому что процесс размазан: Excel у одного менеджера, договоры в папке, КП в почте, обещания в WhatsApp.</p>
+      </div>
+      <div class="services-grid">
+        <article class="service-card"><h3>Excel вместо базы</h3><p>Названия плывут, БИН не проверяют, дубли плодятся. Через полгода нельзя сказать, сколько живых клиентов и кто их ведёт.</p></article>
+        <article class="service-card"><h3>Никто не владеет счётом</h3><p>Компания «чья-то». Менеджер ушёл — история ушла с ним. Новый человек звонит вслепую и выглядит как холодный обзвон.</p></article>
+        <article class="service-card"><h3>Договоры кончаются тихо</h3><p>Корпоративный тариф истекает, а отдел узнаёт, когда компания уже уехала к другому отелю. Продление должно светиться за 30 дней.</p></article>
+        <article class="service-card"><h3>КП без follow-up</h3><p>Отправили файл и ждут. Через две недели сделка мертва, но в отчёте всё ещё «в работе».</p></article>
+        <article class="service-card"><h3>Работа только в WhatsApp</h3><p>Договорённости в личке. РОП не видит следующий шаг, срок и ответственного. Смена менеджера = обнуление.</p></article>
+        <article class="service-card"><h3>РОП не видит воронку</h3><p>План есть, факта по стадиям нет. Неясно, где зависли, сколько «нет касания», какой прогноз по живым сделкам.</p></article>
+        <article class="service-card"><h3>Сеть мешает данные</h3><p>Два отеля группы ведут клиентов в одной таблице. Потом непонятно, чей это корпоратив и куда ставить выручку.</p></article>
+        <article class="service-card"><h3>Лиды ищут вручную</h3><p>Google, 2GIS, «знакомые». Нет очереди компаний под город и профиль объекта — отдел питается входящими.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="sales">
+    <div class="container">
+      <div class="section-head">
+        <span class="section-label">Как поднимает продажи</span>
+        <h2 class="section-title">Не магия процентов. Дисциплина цикла</h2>
+        <p class="section-desc">Цифру «+N% за месяц» на корпоративном канале честно не обещаем: она зависит от рынка, тарифа и того, заведёте ли вы базу. Система делает другое — не даёт сделкам умирать незаметно.</p>
+      </div>
+      <div class="crm-cycle" style="margin-bottom:2.5rem">
+        <div class="crm-cycle__step"><div class="crm-cycle__n">1</div><b>Новый лид</b><span>Входящий или из поиска</span></div>
+        <div class="crm-cycle__step"><div class="crm-cycle__n">2</div><b>Контакт</b><span>ЛПР найден, шаг записан</span></div>
+        <div class="crm-cycle__step"><div class="crm-cycle__n">3</div><b>КП</b><span>Файл ушёл, срок ответа виден</span></div>
+        <div class="crm-cycle__step"><div class="crm-cycle__n">4</div><b>Переговоры</b><span>Квота, тариф, возражения</span></div>
+        <div class="crm-cycle__step"><div class="crm-cycle__n">5</div><b>Договор</b><span>Учёт в CRM + бланк PDF</span></div>
+        <div class="crm-cycle__step"><div class="crm-cycle__n">6</div><b>Клиент</b><span>Квота живёт, касания идут</span></div>
+        <div class="crm-cycle__step"><div class="crm-cycle__n">7</div><b>Продление</b><span>За 30 дней — задача, не сюрприз</span></div>
+      </div>
+      <div class="cards-4">
+        <article class="card"><h3>Продления дают выручку</h3><p>Действующий корпоратив, который не продлили, — это потеря без новой «охоты». Dashboard показывает договоры на истечении.</p></article>
+        <article class="card"><h3>КП не зависает</h3><p>Счётчик «КП без ответа» и задачи follow-up. Менеджер не может честно сказать «они думают», если срок вышел.</p></article>
+        <article class="card"><h3>Каждая компания с хозяином</h3><p>Ответственный, следующий шаг и дата. РОП видит нагрузку по менеджерам, а не «все ведут всех».</p></article>
+        <article class="card"><h3>Лиды из поиска, не из воздуха</h3><p>На PRO и HOTEL GROUP — подбор компаний под город и профиль. База растёт планово, не только из входящих.</p></article>
+      </div>
+      <p class="prose" style="margin-top:2rem">
+        Кейс Project Sauyt «+31% бронирований» относится к <a href="../booking-com/index.html">настройке Booking.com</a>, не к этой CRM. Корпоративный канал считаем отдельно: число активных договоров, доля продлений, скорость стадии, объём воронки.
+      </p>
+    </div>
+  </section>
+
+  <section style="background:var(--bg-soft)" id="modules">
+    <div class="container">
+      <div class="section-head">
+        <span class="section-label">Решения внутри кабинета</span>
+        <h2 class="section-title">Модули, как в живой системе</h2>
+        <p class="section-desc">Ниже — экраны кабинета. Меню, подписи стадий и KPI совпадают с Hotel Corporate CRM на crm.projectsauyt.kz.</p>
+      </div>
+
+      <article class="crm-split" style="margin-bottom:3.5rem">
+        <div class="crm-split__copy">
+          <span class="section-label">Dashboard</span>
+          <h3>Цифры, которые обычно живут в голове РОПа</h3>
+          <p class="section-desc">Компании, клиенты, договоры, лиды, сделки в работе. Красным — истечение, просрочка, нет касания, КП без ответа, застрявшие стадии и прогноз воронки.</p>
+          <ul>
+            <li>Договоры, которые кончаются за 30 дней — отдельным блоком</li>
+            <li>Мои задачи на сегодня: звонок, КП, встреча, продление</li>
+            <li>Воронка по стадиям и нагрузка менеджеров</li>
+            <li>На тесте — полоска 14 дней и пометки пакетов в меню</li>
+          </ul>
+        </div>
+        <figure class="crm-frame crm-zoom">
+          <img src="img/dashboard.png" alt="Dashboard: 12 KPI, договоры на истечении, задачи, воронка" width="1680" height="1050">
+          <figcaption>crm.projectsauyt.kz/dashboard · демо-данные</figcaption>
+        </figure>
+      </article>
+
+      <article class="crm-split is-flip" style="margin-bottom:3.5rem">
+        <div class="crm-split__copy">
+          <span class="section-label">База компаний</span>
+          <h3>Карточка клиента, а не строка в таблице</h3>
+          <p class="section-desc">Название, БИН, статус, стадия, менеджер. Импорт Excel/CSV с дедупликацией по БИН, сайту, телефону или названию+адресу. Экспорт текущей выборки.</p>
+          <ul>
+            <li>База одного отеля не смешивается с другим</li>
+            <li>Фильтры по стадии, менеджеру и сроку — на PRO</li>
+            <li>Клик по названию открывает карточку с семью вкладками</li>
+          </ul>
+        </div>
+        <figure class="crm-frame crm-zoom">
+          <img src="img/companies.png" alt="Список компаний отеля с статусом, стадией и менеджером" width="1680" height="1050">
+          <figcaption>crm.projectsauyt.kz/companies</figcaption>
+        </figure>
+      </article>
+
+      <article class="crm-split" style="margin-bottom:3.5rem">
+        <div class="crm-split__copy">
+          <span class="section-label">Карточка и ЛПР</span>
+          <h3>Кто подписывает, кто влияет, какой следующий шаг</h3>
+          <p class="section-desc">Обзор, контакты, КП, договоры, история, задачи, заявки. Реквизиты и подписант уходят в бланк договора. Пустые поля в PDF будут прочерками — поэтому настройки отеля заполняют в первые дни теста.</p>
+          <ul>
+            <li>Стадия воронки и статус клиента меняются с доски или из карточки</li>
+            <li>Следующий шаг и дата касания — иначе сделка всплывёт на Dashboard</li>
+            <li>КП и договоры специально разведены, чтобы не путать оферту и факт</li>
+          </ul>
+        </div>
+        <figure class="crm-frame crm-zoom">
+          <img src="img/company.png" alt="Карточка компании: реквизиты, ЛПР, договор и КП" width="1680" height="1050">
+          <figcaption>Карточка компании · вкладка «Обзор»</figcaption>
+        </figure>
+      </article>
+
+      <article class="crm-split is-flip" style="margin-bottom:3.5rem">
+        <div class="crm-split__copy">
+          <span class="section-label">Воронка</span>
+          <h3>Сделки двигаете руками по стадиям</h3>
+          <p class="section-desc">Новый лид → контакт установлен → отправлено КП → переговоры → договор → активный клиент / потерян. Это тот же цикл, который отдел и так проходит — только теперь он виден.</p>
+          <ul>
+            <li>На карточке сделки — компания, город, менеджер, сумма КП</li>
+            <li>Зависшие стадии и «нет касания» поднимаются в разбор недели</li>
+            <li>Потерянные не удаляются молча: причина остаётся в истории</li>
+          </ul>
+        </div>
+        <figure class="crm-frame crm-zoom">
+          <img src="img/pipeline.png" alt="Канбан-доска корпоративных стадий" width="1680" height="1050">
+          <figcaption>crm.projectsauyt.kz/pipeline</figcaption>
+        </figure>
+      </article>
+
+      <article class="crm-split" style="margin-bottom:3.5rem">
+        <div class="crm-split__copy">
+          <span class="section-label">Договоры и КП</span>
+          <h3>Срок тарифа отдельно, PDF клиенту — отдельно</h3>
+          <p class="section-desc">Учёт в CRM: номер, тариф, квота, дата окончания. Конструктор бланка — когда нужно отдать файл. Dashboard смотрит на учёт, не на красивый PDF в папке.</p>
+          <ul>
+            <li>Статусы: черновик, на согласовании, действует, скоро конец, завершён</li>
+            <li>Пустой шаблон и «составить договор» — разные кнопки, как в кабинете</li>
+            <li>То же для КП: шаблон, конструктор, отправка и контроль ответа</li>
+          </ul>
+        </div>
+        <figure class="crm-frame crm-zoom">
+          <img src="img/contracts.png" alt="Список корпоративных договоров со сроками" width="1680" height="1050">
+          <figcaption>crm.projectsauyt.kz/contracts</figcaption>
+        </figure>
+      </article>
+
+      <article class="crm-split is-flip" style="margin-bottom:3.5rem">
+        <div class="crm-split__copy">
+          <span class="section-label">Задачи</span>
+          <h3>Что сделать сегодня, а не «надо как-нибудь»</h3>
+          <p class="section-desc">Типы как в отделе: позвонить, отправить КП, назначить встречу, продлить договор, связаться. Просрочка светится в списке и в KPI.</p>
+          <ul>
+            <li>Задача привязана к компании, а не висит в личной записной книжке</li>
+            <li>Приоритет и срок видны РОПу</li>
+            <li>Сделали — «Готово», история остаётся в карточке</li>
+          </ul>
+        </div>
+        <figure class="crm-frame crm-zoom">
+          <img src="img/tasks.png" alt="Список задач отдела корпоративных продаж" width="1680" height="1050">
+          <figcaption>crm.projectsauyt.kz/tasks</figcaption>
+        </figure>
+      </article>
+
+      <article class="crm-split" style="margin-bottom:3.5rem">
+        <div class="crm-split__copy">
+          <span class="section-label">Поиск лидов</span>
+          <h3>Очередь компаний под город и профиль отеля</h3>
+          <p class="section-desc">Модуль PRO / HOTEL GROUP. Нашли — завели в базу этого объекта, не в общую кашу с другими отелями.</p>
+          <ul>
+            <li>Фильтр по городу и отрасли</li>
+            <li>Оценка fit: вахта, мероприятия, долгие проживания</li>
+            <li>Кнопка «В базу» сразу открывает карточку и цикл</li>
+          </ul>
+        </div>
+        <figure class="crm-frame crm-zoom">
+          <img src="img/leads.png" alt="Поиск корпоративных лидов под город отеля" width="1680" height="1050">
+          <figcaption>crm.projectsauyt.kz/lead-search · пакет PRO</figcaption>
+        </figure>
+      </article>
+
+      <article class="crm-split is-flip">
+        <div class="crm-split__copy">
+          <span class="section-label">Аналитика, команда, группа</span>
+          <h3>РОП видит воронку, сеть — свои объекты</h3>
+          <p class="section-desc">Аналитика и несколько менеджеров — PRO. Несколько отелей, общая база группы и расширенная сводка — HOTEL GROUP. На START остаётся живая база, договоры и задачи для небольшого отдела.</p>
+          <ul>
+            <li>Команда: роли владелец / РОП / менеджер / наблюдатель</li>
+            <li>До 3 / 10 / 25 человек в команде по пакетам</li>
+            <li>Разбор недели — зависания и касания, не «отчёт ради отчёта»</li>
+          </ul>
+        </div>
+        <figure class="crm-frame crm-zoom">
+          <img src="img/analytics.png" alt="Аналитика корпоративных продаж и нагрузка менеджеров" width="1680" height="1050">
+          <figcaption>crm.projectsauyt.kz/analytics · пакет PRO</figcaption>
+        </figure>
+      </article>
+    </div>
+  </section>
+
+  <section style="background:var(--bg-soft)" id="packages">
+    <div class="container">
+      <div class="section-head">
+        <span class="section-label">Пакеты</span>
+        <h2 class="section-title">START, PRO, HOTEL GROUP и тест 14 дней</h2>
+        <p class="section-desc">Стоимость подтвердит менеджер. На сайте нет выдуманных цен в евро или тенге за SaaS. Тест — полный доступ бесплатно на 14 дней с даты подключения.</p>
+      </div>
+      <div class="pkg">
+        <article class="pkg__card">
+          <span class="pkg-badge">START</span>
+          <h3>Один менеджер и живая база</h3>
+          <p class="pkg__who">Небольшой отдел: вести компании, договоры и задачи без поиска лидов и аналитики. До 3 человек в команде.</p>
+          <p class="pkg__price">цену подтвердит менеджер</p>
+          <ul>
+            <li>База компаний</li>
+            <li>Контакты и ЛПР</li>
+            <li>Договоры и сроки</li>
+            <li>Задачи отдела</li>
+            <li class="off">Поиск лидов</li>
+            <li class="off">Аналитика и фильтры</li>
+            <li class="off">Несколько отелей</li>
+          </ul>
+        </article>
+        <article class="pkg__card is-rec">
+          <span class="pkg-badge">PRO · часто берут</span>
+          <h3>Отдел продаж целиком</h3>
+          <p class="pkg__who">Несколько менеджеров, поиск лидов, фильтры и аналитика по воронке. До 10 человек в команде.</p>
+          <p class="pkg__price">цену подтвердит менеджер</p>
+          <ul>
+            <li>Всё из START</li>
+            <li>Поиск лидов</li>
+            <li>Расширенные фильтры</li>
+            <li>Аналитика воронки</li>
+            <li>Команда менеджеров, роли</li>
+            <li class="off">Группа отелей</li>
+            <li class="off">Общая база группы</li>
+          </ul>
+        </article>
+        <article class="pkg__card">
+          <span class="pkg-badge">HOTEL GROUP</span>
+          <h3>Сеть отелей</h3>
+          <p class="pkg__who">Несколько объектов, общая база группы и расширенная сводка. До 25 человек в команде.</p>
+          <p class="pkg__price">цену подтвердит менеджер</p>
+          <ul>
+            <li>Всё из PRO</li>
+            <li>Несколько отелей</li>
+            <li>Общая база группы</li>
+            <li>Расширенная аналитика</li>
+            <li>Сравнение объектов</li>
+            <li>Переключение между отелями</li>
+            <li>Без каши с чужими сетями</li>
+          </ul>
+        </article>
+      </div>
+      <div class="pkg-trial">
+        <div>
+          <h3>Тест 14 дней — полный доступ бесплатно</h3>
+          <p>Все возможности как в HOTEL GROUP: база, лиды, аналитика, команда и группа отелей. 14 дней с даты подключения. Потом кабинет замрётся — выберете START, PRO или HOTEL GROUP.</p>
+        </div>
+        <a class="btn btn--primary btn--lg" href="https://crm.projectsauyt.kz/register" target="_blank" rel="noopener">Взять тест 14 дней</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="demo" class="crm-demo">
+    <div class="container">
+      <div class="section-head">
+        <span class="section-label">Как открыть демо</span>
+        <h2 class="section-title">Четыре шага, без «оставьте заявку в никуда»</h2>
+      </div>
+      <div class="landing-hero__grid">
+        <ol>
+          <li><strong>Зарегистрируйте отель</strong> на <a href="https://crm.projectsauyt.kz/register" target="_blank" rel="noopener">crm.projectsauyt.kz/register</a>. Код подтверждения придёт на вашу почту.</li>
+          <li><strong>Выберите «Тест 14 дней»</strong> или сразу START / PRO / HOTEL GROUP. Пакет может выбрать только владелец отеля.</li>
+          <li><strong>Напишите в WhatsApp</strong> — откроем доступ. До этого кабинет ждёт, это нормально.</li>
+          <li><strong>Заполните настройки отеля</strong> в первые дни: реквизиты нужны бланкам КП и договора. Затем импорт базы или первая компания вручную.</li>
+        </ol>
+        <aside class="landing-panel">
+          <div class="landing-panel__brand">Демо-режим</div>
+          <p style="font-size:0.9375rem;color:var(--text-secondary);margin-bottom:1.25rem;line-height:1.55">На тесте в меню рядом с разделами стоят пометки START / PRO / HOTEL GROUP — видно, что останется после выбора пакета.</p>
+          <ul class="landing-panel__list">
+            <li>Полный доступ 14 дней</li>
+            <li>Регистрация отеля, не «гостевой логин»</li>
+            <li>Доступ открывает менеджер Project Sauyt</li>
+            <li>После теста кабинет замирает, данные не смешиваются с другими отелями</li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" style="background:var(--bg-soft)">
+    <div class="container">
+      <div class="section-head">
+        <span class="section-label">FAQ</span>
+        <h2 class="section-title">Частые вопросы про CRM</h2>
+      </div>
+      <div class="faq-list">
+        <details class="faq-item" open>
+          <summary>Чем это отличается от Excel и WhatsApp?</summary>
+          <div class="faq-item__body"><p>У каждой компании есть карточка, ЛПР, стадия, договор и следующий шаг. РОП видит, где нет касания, какое КП без ответа и какие договоры кончаются за 30 дней.</p></div>
+        </details>
+        <details class="faq-item">
+          <summary>Как посмотреть систему вживую?</summary>
+          <div class="faq-item__body"><p>Зарегистрируйте отель и возьмите тест 14 дней. Гостевого «логина для всех» нет специально: кабинет привязан к вашему объекту, чтобы базы не пересекались. Покажем и разберём на созвоне в WhatsApp.</p></div>
+        </details>
+        <details class="faq-item">
+          <summary>Сколько это стоит?</summary>
+          <div class="faq-item__body"><p>Тест 14 дней — 0 ₸, полный доступ. Стоимость START, PRO и HOTEL GROUP подтвердит менеджер. Фиксированные SaaS-цены на сайт не выкладываем.</p></div>
+        </details>
+        <details class="faq-item">
+          <summary>Можно ли загрузить текущую базу из Excel?</summary>
+          <div class="faq-item__body"><p>Да. CSV или Excel, сопоставление колонок, дедупликация по БИН / сайту / телефону / названию+адресу. После импорта назначьте менеджеров и заведите ЛПР.</p></div>
+        </details>
+        <details class="faq-item">
+          <summary>У нас сеть из нескольких отелей</summary>
+          <div class="faq-item__body"><p>Пакет HOTEL GROUP: несколько объектов, общая база группы, расширенная аналитика, до 25 человек. На тесте группа тоже открыта — можно добавить второй объект и понять, нужен ли этот пакет.</p></div>
+        </details>
+        <details class="faq-item">
+          <summary>Это вместо настройки Booking.com?</summary>
+          <div class="faq-item__body"><p>Нет. OTA и корпоративный канал — разные продажи. Настройка Booking / Ostrovok / Bronevik остаётся отдельной услугой Project Sauyt. CRM не считает ночёвки с площадок и не обещает рост выдачи.</p></div>
+        </details>
+        <details class="faq-item">
+          <summary>Где живут данные и кто видит чужие отели?</summary>
+          <div class="faq-item__body"><p>Кабинет отеля видит только свой объект, пока вы не в группе. Базы разных клиентов не общие.</p></div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="back-home">
+    <div class="container">
+      <p>Нужны OTA-площадки, обучение или сопровождение карточки — это на главной Project Sauyt. CRM закрывает корпоративный отдел, не Extranet.</p>
+      <a href="../index.html" class="btn btn--primary btn--lg">На главную Project Sauyt</a>
+    </div>
+  </section>
+
+  <section class="cta crm-cta">
+    <div class="container">
+      <h2 class="section-title">Откройте тест 14 дней</h2>
+      <p class="section-desc">Зарегистрируйте отель, напишите в WhatsApp — подключим полный доступ. Потом решите, нужен START, PRO или группа.</p>
+      <div class="cta__actions">
+        <a class="btn btn--primary btn--lg" href="https://crm.projectsauyt.kz/register" target="_blank" rel="noopener">Регистрация и демо</a>
+        <a class="btn btn--wa btn--lg" href="#" data-wa data-wa-msg="Хочу открыть тест 14 дней Hotel Corporate CRM">WhatsApp</a>
+        <a class="btn btn--ghost-light btn--lg" href="https://crm.projectsauyt.kz/login" target="_blank" rel="noopener">Вход в кабинет</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div>
+          <div class="footer__brand">Project <span>Sauyt</span></div>
+          <p>Консалтинг OTA и Hotel Corporate CRM для объектов размещения в Казахстане и СНГ.</p>
+        </div>
+        <div>
+          <p style="color:#fff;font-weight:600;margin-bottom:0.75rem">Контакты</p>
+          <ul class="footer__links">
+            <li><a href="#" data-wa data-wa-msg="Хочу демо Hotel Corporate CRM">WhatsApp</a></li>
+            <li><a href="https://www.instagram.com/project_sauyt/" target="_blank" rel="noopener">Instagram @project_sauyt</a></li>
+          </ul>
+        </div>
+        <div>
+          <p style="color:#fff;font-weight:600;margin-bottom:0.75rem">Разделы</p>
+          <ul class="footer__links">
+            <li><a href="../index.html">Главная</a></li>
+            <li><a href="../index.html#services">Услуги</a></li>
+            <li><a href="index.html">Hotel Corporate CRM</a></li>
+            <li><a href="../index.html#faq">FAQ</a></li>
+            <li><a href="../blog/index.html">Блог</a></li>
+          </ul>
+        </div>
+        <div>
+          <p style="color:#fff;font-weight:600;margin-bottom:0.75rem">Платформы</p>
+          <ul class="footer__links">
+            <li><a href="../booking-com/index.html">Booking.com</a></li>
+            <li><a href="../ostrovok/index.html">Ostrovok</a></li>
+            <li><a href="../bronevik/index.html">Bronevik</a></li>
+            <li><a href="index.html">CRM</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">© 2026 Project Sauyt. Все права защищены.</div>
+    </div>
+  </footer>
+
+  <a href="#" class="fab-wa" data-wa data-wa-msg="Хочу демо Hotel Corporate CRM, тест 14 дней" aria-label="WhatsApp">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+
+  <script>
+    const WA_PHONE = '77073281573';
+    const WA_BASE = 'Здравствуйте! Интересует Project Sauyt. ';
+    function waUrl(msg) {
+      const text = msg ? WA_BASE + msg : WA_BASE + 'Хочу демо Hotel Corporate CRM.';
+      return 'https://wa.me/' + WA_PHONE + '?text=' + encodeURIComponent(text);
+    }
+    document.querySelectorAll('[data-wa]').forEach(el => {
+      el.href = waUrl(el.getAttribute('data-wa-msg') || '');
+      if (!el.target && el.tagName === 'A') {
+        el.target = '_blank';
+        el.rel = 'noopener noreferrer';
+      }
+    });
+    const header = document.getElementById('header');
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('scrolled', window.scrollY > 20);
+    }, { passive: true });
+    const burger = document.getElementById('burger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    burger.addEventListener('click', () => mobileMenu.classList.toggle('open'));
+    mobileMenu.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => mobileMenu.classList.remove('open'));
+    });
+
+    const preview = document.createElement('div');
+    preview.className = 'crm-preview';
+    preview.innerHTML = '<button type="button" class="crm-preview__close" aria-label="Закрыть">×</button><img alt="">';
+    document.body.appendChild(preview);
+    const previewImg = preview.querySelector('img');
+    let openedAt = 0;
+
+    function shotOf(el) {
+      return el.matches('img') ? el : el.querySelector('img');
+    }
+    function openPreview(img) {
+      if (!img) return;
+      previewImg.src = img.currentSrc || img.src;
+      previewImg.alt = img.alt || '';
+      preview.classList.add('is-on');
+      openedAt = Date.now();
+    }
+    function closePreview() {
+      preview.classList.remove('is-on');
+    }
+
+    document.querySelectorAll('.crm-zoom').forEach((box) => {
+      box.addEventListener('mouseenter', () => openPreview(shotOf(box)));
+      box.addEventListener('click', (e) => {
+        e.preventDefault();
+        openPreview(shotOf(box));
+      });
+    });
+    preview.addEventListener('click', () => {
+      if (Date.now() - openedAt < 400) return;
+      closePreview();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closePreview();
+    });
+  </script>
+  <script src="../assets/nav.js"></script>
+</body>
+</html>
